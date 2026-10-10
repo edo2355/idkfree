@@ -55,3 +55,5 @@ ios/
 # Coverage
 coverage/
 *.db
+docs/
+*.bak
