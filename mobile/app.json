@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "IDKFREE",
+    "slug": "idkfree",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.idkfree.mobile"
+    },
+    "android": {
+      "package": "app.idkfree.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "IDKFREE necesita acceso a tus fotos para guardar el carnet.",
+          "savePhotosPermission": "IDKFREE guarda el carnet en tu galer\u00eda.",
+          "isAccessMediaLocationEnabled": false
+        }
+      ]
+    ],
+    "extra": {
+      "apiUrl": "http://127.0.0.1:3000/api",
+      "eas": {
+        "projectId": "a5993b12-c5b9-43c3-b222-8d60f5e206f4"
+      }
+    }
+  }
+}
