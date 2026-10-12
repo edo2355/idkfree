@@ -213,23 +213,7 @@ export function CreateScreen() {
             <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 12 }}>Foto</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Vibes')}
-            activeOpacity={0.7}
-            style={{
-              flex: 1,
-              aspectRatio: 1,
-              borderRadius: 12,
-              backgroundColor: theme.surface,
-              borderWidth: 1,
-              borderColor: theme.border,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={{ fontSize: 32, marginBottom: 6 }}>✨</Text>
-            <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 12 }}>Vibe</Text>
-          </TouchableOpacity>
+
 
           <TouchableOpacity
             onPress={pickVideo}
