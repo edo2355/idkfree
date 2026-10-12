@@ -105,6 +105,10 @@ export function createApi(config: ApiConfig) {
         return request<any>(`/reels?${q}`);
       },
       delete: (id: string) => request<any>(`/posts/${id}`, { method: 'DELETE' }),
+      repost: (id: string, body?: string) => request<any>(`/posts/${id}/repost`, { method: 'POST', body: JSON.stringify({ body: body ?? null }) }),
+      drawings: (id: string) => request<any>(`/posts/${id}/drawings`),
+      draw: (id: string, drawingUrl: string) => request<any>(`/posts/${id}/drawings`, { method: 'POST', body: JSON.stringify({ drawingUrl }) }),
+      deleteDrawing: (id: string) => request<any>(`/drawings/${id}`, { method: 'DELETE' }),
       like: (id: string) => request<any>(`/posts/${id}/like`, { method: 'POST' }),
       unlike: (id: string) => request<any>(`/posts/${id}/like`, { method: 'DELETE' }),
       bookmark: (_id: string) => Promise.resolve({ ok: true }),
