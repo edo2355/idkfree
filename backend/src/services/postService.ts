@@ -16,7 +16,7 @@ function extractMentions(body: string): string[] {
 
 export async function createPost(
   authorId: string,
-  data: { body?: string; imageUrl?: string; visibility: string }
+  data: { body?: string | null; imageUrl?: string | null; videoUrl?: string | null; visibility: string }
 ) {
   const client = await pool.connect();
   try {
@@ -24,9 +24,9 @@ export async function createPost(
 
     const postId = uuid();
     await client.query(
-      `INSERT INTO posts (id, author_id, body, image_url, visibility)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [postId, authorId, data.body ?? null, data.imageUrl ?? null, data.visibility]
+      `INSERT INTO posts (id, author_id, body, image_url, video_url, visibility)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [postId, authorId, data.body ?? null, data.imageUrl ?? null, data.videoUrl ?? null, data.visibility]
     );
 
     if (data.body) {
@@ -94,7 +94,7 @@ export async function getFeed(
   let sql = `
     SELECT
       p.id, p.author_id, u.alias AS author_alias, u.name AS author_name,
-      u.avatar_url AS author_avatar, p.body, p.image_url, p.visibility,
+      u.avatar_url AS author_avatar, p.body, p.image_url, p.video_url, p.visibility,
       p.created_at,
       (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes_count,
       (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND deleted_at IS NULL) AS comments_count
@@ -124,7 +124,7 @@ export async function getFeed(
 export async function getUserPosts(userId: string) {
   const res = await query(
     `SELECT p.id, p.author_id, u.alias AS author_alias, u.name AS author_name,
-      u.avatar_url AS author_avatar, p.body, p.image_url, p.visibility,
+      u.avatar_url AS author_avatar, p.body, p.image_url, p.video_url, p.visibility,
       p.created_at,
       (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes_count,
       (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND deleted_at IS NULL) AS comments_count
@@ -157,4 +157,38 @@ export async function unlikePost(postId: string, userId: string) {
     `DELETE FROM post_likes WHERE user_id = $1 AND post_id = $2`,
     [userId, postId]
   );
+}
+
+/**
+ * Devuelve posts que tienen video (reels).
+ * Los ordena por más recientes.
+ */
+export async function getReels(
+  viewerId: string,
+  options: { limit?: number; offset?: number }
+) {
+  const limit = Math.min(options.limit ?? 30, 100);
+  const offset = options.offset ?? 0;
+
+  const sql = `
+    SELECT
+      p.id, p.author_id, u.alias AS author_alias, u.name AS author_name,
+      u.avatar_url AS author_avatar, p.body, p.image_url, p.video_url, p.visibility,
+      p.created_at,
+      (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes_count,
+      (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND deleted_at IS NULL) AS comments_count
+    FROM posts p
+    JOIN users u ON u.id = p.author_id
+    WHERE p.video_url IS NOT NULL
+      AND p.deleted_at IS NULL
+      AND (p.visibility = 'public' OR p.author_id = $1
+           OR (p.visibility = 'followers' AND p.author_id IN (
+             SELECT followed_id FROM follows WHERE follower_id = $1
+           )))
+    ORDER BY p.created_at DESC
+    LIMIT $2 OFFSET $3
+  `;
+
+  const res = await query(sql, [viewerId, limit, offset]);
+  return { reels: res.rows, count: res.rows.length };
 }

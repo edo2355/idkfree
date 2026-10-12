@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
+import { resolveAssetUrl } from '../utils/assetUrl';
 import { PostCard } from '../components/PostCard';
 
 export function ProfileScreen() {
@@ -14,6 +15,7 @@ export function ProfileScreen() {
   const [profile, setProfile] = useState<any>(null);
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
 
   async function load() {
     if (!user) return;
@@ -27,7 +29,16 @@ export function ProfileScreen() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, [user?.alias]);
+  useFocusEffect(useCallback(() => { load(); }, [user?.alias]));
+
+  useEffect(() => {
+    (async () => {
+      const u = profile?.user;
+      if (!u) { setAvatarUri(null); return; }
+      const resolved = await resolveAssetUrl(u.avatar_url);
+      setAvatarUri(resolved);
+    })();
+  }, [profile]);
 
   function handleLogout() {
     clearAuth();
@@ -58,8 +69,8 @@ export function ProfileScreen() {
 
       {/* Avatar */}
       <View style={{ alignItems: 'center', marginTop: 12 }}>
-        {u.avatar_url ? (
-          <Image source={{ uri: u.avatar_url }} style={{ width: 96, height: 96, borderRadius: 48 }} />
+        {avatarUri ? (
+          <Image source={{ uri: avatarUri }} style={{ width: 96, height: 96, borderRadius: 48 }} />
         ) : (
           <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: theme.surfaceElevated, justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ color: theme.text, fontSize: 36, fontFamily: fonts.displayBoldItalic }}>

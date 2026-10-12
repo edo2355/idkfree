@@ -39,10 +39,11 @@
         "expo-media-library",
         {
           "photosPermission": "IDKFREE necesita acceso a tus fotos para guardar el carnet.",
-          "savePhotosPermission": "IDKFREE guarda el carnet en tu galer\u00eda.",
+          "savePhotosPermission": "IDKFREE guarda el carnet en tu galería.",
           "isAccessMediaLocationEnabled": false
         }
-      ]
+      ],
+      "expo-video"
     ],
     "extra": {
       "apiUrl": "http://127.0.0.1:3000/api",

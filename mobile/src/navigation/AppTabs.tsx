@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeIcon } from '../components/icons/HomeIcon';
 import { ProfileIcon } from '../components/icons/ProfileIcon';
 import { SearchIcon } from '../components/icons/SearchIcon';
@@ -14,6 +15,7 @@ import { EditProfileScreen } from '../screens/EditProfileScreen';
 import { ChangePasswordScreen } from '../screens/ChangePasswordScreen';
 import { CardScreen } from '../screens/CardScreen';
 import { CreateScreen } from '../screens/CreateScreen';
+import { ReelsScreen } from '../screens/ReelsScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createNativeStackNavigator();
@@ -54,6 +56,7 @@ function CreateIcon({ color, focused }: { color: string; focused: boolean }) {
 
 export function AppTabs() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
       screenOptions={{
@@ -61,8 +64,8 @@ export function AppTabs() {
         tabBarStyle: {
           backgroundColor: theme.surface,
           borderTopColor: theme.border,
-          height: 64,
-          paddingBottom: 6,
+          height: 64 + insets.bottom,
+          paddingBottom: 6 + insets.bottom,
           paddingTop: 6,
         },
         tabBarActiveTintColor: theme.text,
@@ -86,6 +89,11 @@ export function AppTabs() {
           tabBarIcon: ({ color, focused }) => <CreateIcon color={color} focused={focused} />,
           tabBarLabel: () => null,
         }}
+      />
+      <Tab.Screen
+        name='Reels'
+        component={ReelsScreen}
+        options={{ tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🎬</Text> }}
       />
       <Tab.Screen
         name='Profile'

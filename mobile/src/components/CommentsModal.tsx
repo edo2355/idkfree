@@ -50,7 +50,7 @@ export function CommentsModal({ postId, visible, onClose, onCountChange }: Props
   return (
     <Modal visible={visible} animationType="slide" transparent statusBarTranslucent onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' }}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={{ backgroundColor: theme.bg, borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '85%', paddingBottom: 20 }}>
             {/* Handle */}
             <View style={{ alignItems: 'center', paddingVertical: 10 }}>

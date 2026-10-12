@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, Alert, ActionSheetIOS, Platform } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Alert, ActionSheetIOS, Platform, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useVideoPlayer, VideoView } from 'expo-video';
+import { resolveAssetUrl as resolveAsset } from '../utils/assetUrl';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { Avatar } from './Avatar';
@@ -149,8 +151,10 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
       {/* Body con hashtags/mentions clickeables */}
       {post.body ? renderBody(post.body) : null}
 
-      {/* Imagen */}
-      {imageUrl ? (
+      {/* Video o Imagen */}
+      {post.video_url ? (
+        <PostVideo videoUrl={post.video_url} />
+      ) : imageUrl ? (
         <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
           <Image
             source={{ uri: imageUrl ?? undefined }}
@@ -184,6 +188,60 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
           <ShareIcon size={20} color={theme.textMuted} />
         </TouchableOpacity>
       </View>
+    </View>
+  );
+}
+
+function PostVideo({ videoUrl }: { videoUrl: string }) {
+  const [uri, setUri] = useState<string | null>(null);
+  const [muted, setMuted] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const resolved = await resolveAsset(videoUrl);
+      if (!cancelled) setUri(resolved);
+    })();
+    return () => { cancelled = true; };
+  }, [videoUrl]);
+
+  if (!uri) {
+    return (
+      <View style={{ width: '100%', height: 320, borderRadius: 8, backgroundColor: '#000', marginBottom: 12, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator color="#FFF" />
+      </View>
+    );
+  }
+
+  return <VideoPlayerInner uri={uri} muted={muted} onToggleMute={() => setMuted((m) => !m)} />;
+}
+
+function VideoPlayerInner({ uri, muted, onToggleMute }: { uri: string; muted: boolean; onToggleMute: () => void }) {
+  const player = useVideoPlayer(uri, (p) => {
+    p.loop = true;
+    p.muted = muted;
+    p.play();
+  });
+
+  useEffect(() => {
+    player.muted = muted;
+  }, [muted, player]);
+
+  return (
+    <View style={{ position: 'relative', marginBottom: 12 }}>
+      <VideoView
+        player={player}
+        style={{ width: '100%', height: 320, borderRadius: 8, backgroundColor: '#000' }}
+        contentFit="contain"
+        nativeControls={false}
+      />
+      <TouchableOpacity
+        onPress={onToggleMute}
+        activeOpacity={0.7}
+        style={{ position: 'absolute', bottom: 10, right: 10, width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(0,0,0,0.65)', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <Text style={{ color: '#FFF', fontSize: 16 }}>{muted ? '🔇' : '🔊'}</Text>
+      </TouchableOpacity>
     </View>
   );
 }

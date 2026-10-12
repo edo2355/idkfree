@@ -5,6 +5,7 @@ import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../components/Avatar';
 
 interface Msg {
@@ -21,6 +22,7 @@ export function ChatScreen() {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
   const me = useAuthStore((s) => s.user);
+  const insets = useSafeAreaInsets();
   const alias: string = route.params?.alias;
 
   const [other, setOther] = useState<any>(null);
@@ -73,7 +75,7 @@ export function ChatScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1, backgroundColor: theme.bg }}
     >
       {/* Header */}
@@ -132,7 +134,7 @@ export function ChatScreen() {
       />
 
       {/* Input */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, paddingBottom: Math.max(12, insets.bottom), borderTopWidth: 1, borderTopColor: theme.border }}>
         <TextInput
           value={text}
           onChangeText={setText}

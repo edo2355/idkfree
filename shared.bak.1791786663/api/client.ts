@@ -15,18 +15,17 @@ export class ApiError extends Error {
 }
 
 export interface ApiConfig {
-  getBaseUrl: () => Promise<string> | string;
+  baseUrl: string;
   storage: TokenStorage;
 }
 
 export function createApi(config: ApiConfig) {
   async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     const token = await config.storage.getToken();
-    const baseUrl = await config.getBaseUrl();
     const headers: HeadersInit = { 'Content-Type': 'application/json', ...options.headers };
     if (token) (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(`${baseUrl}${path}`, { ...options, headers });
+    const res = await fetch(`${config.baseUrl}${path}`, { ...options, headers });
 
     let data: any = null;
     const text = await res.text();
@@ -36,7 +35,30 @@ export function createApi(config: ApiConfig) {
     return data as T;
   }
 
+  async function requestRaw(path: string, options: RequestInit = {}): Promise<any> {
+    const token = await config.storage.getToken();
+    const headers: Record<string, string> = { ...(options.headers as any) };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`${config.baseUrl}${path}`, { ...options, headers });
+    let data: any = null;
+    const text = await res.text();
+    if (text) { try { data = JSON.parse(text); } catch { data = text; } }
+    if (!res.ok) throw new ApiError(res.status, data?.error || `Error ${res.status}`, data?.details);
+    return data;
+  }
+
   return {
+    uploads: {
+      upload: (file: { uri: string; name?: string; type?: string }) => {
+        const form = new FormData();
+        form.append('file', {
+          uri: file.uri,
+          name: file.name ?? 'upload.jpg',
+          type: file.type ?? 'image/jpeg',
+        } as any);
+        return requestRaw('/uploads', { method: 'POST', body: form });
+      },
+    },
     auth: {
       register: (d: any) => request<any>('/auth/register', { method: 'POST', body: JSON.stringify(d) }),
       login: (email: string, password: string) => request<any>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
@@ -50,6 +72,12 @@ export function createApi(config: ApiConfig) {
     },
     posts: {
       create: (d: any) => request<any>('/posts', { method: 'POST', body: JSON.stringify(d) }),
+      reels: (p?: { limit?: number; offset?: number }) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        if (p?.offset) q.set('offset', String(p.offset));
+        return request<any>(`/reels?${q}`);
+      },
       feed: (p?: any) => { const q = new URLSearchParams(); if (p?.limit) q.set('limit', String(p.limit)); return request<any>(`/feed?${q}`); },
       userPosts: (id: string) => request<any>(`/users/${id}/posts`),
       delete: (id: string) => request<any>(`/posts/${id}`, { method: 'DELETE' }),

@@ -18,7 +18,25 @@ export interface Post {
   author_avatar: string | null;
   body: string | null;
   image_url: string | null;
+  video_url?: string | null;
   visibility?: string;
+  created_at: string;
+  likes_count?: number;
+  comments_count?: number;
+  liked_by_me?: boolean;
+}
+
+export interface Comment {
+  id: string;
+  post_id: string;
+  author_id: string;
+  author_alias: string;
+  author_name: string | null;
+  author_avatar: string | null;
+  body: string;
+  parent_id: string | null;
+  likes_count: number;
+  replies_count: number;
   created_at: string;
 }
 
@@ -58,15 +76,24 @@ export interface RegisterInput {
   alias: string;
   password: string;
   name?: string;
-  pins: { panic: string; recovery: string; destroy: string };
+  pins?: { panic?: string; recovery?: string; destroy?: string };
+  secretPins: [string, string, string];
 }
 
 export interface RegisterResult {
   userId: string;
   alias: string;
   cardId: string;
-  recoverySecret: string;
-  qrPayload: string;
+  qrPayloads: {
+    panic: string;
+    restore: string;
+    fenix: string;
+  };
+  pins: {
+    panic: string;
+    recovery: string;
+    destroy: string;
+  };
   warning: string;
 }
 

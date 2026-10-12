@@ -32,7 +32,27 @@ export function createApi(config: ApiConfig) {
     const text = await res.text();
     if (text) { try { data = JSON.parse(text); } catch { data = text; } }
 
-    if (!res.ok) throw new ApiError(res.status, data?.error || `Error ${res.status}`, data?.details);
+    if (!res.ok) {
+      let msg: string;
+      const err = data?.error;
+      if (typeof err === 'string') msg = err;
+      else if (err && typeof err === 'object') {
+        // Zod flatten: { formErrors: [], fieldErrors: { campo: ['msg'] } }
+        const fieldErrors = err.fieldErrors ?? {};
+        const first = Object.entries(fieldErrors)[0];
+        if (first) {
+          const [field, errs] = first as [string, any];
+          msg = `${field}: ${Array.isArray(errs) ? errs[0] : errs}`;
+        } else if (Array.isArray(err.formErrors) && err.formErrors.length > 0) {
+          msg = err.formErrors[0];
+        } else {
+          msg = `Error ${res.status}`;
+        }
+      } else {
+        msg = `Error ${res.status}`;
+      }
+      throw new ApiError(res.status, msg, data?.details);
+    }
     return data as T;
   }
 
@@ -60,6 +80,11 @@ export function createApi(config: ApiConfig) {
         return request<any>(`/feed?${q}`);
       },
       userPosts: (id: string) => request<any>(`/users/${id}/posts`),
+      reels: (p?: any) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        return request<any>(`/reels?${q}`);
+      },
       delete: (id: string) => request<any>(`/posts/${id}`, { method: 'DELETE' }),
       like: (id: string) => request<any>(`/posts/${id}/like`, { method: 'POST' }),
       unlike: (id: string) => request<any>(`/posts/${id}/like`, { method: 'DELETE' }),

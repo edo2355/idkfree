@@ -13,6 +13,8 @@ export function CreateScreen() {
   const [body, setBody] = useState('');
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [videoUri, setVideoUri] = useState<string | null>(null);
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
   const [posting, setPosting] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -46,6 +48,39 @@ export function CreateScreen() {
     setUploading(false);
   }
 
+  async function pickVideo() {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('Permiso requerido', 'Necesitamos acceso a tu galería');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['videos'],
+      quality: 0.85,
+    });
+    if (result.canceled) return;
+    const asset = result.assets[0];
+    setVideoUri(asset.uri);
+    setUploading(true);
+    try {
+      const res = await api.uploads.upload({
+        uri: asset.uri,
+        name: asset.fileName ?? `video-${Date.now()}.mp4`,
+        type: asset.mimeType ?? 'video/mp4',
+      });
+      setUploadedVideoUrl(res.url);
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ?? 'No se pudo subir el video');
+      setVideoUri(null);
+    }
+    setUploading(false);
+  }
+
+  function removeVideo() {
+    setVideoUri(null);
+    setUploadedVideoUrl(null);
+  }
+
   function removeImage() {
     setImageUri(null);
     setUploadedUrl(null);
@@ -58,11 +93,14 @@ export function CreateScreen() {
       await api.posts.create({
         body: body.trim() || null,
         imageUrl: uploadedUrl,
+        videoUrl: uploadedVideoUrl,
         visibility: 'followers',
       });
       setBody('');
       setImageUri(null);
       setUploadedUrl(null);
+      setVideoUri(null);
+      setUploadedVideoUrl(null);
       navigation.navigate('Feed');
     } catch (e: any) {
       Alert.alert('Error', e?.message ?? 'No se pudo publicar');
@@ -70,7 +108,7 @@ export function CreateScreen() {
     setPosting(false);
   }
 
-  const canPublish = (body.trim() || uploadedUrl) && !posting && !uploading;
+  const canPublish = (body.trim() || uploadedUrl || uploadedVideoUrl) && !posting && !uploading;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -130,6 +168,28 @@ export function CreateScreen() {
           </View>
         )}
 
+        {/* Preview video */}
+        {videoUri && (
+          <View style={{ position: 'relative', marginBottom: 16, backgroundColor: theme.surface, borderRadius: 12, padding: 16, borderWidth: 1, borderColor: theme.border }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 32, marginRight: 12 }}>🎥</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 14 }}>Video seleccionado</Text>
+                <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 11, marginTop: 2 }}>
+                  {uploading ? 'Subiendo...' : 'Listo para publicar'}
+                </Text>
+              </View>
+              {uploading ? (
+                <ActivityIndicator color={theme.text} />
+              ) : (
+                <TouchableOpacity onPress={removeVideo} activeOpacity={0.7}>
+                  <Text style={{ color: theme.danger, fontFamily: fonts.medium, fontSize: 13 }}>Quitar</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        )}
+
         {/* Botones de acción */}
         <Text style={{ color: theme.textMuted, fontFamily: fonts.medium, fontSize: 11, letterSpacing: 1.5, marginBottom: 10 }}>
           AÑADIR
@@ -171,7 +231,9 @@ export function CreateScreen() {
             <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 12 }}>Vibe</Text>
           </TouchableOpacity>
 
-          <View
+          <TouchableOpacity
+            onPress={pickVideo}
+            activeOpacity={0.7}
             style={{
               flex: 1,
               aspectRatio: 1,
@@ -181,13 +243,11 @@ export function CreateScreen() {
               borderColor: theme.border,
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: 0.4,
             }}
           >
             <Text style={{ fontSize: 32, marginBottom: 6 }}>🎥</Text>
             <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 12 }}>Video</Text>
-            <Text style={{ color: theme.textSubtle, fontFamily: fonts.regular, fontSize: 9, marginTop: 2 }}>Pronto</Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity

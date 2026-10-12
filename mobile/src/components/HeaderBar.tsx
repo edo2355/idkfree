@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
@@ -14,6 +15,7 @@ interface Props {
 export function HeaderBar({ showBack = false, title }: Props) {
   const theme = useTheme();
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
 
   const initial = (user?.name ?? user?.alias ?? '?').charAt(0).toUpperCase();
@@ -21,7 +23,7 @@ export function HeaderBar({ showBack = false, title }: Props) {
   return (
     <View
       style={{
-        paddingTop: 50,
+        paddingTop: insets.top + 10,
         paddingHorizontal: 20,
         paddingBottom: 12,
         flexDirection: 'row',

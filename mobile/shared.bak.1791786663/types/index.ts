@@ -18,6 +18,7 @@ export interface Post {
   author_avatar: string | null;
   body: string | null;
   image_url: string | null;
+  video_url?: string | null;
   visibility?: string;
   created_at: string;
   likes_count?: number;

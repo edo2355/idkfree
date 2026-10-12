@@ -15,24 +15,58 @@ export class ApiError extends Error {
 }
 
 export interface ApiConfig {
-  baseUrl: string;
+  getBaseUrl: () => Promise<string> | string;
   storage: TokenStorage;
 }
 
 export function createApi(config: ApiConfig) {
   async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     const token = await config.storage.getToken();
+    const baseUrl = await config.getBaseUrl();
     const headers: HeadersInit = { 'Content-Type': 'application/json', ...options.headers };
     if (token) (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(`${config.baseUrl}${path}`, { ...options, headers });
+    const res = await fetch(`${baseUrl}${path}`, { ...options, headers });
 
     let data: any = null;
     const text = await res.text();
     if (text) { try { data = JSON.parse(text); } catch { data = text; } }
 
-    if (!res.ok) throw new ApiError(res.status, data?.error || `Error ${res.status}`, data?.details);
+    if (!res.ok) {
+      let msg: string;
+      const err = data?.error;
+      if (typeof err === 'string') msg = err;
+      else if (err && typeof err === 'object') {
+        // Zod flatten: { formErrors: [], fieldErrors: { campo: ['msg'] } }
+        const fieldErrors = err.fieldErrors ?? {};
+        const first = Object.entries(fieldErrors)[0];
+        if (first) {
+          const [field, errs] = first as [string, any];
+          msg = `${field}: ${Array.isArray(errs) ? errs[0] : errs}`;
+        } else if (Array.isArray(err.formErrors) && err.formErrors.length > 0) {
+          msg = err.formErrors[0];
+        } else {
+          msg = `Error ${res.status}`;
+        }
+      } else {
+        msg = `Error ${res.status}`;
+      }
+      throw new ApiError(res.status, msg, data?.details);
+    }
     return data as T;
+  }
+
+  async function requestRaw(path: string, options: RequestInit = {}): Promise<any> {
+    const token = await config.storage.getToken();
+    const baseUrl = await config.getBaseUrl();
+    const headers: Record<string, string> = { ...(options.headers as any) };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`${baseUrl}${path}`, { ...options, headers });
+    let data: any = null;
+    const text = await res.text();
+    if (text) { try { data = JSON.parse(text); } catch { data = text; } }
+    if (!res.ok) throw new ApiError(res.status, data?.error || `Error ${res.status}`, data?.details);
+    return data;
   }
 
   return {
@@ -40,6 +74,9 @@ export function createApi(config: ApiConfig) {
       register: (d: any) => request<any>('/auth/register', { method: 'POST', body: JSON.stringify(d) }),
       login: (email: string, password: string) => request<any>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
       me: () => request<any>('/auth/me'),
+    },
+    card: {
+      get: () => request<any>('/me/card'),
     },
     profile: {
       get: (alias: string) => request<any>(`/users/${alias}`),
@@ -49,12 +86,24 @@ export function createApi(config: ApiConfig) {
     },
     posts: {
       create: (d: any) => request<any>('/posts', { method: 'POST', body: JSON.stringify(d) }),
-      feed: (p?: any) => { const q = new URLSearchParams(); if (p?.limit) q.set('limit', String(p.limit)); return request<any>(`/feed?${q}`); },
+      feed: (p?: any) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        if (p?.hashtag) q.set('hashtag', p.hashtag);
+        return request<any>(`/feed?${q}`);
+      },
       userPosts: (id: string) => request<any>(`/users/${id}/posts`),
+      reels: (p?: any) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        return request<any>(`/reels?${q}`);
+      },
       delete: (id: string) => request<any>(`/posts/${id}`, { method: 'DELETE' }),
-      bookmark: (id: string) => request<any>(`/posts/${id}/bookmark`, { method: 'POST' }),
-      unbookmark: (id: string) => request<any>(`/posts/${id}/bookmark`, { method: 'DELETE' }),
-      bookmarks: () => request<any>('/me/bookmarks'),
+      like: (id: string) => request<any>(`/posts/${id}/like`, { method: 'POST' }),
+      unlike: (id: string) => request<any>(`/posts/${id}/like`, { method: 'DELETE' }),
+      bookmark: (_id: string) => Promise.resolve({ ok: true }),
+      unbookmark: (_id: string) => Promise.resolve({ ok: true }),
+      bookmarks: () => Promise.resolve({ posts: [] }),
     },
     follows: {
       follow: (id: string) => request<any>(`/users/${id}/follow`, { method: 'POST' }),
@@ -62,24 +111,119 @@ export function createApi(config: ApiConfig) {
       followers: (id: string) => request<any>(`/users/${id}/followers`),
       following: (id: string) => request<any>(`/users/${id}/following`),
     },
-    messages: {
-      send: (receiverId: string, body: string) => request<any>('/messages', { method: 'POST', body: JSON.stringify({ receiverId, body }) }),
-      conversation: (userId: string) => request<any>(`/messages/${userId}`),
-      conversations: () => request<any>('/conversations'),
+    comments: {
+      create: (postId: string, body: string, parentId?: string) =>
+        request<any>(`/posts/${postId}/comments`, { method: 'POST', body: JSON.stringify({ body, parentId }) }),
+      list: (postId: string) => request<any>(`/posts/${postId}/comments`),
+      replies: (commentId: string) => request<any>(`/comments/${commentId}/replies`),
+      delete: (commentId: string) => request<any>(`/comments/${commentId}`, { method: 'DELETE' }),
+      like: (commentId: string) => request<any>(`/comments/${commentId}/like`, { method: 'POST' }),
+      unlike: (commentId: string) => request<any>(`/comments/${commentId}/like`, { method: 'DELETE' }),
     },
     notifications: {
-      list: () => request<any>('/notifications'),
+      list: (p?: any) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        return request<any>(`/notifications?${q}`);
+      },
+      unreadCount: () => request<any>('/notifications/unread-count'),
       read: (id: string) => request<any>(`/notifications/${id}/read`, { method: 'PATCH' }),
       readAll: () => request<any>('/notifications/read-all', { method: 'POST' }),
-    },
-    recovery: {
-      panic: (cardId: string, pin: string) => request<any>('/recovery/panic', { method: 'POST', body: JSON.stringify({ cardId, pin }) }),
-      restore: (cardId: string, pin: string) => request<any>('/recovery/restore', { method: 'POST', body: JSON.stringify({ cardId, pin }) }),
-      destroy: (cardId: string, pin: string, confirmText: string) => request<any>('/recovery/destroy', { method: 'POST', body: JSON.stringify({ cardId, pin, confirmText }) }),
+      registerPushToken: (token: string, platform: 'ios' | 'android' | 'web') =>
+        request<any>('/me/push-token', { method: 'POST', body: JSON.stringify({ token, platform }) }),
     },
     search: {
       users: (q: string) => request<any>(`/search/users?q=${encodeURIComponent(q)}`),
       posts: (q: string) => request<any>(`/search/posts?q=${encodeURIComponent(q)}`),
+    },
+    hashtags: {
+      trending: (p?: any) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        return request<any>(`/hashtags/trending?${q}`);
+      },
+      get: (tag: string, p?: any) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        return request<any>(`/hashtags/${encodeURIComponent(tag)}?${q}`);
+      },
+    },
+    vibes: {
+      create: (mood: string, message?: string) =>
+        request<any>('/vibes', { method: 'POST', body: JSON.stringify({ mood, message }) }),
+      list: (p?: any) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        return request<any>(`/vibes?${q}`);
+      },
+      matches: () => request<any>('/vibes/matches'),
+      delete: (id: string) => request<any>(`/vibes/${id}`, { method: 'DELETE' }),
+      resonate: (id: string) => request<any>(`/vibes/${id}/resonate`, { method: 'POST' }),
+      unresonate: (id: string) => request<any>(`/vibes/${id}/resonate`, { method: 'DELETE' }),
+      userVibes: (alias: string) => request<any>(`/users/${alias}/vibes`),
+    },
+    legacy: {
+      activate: (message?: string) =>
+        request<any>('/me/legacy', { method: 'POST', body: JSON.stringify({ message }) }),
+      deactivate: () => request<any>('/me/legacy', { method: 'DELETE' }),
+      status: () => request<any>('/me/legacy'),
+      circle: () => request<any>('/circle'),
+      addToCircle: (memberId: string) => request<any>('/circle/add', { method: 'POST', body: JSON.stringify({ memberId }) }),
+      acceptCircle: (ownerId: string) => request<any>('/circle/accept', { method: 'POST', body: JSON.stringify({ ownerId }) }),
+      capsules: () => request<any>('/legacy/capsules'),
+    },
+    messages: {
+      send: (to: string, body: string) =>
+        request<any>('/messages', { method: 'POST', body: JSON.stringify({ to, body }) }),
+      conversation: (alias: string) => request<any>(`/messages/${encodeURIComponent(alias)}`),
+      conversations: () => request<any>('/messages'),
+    },
+    uploads: {
+      // Sube un archivo. Recibe { uri, name, type }.
+      // En RN no podemos usar fetch+FormData con URI local directamente en algunos casos.
+      // Usamos XMLHttpRequest por compatibilidad.
+      upload: async (file: { uri: string; name: string; type: string }): Promise<{ id: string; url: string; mime: string; size: number }> => {
+        const baseUrl = await config.getBaseUrl();
+        const token = await config.storage.getToken();
+        const formData = new FormData();
+        // @ts-ignore — React Native acepta este formato
+        formData.append('file', { uri: file.uri, name: file.name, type: file.type } as any);
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', `${baseUrl}/uploads`);
+          if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+          xhr.onload = () => {
+            try {
+              const json = JSON.parse(xhr.responseText);
+              if (xhr.status >= 200 && xhr.status < 300) resolve(json);
+              else reject(new ApiError(xhr.status, json?.error || `Error ${xhr.status}`));
+            } catch (e) {
+              reject(new ApiError(xhr.status, 'Respuesta inválida'));
+            }
+          };
+          xhr.onerror = () => reject(new ApiError(0, 'Error de red'));
+          xhr.send(formData);
+        });
+      },
+      // Devuelve la URL absoluta a partir de la relativa (/uploads/xxx)
+      absoluteUrl: async (relative: string): Promise<string> => {
+        if (!relative) return '';
+        if (relative.startsWith('http')) return relative;
+        const baseUrl = await config.getBaseUrl();
+        // baseUrl = 'http://host:port/api' -> 'http://host:port/uploads/xxx'
+        const root = baseUrl.replace(/\/api$/, '');
+        return root + relative;
+      },
+    },
+    recovery: {
+      panic: (cardId: string, secret: string, pin: string) =>
+        request<any>('/auth/recover/panic', { method: 'POST', body: JSON.stringify({ cardId, secret, pin }) }),
+      restore: (cardId: string, secret: string, pin: string, newPassword: string) =>
+        request<any>('/auth/recover/restore', { method: 'POST', body: JSON.stringify({ cardId, secret, pin, newPassword }) }),
+      fenix: (cardId: string, secret: string, pin: string) =>
+        request<any>('/auth/recover/fenix', { method: 'POST', body: JSON.stringify({ cardId, secret, pin }) }),
+      destroy: (cardId: string, pin: string, confirmText: string) =>
+        request<any>('/recovery/destroy', { method: 'POST', body: JSON.stringify({ cardId, pin, confirmText }) }),
     },
     institutions: {
       create: (d: any) => request<any>('/institutions', { method: 'POST', body: JSON.stringify(d) }),
@@ -92,12 +236,12 @@ export function createApi(config: ApiConfig) {
       matches: () => request<any>('/matches'),
       sent: () => request<any>('/signals/sent'),
     },
-    legacy: {
-      circle: () => request<any>('/circle'),
-      addToCircle: (memberId: string) => request<any>('/circle/add', { method: 'POST', body: JSON.stringify({ memberId }) }),
-      acceptCircle: (ownerId: string) => request<any>('/circle/accept', { method: 'POST', body: JSON.stringify({ ownerId }) }),
-      status: () => request<any>('/legacy/status'),
-      capsules: () => request<any>('/legacy/capsules'),
+    bookmarks: {
+      list: () => Promise.resolve({ posts: [] }),
+      add: (_postId: string) =>
+        Promise.reject(new Error('Bookmarks no implementado')),
+      remove: (_postId: string) =>
+        Promise.reject(new Error('Bookmarks no implementado')),
     },
   };
 }

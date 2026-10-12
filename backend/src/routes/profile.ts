@@ -18,7 +18,7 @@ import { requireAuth } from '../middleware/auth.js';
 const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).nullable().optional(),
   bio: z.string().max(300).nullable().optional(),
-  avatar_url: z.string().url().max(500).nullable().optional(),
+  avatar_url: z.string().max(500).nullable().optional(),
   accent_color: z.enum(VALID_ACCENTS).optional(),
 }).strict();
 
