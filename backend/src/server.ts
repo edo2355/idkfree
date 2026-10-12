@@ -4,6 +4,7 @@ import jwt from '@fastify/jwt';
 import { env } from './config/env.js';
 import { authRoutes } from './routes/auth.js';
 import { postRoutes } from './routes/posts.js';
+import { storyRoutes } from './routes/stories.js';
 import { followRoutes } from './routes/follows.js';
 import { commentRoutes } from './routes/comments.js';
 import { notificationRoutes } from './routes/notifications.js';
@@ -30,6 +31,7 @@ await app.register(fastifyStatic, { root: join(process.cwd(), 'uploads'), prefix
 
 await app.register(authRoutes, { prefix: '/api' });
 await app.register(postRoutes, { prefix: '/api' });
+  app.register(storyRoutes, { prefix: '/api' });
 await app.register(followRoutes, { prefix: '/api' });
 await app.register(commentRoutes, { prefix: '/api' });
 await app.register(notificationRoutes, { prefix: '/api' });

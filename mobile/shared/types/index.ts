@@ -104,3 +104,36 @@ export interface LoginResult {
 }
 
 export type SignalType = 'friendship' | 'dating' | 'networking' | 'curiosity';
+
+
+export interface Story {
+  id: string;
+  author_id: string;
+  author_alias: string;
+  author_name: string | null;
+  author_avatar: string | null;
+  media_url: string;
+  media_type: 'image' | 'video';
+  created_at: string;
+  expires_at: string;
+  viewers_count?: number;
+  viewed_by_me?: boolean;
+}
+
+export interface StoryGroup {
+  author_id: string;
+  author_alias: string;
+  author_name: string | null;
+  author_avatar: string | null;
+  stories: Story[];
+  all_viewed: boolean;
+}
+
+export interface DrawnPost {
+  id: string;
+  post_id: string;
+  author_id: string;
+  author_alias: string;
+  drawing_url: string;
+  created_at: string;
+}

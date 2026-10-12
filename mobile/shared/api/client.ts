@@ -242,6 +242,12 @@ export function createApi(config: ApiConfig) {
       matches: () => request<any>('/matches'),
       sent: () => request<any>('/signals/sent'),
     },
+    stories: {
+      create: (d: { mediaUrl: string; mediaType: 'image' | 'video' }) =>
+        request<any>('/stories', { method: 'POST', body: JSON.stringify(d) }),
+      feed: () => request<any>('/stories/feed'),
+      delete: (id: string) => request<any>(`/stories/${id}`, { method: 'DELETE' }),
+    },
     bookmarks: {
       list: () => Promise.resolve({ posts: [] }),
       add: (_postId: string) =>
