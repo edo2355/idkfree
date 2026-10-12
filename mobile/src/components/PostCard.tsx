@@ -117,12 +117,12 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
   return (
     <View
       style={{
-        backgroundColor: theme.surface,
-        borderColor: theme.border,
-        borderWidth: 1,
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
+        backgroundColor: theme.bg,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border,
+        paddingTop: 12,
+        paddingBottom: 12,
+        marginBottom: 0,
       }}
     >
       {/* Header */}
