@@ -24,10 +24,7 @@ export function Avatar({ name, url, size = 40 }: Props) {
     return <Image source={{ uri: resolved }} style={{ width: size, height: size, borderRadius: size / 2 }} />;
   }
   return (
-    <View style={{
-      width: size, height: size, borderRadius: size / 2,
-      backgroundColor: theme.border, alignItems: 'center', justifyContent: 'center',
-    }}>
+    <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: theme.border, alignItems: 'center', justifyContent: 'center' }}>
       <Text style={{ fontSize: size * 0.45, fontWeight: '600', color: theme.text }}>{initial}</Text>
     </View>
   );
