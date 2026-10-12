@@ -4,6 +4,7 @@
 # ============================================================
 set +e
 BASE="http://127.0.0.1:3000/api"
+mkdir -p $HOME/tmp
 
 echo ""
 echo "════════════════════════════════════════════════════════════"
@@ -23,15 +24,18 @@ CT="Content-Type: application/json"
 test_ep() {
   local name="$1" method="$2" url="$3" data="$4" expected="${5:-200,201}"
   local code
+  if [ -z "$data" ] && { [ "$method" = "POST" ] || [ "$method" = "PUT" ] || [ "$method" = "PATCH" ]; }; then
+    data="{}"
+  fi
   if [ -n "$data" ]; then
-    code=$(curl -s -o /tmp/idk_resp -w "%{http_code}" -m 5 -X "$method" "$BASE$url" -H "$H" -H "$CT" -d "$data")
+    code=$(curl -s -o $HOME/tmp/audit_resp -w "%{http_code}" -m 5 -X "$method" "$BASE$url" -H "$H" -H "$CT" -d "$data")
   else
-    code=$(curl -s -o /tmp/idk_resp -w "%{http_code}" -m 5 -X "$method" "$BASE$url" -H "$H" -H "$CT")
+    code=$(curl -s -o $HOME/tmp/audit_resp -w "%{http_code}" -m 5 -X "$method" "$BASE$url" -H "$H" -H "$CT")
   fi
   if echo "$expected" | grep -q "$code"; then
     echo "  ✅ $name → $code"
   else
-    echo "  ❌ $name → $code  ($(head -c 150 /tmp/idk_resp))"
+    echo "  ❌ $name → $code  ($(head -c 150 $HOME/tmp/audit_resp))"
   fi
 }
 
@@ -46,7 +50,7 @@ echo ""
 echo "▸ POSTS"
 test_ep "POST /posts (texto)"      POST "/posts" '{"body":"Audit post '$(date +%s)'","visibility":"followers"}'
 test_ep "POST /posts (vacío)"      POST "/posts" '{"visibility":"followers"}' "400"
-POST_ID=$(cat /tmp/idk_resp | python3 -c "import sys,json;print(json.load(sys.stdin).get('post',{}).get('id',''))" 2>/dev/null)
+POST_ID=$(cat $HOME/tmp/audit_resp | python3 -c "import sys,json;print(json.load(sys.stdin).get('post',{}).get('id',''))" 2>/dev/null)
 [ -n "$POST_ID" ] && echo "  → Post ID: $POST_ID" || echo "  → Sin ID"
 test_ep "GET /feed"              GET  "/feed?limit=3"
 test_ep "GET /reels"             GET  "/reels"
@@ -110,12 +114,12 @@ test_ep "GET /hashtags/trending"  GET  "/hashtags/trending"
 echo ""
 echo "▸ UPLOADS"
 # Crear imagen mínima
-echo -n "fake-image-bytes" > /tmp/test-upload.jpg
-code=$(curl -s -o /tmp/up_resp -w "%{http_code}" -X POST "$BASE/uploads" -H "$H" -F "file=@/tmp/test-upload.jpg;type=image/jpeg" -m 5)
+echo -n "fake-image-bytes" > $HOME/tmp/audit-test.jpg
+code=$(curl -s -o $HOME/tmp/audit_up_resp -w "%{http_code}" -X POST "$BASE/uploads" -H "$H" -F "file=@$HOME/tmp/audit-test.jpg;type=image/jpeg" -m 5)
 if [ "$code" = "201" ] || [ "$code" = "200" ]; then
   echo "  ✅ POST /uploads → $code"
 else
-  echo "  ❌ POST /uploads → $code  ($(head -c 150 /tmp/up_resp))"
+  echo "  ❌ POST /uploads → $code  ($(head -c 150 $HOME/tmp/audit_up_resp))"
 fi
 
 echo ""
