@@ -48,7 +48,7 @@ export function FeedScreen() {
       <HeaderBar />
 
       {/* Composer */}
-      <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+      <View style={{ paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: theme.border }}>
         <TextInput
           value={body}
           onChangeText={setBody}
@@ -102,7 +102,7 @@ export function FeedScreen() {
             onComment={() => setOpenPostId(item.id)}
           />
         )}
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.text} />}
         ListEmptyComponent={
           !loading ? (

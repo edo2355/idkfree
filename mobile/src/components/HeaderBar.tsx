@@ -33,7 +33,6 @@ export function HeaderBar({ showBack = false, title }: Props) {
         position: 'relative',
       }}
     >
-      {/* Izquierda: back o engranaje */}
       {showBack ? (
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6}>
           <Text style={{ color: theme.text, fontSize: 22 }}>←</Text>
@@ -44,7 +43,6 @@ export function HeaderBar({ showBack = false, title }: Props) {
         </TouchableOpacity>
       )}
 
-      {/* Centro: logo o título */}
       <View
         style={{
           position: 'absolute',
@@ -66,7 +64,6 @@ export function HeaderBar({ showBack = false, title }: Props) {
         </Text>
       </View>
 
-      {/* Derecha: chat + notif + avatar */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
         <TouchableOpacity onPress={() => navigation.navigate('Chats')} activeOpacity={0.6}>
           <CommentIcon size={22} color={theme.text} />
