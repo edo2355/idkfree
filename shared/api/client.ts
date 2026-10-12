@@ -26,7 +26,13 @@ export function createApi(config: ApiConfig) {
     const headers: HeadersInit = { 'Content-Type': 'application/json', ...options.headers };
     if (token) (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(`${baseUrl}${path}`, { ...options, headers });
+    // Fastify rechaza POST con Content-Type JSON y body vacío → mandamos '{}' si es necesario
+    let finalOptions = options;
+    if (options.method && ['POST', 'PUT', 'PATCH'].includes(options.method) && !options.body) {
+      finalOptions = { ...options, body: '{}' };
+    }
+
+    const res = await fetch(`${baseUrl}${path}`, { ...finalOptions, headers });
 
     let data: any = null;
     const text = await res.text();
