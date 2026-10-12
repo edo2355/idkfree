@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import * as ImagePicker from 'expo-image-picker';
+import { Alert } from 'react-native';
 import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
@@ -47,6 +49,38 @@ export function StoriesRow() {
     })();
   }, [groups]);
 
+  async function pickStory() {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('Permiso requerido', 'Necesitamos acceso a tu galería');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      quality: 0.85,
+    });
+    if (result.canceled) return;
+    const asset = result.assets[0];
+    const isVideo = (asset.type === 'video') || (asset.mimeType?.startsWith('video'));
+    setLoading(true);
+    try {
+      const up = await api.uploads.upload({
+        uri: asset.uri,
+        name: asset.fileName ?? `story-${Date.now()}.${isVideo ? 'mp4' : 'jpg'}`,
+        type: asset.mimeType ?? (isVideo ? 'video/mp4' : 'image/jpeg'),
+      });
+      await api.stories.create({
+        mediaUrl: up.url,
+        mediaType: isVideo ? 'video' : 'image',
+      });
+      Alert.alert('¡Historia publicada!', 'Durará 24h');
+      await load();
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ?? 'No se pudo publicar la historia');
+    }
+    setLoading(false);
+  }
+
   if (loading) {
     return (
       <View style={{ paddingVertical: 12, alignItems: 'center' }}>
@@ -65,6 +99,7 @@ export function StoriesRow() {
         >
           {/* Botón + para crear historia */}
           <TouchableOpacity
+            onPress={pickStory}
             activeOpacity={0.7}
             style={{ alignItems: 'center', width: 68 }}
           >
