@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../stores/themeStore';
@@ -6,6 +6,7 @@ import { fonts } from '../theme/fonts';
 import { useAuthStore } from '../stores/authStore';
 import { NotificationIcon } from './icons/NotificationIcon';
 import { CommentIcon } from './icons/CommentIcon';
+import { Avatar } from './Avatar';
 
 interface Props {
   showBack?: boolean;
@@ -18,8 +19,6 @@ export function HeaderBar({ showBack = false, title }: Props) {
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
 
-  const initial = (user?.name ?? user?.alias ?? '?').charAt(0).toUpperCase();
-
   return (
     <View
       style={{
@@ -31,13 +30,30 @@ export function HeaderBar({ showBack = false, title }: Props) {
         alignItems: 'center',
         borderBottomWidth: 1,
         borderBottomColor: theme.border,
+        position: 'relative',
       }}
     >
+      {/* Izquierda: back o engranaje */}
       {showBack ? (
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6}>
           <Text style={{ color: theme.text, fontSize: 22 }}>←</Text>
         </TouchableOpacity>
       ) : (
+        <TouchableOpacity onPress={() => navigation.navigate('Settings')} activeOpacity={0.6}>
+          <Text style={{ color: theme.text, fontSize: 20 }}>⚙️</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Centro: logo o título */}
+      <View
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          alignItems: 'center',
+          pointerEvents: 'none',
+        }}
+      >
         <Text
           style={{
             fontSize: 26,
@@ -48,8 +64,9 @@ export function HeaderBar({ showBack = false, title }: Props) {
         >
           {title ?? 'IDKFREE'}
         </Text>
-      )}
+      </View>
 
+      {/* Derecha: chat + notif + avatar */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
         <TouchableOpacity onPress={() => navigation.navigate('Chats')} activeOpacity={0.6}>
           <CommentIcon size={22} color={theme.text} />
@@ -60,22 +77,7 @@ export function HeaderBar({ showBack = false, title }: Props) {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('Profile')} activeOpacity={0.6}>
-          <View
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-              backgroundColor: theme.surfaceElevated,
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderWidth: 1,
-              borderColor: theme.border,
-            }}
-          >
-            <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 14 }}>
-              {initial}
-            </Text>
-          </View>
+          <Avatar name={user?.name ?? user?.alias} url={(user as any)?.avatar_url} size={32} />
         </TouchableOpacity>
       </View>
     </View>
