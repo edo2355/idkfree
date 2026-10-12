@@ -4,9 +4,10 @@ import { View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeIcon } from '../components/icons/HomeIcon';
 import { ReelsIcon } from '../components/icons/ReelsIcon';
-import { ProfileIcon } from '../components/icons/ProfileIcon';
 import { SearchIcon } from '../components/icons/SearchIcon';
 import { useTheme } from '../stores/themeStore';
+import { useAuthStore } from '../stores/authStore';
+import { Avatar } from '../components/Avatar';
 import { fonts } from '../theme/fonts';
 import { FeedScreen } from '../screens/FeedScreen';
 import { SearchScreen } from '../screens/SearchScreen';
@@ -63,14 +64,20 @@ export function AppTabs() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: theme.surface,
+          backgroundColor: theme.bg,
           borderTopColor: theme.border,
-          height: 64 + insets.bottom,
-          paddingBottom: 6 + insets.bottom,
+          borderTopWidth: 0.5,
+          height: 52 + insets.bottom,
+          paddingBottom: insets.bottom,
           paddingTop: 6,
         },
         tabBarActiveTintColor: theme.text,
         tabBarInactiveTintColor: theme.textMuted,
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontFamily: fonts.medium,
+          marginTop: -2,
+        },
       }}
     >
       <Tab.Screen
@@ -99,7 +106,16 @@ export function AppTabs() {
       <Tab.Screen
         name='Profile'
         component={ProfileStackNav}
-        options={{ tabBarIcon: ({ color }) => <ProfileIcon size={24} color={color} /> }}
+        options={{
+          tabBarIcon: ({ focused }) => {
+            const me = useAuthStore.getState().user;
+            return (
+              <View style={{ borderWidth: focused ? 2 : 0, borderColor: theme.text, borderRadius: 16 }}>
+                <Avatar name={me?.name ?? me?.alias} url={(me as any)?.avatar_url} size={24} />
+              </View>
+            );
+          },
+        }}
       />
     </Tab.Navigator>
   );
