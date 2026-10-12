@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeIcon } from '../components/icons/HomeIcon';
+import { ReelsIcon } from '../components/icons/ReelsIcon';
 import { ProfileIcon } from '../components/icons/ProfileIcon';
 import { SearchIcon } from '../components/icons/SearchIcon';
 import { useTheme } from '../stores/themeStore';
@@ -93,7 +94,7 @@ export function AppTabs() {
       <Tab.Screen
         name='Reels'
         component={ReelsScreen}
-        options={{ tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🎬</Text> }}
+        options={{ tabBarIcon: ({ color, focused }) => <ReelsIcon size={24} color={color} filled={focused} /> }}
       />
       <Tab.Screen
         name='Profile'
