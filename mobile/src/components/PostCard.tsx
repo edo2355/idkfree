@@ -12,6 +12,8 @@ import { ShareIcon } from './icons/ShareIcon';
 import { MoreIcon } from './icons/MoreIcon';
 import { api } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
+import { DrawingCanvas } from './DrawingCanvas';
+import { DrawingsViewer } from './DrawingsViewer';
 import type { Post } from '../../shared/types';
 import { resolveAssetUrl } from '../utils/assetUrl';
 
@@ -32,10 +34,23 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
   const [busy, setBusy] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [showDrawing, setShowDrawing] = useState(false);
+  const [showDrawings, setShowDrawings] = useState(false);
+  const [drawingsCount, setDrawingsCount] = useState(0);
+  const [reposting, setReposting] = useState(false);
 
   useEffect(() => {
     resolveAssetUrl(post.image_url).then((u) => { console.log("IMG URL:", u); setImageUrl(u); });
   }, [post.image_url]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.posts.drawings(post.id);
+        setDrawingsCount((res.drawings ?? []).length);
+      } catch {}
+    })();
+  }, [post.id]);
 
   const isMine = me?.id === post.author_id;
 
@@ -54,6 +69,18 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
       setLikesCount(likesCount);
     }
     setBusy(false);
+  }
+
+  async function doRepost() {
+    if (reposting) return;
+    setReposting(true);
+    try {
+      await api.posts.repost(post.id, undefined);
+      Alert.alert('Reposteado', 'Aparecerá en tu perfil');
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ?? 'No se pudo repostear');
+    }
+    setReposting(false);
   }
 
   async function doDelete() {
@@ -187,7 +214,45 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
         <TouchableOpacity onPress={onShare} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
           <ShareIcon size={20} color={theme.textMuted} />
         </TouchableOpacity>
+
+        {/* Republicar */}
+        <TouchableOpacity onPress={doRepost} disabled={reposting} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
+          <Text style={{ fontSize: 18, color: theme.textMuted }}>🔁</Text>
+        </TouchableOpacity>
+
+        {/* Dibujar (solo si NO es tuyo) */}
+        {!isMine && imageUrl ? (
+          <TouchableOpacity onPress={() => setShowDrawing(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
+            <Text style={{ fontSize: 18, color: theme.textMuted }}>✏️</Text>
+          </TouchableOpacity>
+        ) : null}
+
+        {/* Ver dibujos (si hay) */}
+        {drawingsCount > 0 ? (
+          <TouchableOpacity onPress={() => setShowDrawings(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
+            <Text style={{ fontSize: 14, color: theme.textMuted }}>🎨</Text>
+            <Text style={{ color: theme.textMuted, fontFamily: fonts.medium, fontSize: 12 }}>
+              {drawingsCount}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
+
+      {/* Modales */}
+      {showDrawing && imageUrl ? (
+        <DrawingCanvas
+          postId={post.id}
+          imageUrl={post.image_url ?? ''}
+          onClose={() => setShowDrawing(false)}
+          onSaved={() => { setShowDrawing(false); setDrawingsCount((c) => c + 1); }}
+        />
+      ) : null}
+
+      <DrawingsViewer
+        postId={post.id}
+        visible={showDrawings}
+        onClose={() => setShowDrawings(false)}
+      />
     </View>
   );
 }
