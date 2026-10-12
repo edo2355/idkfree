@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
+import { resolveAssetUrl } from '../utils/assetUrl';
 import { PostCard } from '../components/PostCard';
 
 export function UserProfileScreen() {
@@ -16,6 +17,7 @@ export function UserProfileScreen() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -28,7 +30,15 @@ export function UserProfileScreen() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, [alias]);
+  useFocusEffect(useCallback(() => { load(); }, [alias]));
+
+  useEffect(() => {
+    (async () => {
+      if (!profile?.user) { setAvatarUri(null); return; }
+      const resolved = await resolveAssetUrl(profile.user.avatar_url);
+      setAvatarUri(resolved);
+    })();
+  }, [profile]);
 
   async function toggleFollow() {
     if (!profile || busy || profile.is_me) return;
@@ -71,8 +81,8 @@ export function UserProfileScreen() {
 
       {/* Avatar */}
       <View style={{ alignItems: 'center', marginTop: 12 }}>
-        {u.avatar_url ? (
-          <Image source={{ uri: u.avatar_url }} style={{ width: 96, height: 96, borderRadius: 48 }} />
+        {avatarUri ? (
+          <Image source={{ uri: avatarUri }} style={{ width: 96, height: 96, borderRadius: 48 }} />
         ) : (
           <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: theme.surfaceElevated, justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ color: theme.text, fontSize: 36, fontFamily: fonts.displayBoldItalic }}>
