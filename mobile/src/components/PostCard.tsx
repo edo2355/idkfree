@@ -194,7 +194,7 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
       {/* Actions */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 24, marginTop: 4 }}>
         <TouchableOpacity onPress={toggleLike} disabled={busy} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
-          <HeartIcon size={20} color={liked ? theme.danger : theme.textMuted} filled={liked} />
+          <HeartIcon size={22} color={liked ? theme.danger : theme.textMuted} filled={liked} />
           {likesCount > 0 ? (
             <Text style={{ color: liked ? theme.danger : theme.textMuted, fontFamily: fonts.medium, fontSize: 13 }}>
               {likesCount}
@@ -203,7 +203,7 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onComment} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
-          <CommentIcon size={20} color={theme.textMuted} />
+          <CommentIcon size={22} color={theme.textMuted} />
           {(post.comments_count ?? 0) > 0 ? (
             <Text style={{ color: theme.textMuted, fontFamily: fonts.medium, fontSize: 13 }}>
               {post.comments_count}
@@ -212,12 +212,12 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onShare} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
-          <ShareIcon size={20} color={theme.textMuted} />
+          <ShareIcon size={22} color={theme.textMuted} />
         </TouchableOpacity>
 
         {/* Republicar */}
         <TouchableOpacity onPress={doRepost} disabled={reposting} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
-          <Text style={{ fontSize: 18, color: theme.textMuted }}>🔁</Text>
+          <Text style={{ fontSize: 20, color: theme.textMuted, opacity: reposting ? 0.5 : 1 }}>🔁</Text>
         </TouchableOpacity>
 
         {/* Dibujar (solo si NO es tuyo) */}

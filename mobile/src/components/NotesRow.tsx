@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Alert, Acti
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { useAuthStore } from '../stores/authStore';
+import { useNavigation } from '@react-navigation/native';
 import { api } from '../api/client';
 import { Avatar } from './Avatar';
 
@@ -15,6 +16,7 @@ const MOODS = [
 ];
 
 export function NotesRow() {
+  const navigation = useNavigation<any>();
   const theme = useTheme();
   const me = useAuthStore((s) => s.user);
   const [vibes, setVibes] = useState<any[]>([]);
@@ -62,6 +64,16 @@ export function NotesRow() {
   return (
     <>
       <View style={{ borderBottomWidth: 1, borderBottomColor: theme.border }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Vibes')}
+          activeOpacity={0.6}
+          style={{ paddingHorizontal: 16, paddingTop: 10, paddingBottom: 4, flexDirection: 'row', alignItems: 'center' }}
+        >
+          <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 13, letterSpacing: 0.5 }}>
+            VIBES
+          </Text>
+          <Text style={{ color: theme.textMuted, marginLeft: 6, fontSize: 11 }}>ver todas →</Text>
+        </TouchableOpacity>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -84,7 +96,7 @@ export function NotesRow() {
                   <Text style={{ fontSize: 22 }}>{MOODS.find((m) => m.key === myVibe.mood)?.emoji ?? '💭'}</Text>
                 </View>
               ) : (
-                <Text style={{ color: theme.textMuted, fontSize: 22 }}>+</Text>
+                <Text style={{ fontSize: 24 }}>💭</Text>
               )}
             </View>
             <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 10, marginTop: 4 }} numberOfLines={1}>
