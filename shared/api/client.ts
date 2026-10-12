@@ -162,6 +162,16 @@ export function createApi(config: ApiConfig) {
         if (p?.limit) q.set('limit', String(p.limit));
         return request<any>(`/vibes?${q}`);
       },
+      all: (p?: any) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        return request<any>(`/vibes/all?${q}`);
+      },
+      legacy: (p?: any) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        return request<any>(`/vibes/legacy?${q}`);
+      },
       matches: () => request<any>('/vibes/matches'),
       delete: (id: string) => request<any>(`/vibes/${id}`, { method: 'DELETE' }),
       resonate: (id: string) => request<any>(`/vibes/${id}/resonate`, { method: 'POST' }),

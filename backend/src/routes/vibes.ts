@@ -1,3 +1,4 @@
+import { query } from '../db/pool.js';
 // ============================================================
 // vibes.ts - Rutas HTTP de vibes
 // ============================================================
@@ -118,6 +119,50 @@ export async function vibeRoutes(app: FastifyInstance) {
     try {
       const vibes = await getUserActiveVibes(alias, viewerId);
       return reply.send({ vibes, count: vibes.length });
+    } catch (err: any) {
+      app.log.error(err);
+      return reply.code(500).send({ error: 'Error interno' });
+    }
+  });
+
+  // GET /api/vibes/all — todas las vibes (público)
+  app.get('/vibes/all', { preHandler: [requireAuth] }, async (req, reply) => {
+    const { limit } = req.query as any;
+    try {
+      const res = await query(
+        `SELECT v.id, v.author_id, v.mood, v.message, v.created_at,
+                u.alias AS author_alias, u.name AS author_name, u.avatar_url AS author_avatar,
+                (SELECT COUNT(*) FROM vibe_resonances WHERE vibe_id = v.id) AS resonances_count
+         FROM vibes v
+         JOIN users u ON u.id = v.author_id
+         WHERE v.deleted_at IS NULL
+         ORDER BY v.created_at DESC
+         LIMIT $1`,
+        [limit ? parseInt(limit) : 50]
+      );
+      return reply.send({ vibes: res.rows });
+    } catch (err: any) {
+      app.log.error(err);
+      return reply.code(500).send({ error: 'Error interno' });
+    }
+  });
+
+  // GET /api/vibes/legacy — vibes en modo legado
+  app.get('/vibes/legacy', { preHandler: [requireAuth] }, async (req, reply) => {
+    const { limit } = req.query as any;
+    try {
+      const res = await query(
+        `SELECT v.id, v.author_id, v.mood, v.message, v.created_at,
+                u.alias AS author_alias, u.name AS author_name, u.avatar_url AS author_avatar
+         FROM vibes v
+         JOIN users u ON u.id = v.author_id
+         WHERE v.deleted_at IS NULL
+           AND u.legacy_mode = 1
+         ORDER BY v.created_at DESC
+         LIMIT $1`,
+        [limit ? parseInt(limit) : 50]
+      );
+      return reply.send({ vibes: res.rows });
     } catch (err: any) {
       app.log.error(err);
       return reply.code(500).send({ error: 'Error interno' });

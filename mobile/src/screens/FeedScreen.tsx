@@ -5,6 +5,7 @@ import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { PostCard } from '../components/PostCard';
 import { StoriesRow } from '../components/StoriesRow';
+import { NotesRow } from '../components/NotesRow';
 import { CommentsModal } from '../components/CommentsModal';
 import { HeaderBar } from '../components/HeaderBar';
 import type { Post } from '../../shared/types';
@@ -97,7 +98,7 @@ export function FeedScreen() {
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id}
-        ListHeaderComponent={<StoriesRow />}
+        ListHeaderComponent={<><StoriesRow /><NotesRow /></>}
         renderItem={({ item }) => (
           <PostCard
             post={item}

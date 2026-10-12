@@ -1,230 +1,145 @@
 import { useEffect, useState } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { Avatar } from '../components/Avatar';
 
-const MOODS = [
-  { key: 'silencio', label: 'Silencio', emoji: '🤫' },
-  { key: 'charlar', label: 'Charlar', emoji: '💬' },
-  { key: 'crear', label: 'Crear', emoji: '🎨' },
-  { key: 'tranquilo', label: 'Tranquilo', emoji: '🌊' },
-  { key: 'nose', label: 'No sé', emoji: '🤷' },
-] as const;
+type Tab = 'recientes' | 'todos' | 'legado';
 
-type Mood = typeof MOODS[number]['key'];
+const MOODS: Record<string, string> = {
+  silencio: '🤫',
+  charlar: '💬',
+  crear: '🎨',
+  tranquilo: '🌊',
+  nose: '🤷',
+};
 
 export function VibesScreen() {
   const theme = useTheme();
   const navigation = useNavigation<any>();
-  const [mood, setMood] = useState<Mood>('nose');
-  const [message, setMessage] = useState('');
+  const insets = useSafeAreaInsets();
+  const [tab, setTab] = useState<Tab>('recientes');
   const [vibes, setVibes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [posting, setPosting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   async function load() {
+    setLoading(true);
     try {
-      const res = await api.vibes.list({ limit: 50 });
+      let res;
+      if (tab === 'legado') {
+        res = await api.vibes.legacy({ limit: 50 });
+      } else if (tab === 'todos') {
+        res = await api.vibes.all({ limit: 50 });
+      } else {
+        res = await api.vibes.list({ limit: 50 });
+      }
       setVibes(res.vibes ?? []);
-    } catch {}
+    } catch { setVibes([]); }
     setLoading(false);
   }
 
-  async function handleCreate() {
-    if (!message.trim() || posting) return;
-    setPosting(true);
-    try {
-      await api.vibes.create(mood, message.trim());
-      setMessage('');
-      await load();
-    } catch (e: any) { console.log('vibe error', e); }
-    setPosting(false);
-  }
+  useEffect(() => { load(); }, [tab]);
 
-  async function toggleResonate(vibe: any) {
-    const wasResonated = vibe.viewer_resonated;
-    const newCount = wasResonated ? vibe.resonances_count - 1 : vibe.resonances_count + 1;
-    setVibes((prev) =>
-      prev.map((v) => v.id === vibe.id ? { ...v, viewer_resonated: !wasResonated, resonances_count: newCount } : v)
-    );
-    try {
-      if (wasResonated) await api.vibes.unresonate(vibe.id);
-      else await api.vibes.resonate(vibe.id);
-    } catch {
-      setVibes((prev) =>
-        prev.map((v) => v.id === vibe.id ? { ...v, viewer_resonated: wasResonated, resonances_count: vibe.resonances_count } : v)
-      );
-    }
-  }
-
-  async function handleRefresh() {
+  async function onRefresh() {
     setRefreshing(true);
     await load();
     setRefreshing(false);
   }
 
-  useEffect(() => { load(); }, []);
-
-  function moodMeta(key: string) {
-    return MOODS.find((m) => m.key === key) ?? MOODS[4];
-  }
-
   return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+    <View style={{ flex: 1, backgroundColor: theme.bg, paddingTop: insets.top }}>
       {/* Header */}
-      <View style={{ paddingTop: 60, paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: theme.border }}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6} style={{ marginRight: 16 }}>
-          <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 15 }}>←</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingBottom: 12 }}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6} style={{ padding: 4 }}>
+          <Text style={{ color: theme.text, fontSize: 22 }}>←</Text>
         </TouchableOpacity>
-        <Text style={{ fontSize: 24, color: theme.text, fontFamily: fonts.displayBoldItalic, letterSpacing: 0.5 }}>
+        <Text style={{ color: theme.text, fontSize: 22, fontFamily: fonts.displayBoldItalic, marginLeft: 8, flex: 1 }}>
           Vibes
         </Text>
       </View>
 
-      <FlatList
-        data={vibes}
-        keyExtractor={(v) => v.id}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.text} />}
-        contentContainerStyle={{ paddingBottom: 40 }}
-        ListHeaderComponent={
-          <>
-            {/* Composer */}
-            <View style={{ padding: 16 }}>
-              <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-                {MOODS.map((m) => (
-                  <TouchableOpacity
-                    key={m.key}
-                    onPress={() => setMood(m.key)}
-                    activeOpacity={0.7}
-                    style={{
-                      paddingVertical: 8,
-                      paddingHorizontal: 14,
-                      borderRadius: 20,
-                      borderWidth: 1,
-                      borderColor: mood === m.key ? theme.text : theme.border,
-                      backgroundColor: mood === m.key ? theme.text : 'transparent',
-                    }}
-                  >
-                    <Text style={{ color: mood === m.key ? theme.bg : theme.text, fontFamily: fonts.medium, fontSize: 13 }}>
-                      {m.emoji} {m.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              <TextInput
-                value={message}
-                onChangeText={setMessage}
-                placeholder="¿Cómo te sientes hoy?"
-                placeholderTextColor={theme.textMuted}
-                multiline
-                maxLength={140}
-                style={{
-                  padding: 14,
-                  borderWidth: 1,
-                  borderColor: theme.border,
-                  borderRadius: 10,
-                  backgroundColor: theme.surface,
-                  color: theme.text,
-                  minHeight: 70,
-                  textAlignVertical: 'top',
-                  fontFamily: fonts.regular,
-                  fontSize: 15,
-                }}
-              />
-
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                <Text style={{ color: theme.textSubtle, fontFamily: fonts.regular, fontSize: 11 }}>
-                  {message.length}/140
-                </Text>
-                <TouchableOpacity
-                  onPress={handleCreate}
-                  disabled={!message.trim() || posting}
-                  activeOpacity={0.7}
-                  style={{
-                    backgroundColor: message.trim() ? theme.text : theme.surface,
-                    paddingHorizontal: 20,
-                    paddingVertical: 9,
-                    borderRadius: 8,
-                  }}
-                >
-                  <Text style={{ color: message.trim() ? theme.bg : theme.textMuted, fontFamily: fonts.medium, fontSize: 13 }}>
-                    {posting ? 'Publicando...' : 'Publicar vibe'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={{ height: 1, backgroundColor: theme.border, marginBottom: 8 }} />
-          </>
-        }
-        ListEmptyComponent={
-          loading ? (
-            <View style={{ padding: 40, alignItems: 'center' }}>
-              <ActivityIndicator color={theme.text} />
-            </View>
-          ) : (
-            <Text style={{ color: theme.textMuted, textAlign: 'center', paddingVertical: 60, fontFamily: fonts.regular }}>
-              Aún no hay vibes activos
+      {/* Tabs */}
+      <View style={{ flexDirection: 'row', paddingHorizontal: 16, gap: 8, marginBottom: 12 }}>
+        {(['recientes', 'todos', 'legado'] as Tab[]).map((t) => (
+          <TouchableOpacity
+            key={t}
+            onPress={() => setTab(t)}
+            activeOpacity={0.7}
+            style={{
+              flex: 1, paddingVertical: 8, borderRadius: 20,
+              backgroundColor: tab === t ? theme.text : theme.surface,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{
+              color: tab === t ? theme.bg : theme.textMuted,
+              fontFamily: fonts.medium, fontSize: 12, letterSpacing: 0.5,
+            }}>
+              {t === 'recientes' ? 'RECIENTES' : t === 'todos' ? 'TODOS' : 'LEGADO'}
             </Text>
-          )
-        }
-        renderItem={({ item }) => {
-          const m = moodMeta(item.mood);
-          return (
-            <View style={{ paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator color={theme.text} />
+        </View>
+      ) : (
+        <FlatList
+          data={vibes}
+          keyExtractor={(v) => v.id}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.text} />}
+          ListEmptyComponent={
+            <View style={{ paddingVertical: 60, alignItems: 'center' }}>
+              <Text style={{ fontSize: 48, marginBottom: 12 }}>
+                {tab === 'legado' ? '🕯️' : '💭'}
+              </Text>
+              <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, textAlign: 'center' }}>
+                {tab === 'legado'
+                  ? 'Aún no hay vibes en modo legado'
+                  : tab === 'todos'
+                  ? 'Aún no hay vibes públicas'
+                  : 'Sin vibes recientes'}
+              </Text>
+            </View>
+          }
+          renderItem={({ item }) => (
+            <View style={{
+              backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,
+              borderRadius: 14, padding: 14, marginBottom: 10,
+            }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                <TouchableOpacity onPress={() => navigation.navigate('UserProfile', { alias: item.author_alias })} activeOpacity={0.7}>
-                  <Avatar name={item.author_name ?? item.author_alias} url={item.author_avatar} size={36} />
-                </TouchableOpacity>
+                <Avatar name={item.author_name ?? item.author_alias} url={item.author_avatar} size={36} />
                 <View style={{ marginLeft: 10, flex: 1 }}>
                   <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 14 }}>
                     {item.author_name ?? item.author_alias}
                   </Text>
-                  <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 12 }}>
-                    {getTimeAgo(new Date(item.created_at))}
+                  <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 11 }}>
+                    @{item.author_alias}
                   </Text>
                 </View>
-                <View style={{ paddingVertical: 4, paddingHorizontal: 10, borderRadius: 12, borderWidth: 1, borderColor: theme.border }}>
-                  <Text style={{ color: theme.textMuted, fontFamily: fonts.medium, fontSize: 11 }}>
-                    {m.emoji} {m.label}
-                  </Text>
-                </View>
+                <Text style={{ fontSize: 28 }}>{MOODS[item.mood] ?? '💭'}</Text>
               </View>
-
               {item.message ? (
-                <Text style={{ color: theme.text, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20, marginBottom: 10 }}>
+                <Text style={{ color: theme.text, fontFamily: fonts.regular, fontSize: 15, lineHeight: 21 }}>
                   {item.message}
                 </Text>
               ) : null}
-
-              <TouchableOpacity
-                onPress={() => toggleResonate(item)}
-                activeOpacity={0.6}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' }}
-              >
-                <Text style={{ fontSize: 16 }}>✨</Text>
-                <Text style={{ color: item.viewer_resonated ? theme.text : theme.textMuted, fontFamily: fonts.medium, fontSize: 13 }}>
-                  Resonar {item.resonances_count > 0 ? `· ${item.resonances_count}` : ''}
+              {item.resonances_count > 0 ? (
+                <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 11, marginTop: 8 }}>
+                  💜 {item.resonances_count} resonancias
                 </Text>
-              </TouchableOpacity>
+              ) : null}
             </View>
-          );
-        }}
-      />
+          )}
+        />
+      )}
     </View>
   );
-}
-
-function getTimeAgo(date: Date): string {
-  const s = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (s < 60) return 'ahora';
-  if (s < 3600) return `hace ${Math.floor(s / 60)} min`;
-  if (s < 86400) return `hace ${Math.floor(s / 3600)} h`;
-  if (s < 604800) return `hace ${Math.floor(s / 86400)} d`;
-  return date.toLocaleDateString('es-ES');
 }
