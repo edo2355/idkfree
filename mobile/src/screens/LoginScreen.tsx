@@ -54,9 +54,13 @@ export function LoginScreen() {
         <Text style={{ color: theme.text, textAlign: 'center', marginTop: 12, fontFamily: fonts.medium, letterSpacing: 0.5 }} onPress={() => navigation.navigate('Recovery')}>Recuperar cuenta</Text>
 
         {/* Firma from Edo Amate */}
-        <View style={{ alignItems: 'center', marginTop: 30 }}>
-          <Text style={{ fontSize: 10, fontFamily: fonts.medium, color: theme.textMuted, letterSpacing: 0.5, marginBottom: 6 }}>from</Text>
-          <Image source={require('../../assets/logo-edo-white.png')} style={{ width: 148, height: 148, opacity: 0.85 }} resizeMode="contain" />
+        <View style={{ alignItems: 'center', marginTop: 40, marginBottom: 20 }}>
+          <Text style={{ fontSize: 12, fontFamily: fonts.medium, color: theme.textMuted, letterSpacing: 2, marginBottom: 8, textTransform: 'lowercase' }}>from</Text>
+          <Image
+            source={require('../../assets/logo-edo-white.png')}
+            style={{ width: 240, height: 100, opacity: 0.9, marginTop: 4 }}
+            resizeMode="contain"
+          />
         </View>
       </ScrollView>
 
