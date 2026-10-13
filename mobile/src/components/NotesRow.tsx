@@ -79,31 +79,6 @@ export function NotesRow() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 10, gap: 12 }}
         >
-          {/* Mi nota */}
-          <TouchableOpacity
-            onPress={() => setComposerOpen(true)}
-            activeOpacity={0.7}
-            style={{ alignItems: 'center', width: 64 }}
-          >
-            <View style={{
-              width: 56, height: 56, borderRadius: 28,
-              backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border,
-              alignItems: 'center', justifyContent: 'center',
-              padding: 2,
-            }}>
-              {myVibe ? (
-                <View style={{ width: '100%', height: '100%', borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.surfaceElevated }}>
-                  <Text style={{ fontSize: 22 }}>{MOODS.find((m) => m.key === myVibe.mood)?.emoji ?? '💭'}</Text>
-                </View>
-              ) : (
-                <Text style={{ fontSize: 24 }}>💭</Text>
-              )}
-            </View>
-            <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 10, marginTop: 4 }} numberOfLines={1}>
-              Tu nota
-            </Text>
-          </TouchableOpacity>
-
           {/* Notas de otros */}
           {vibes.filter((v) => v.author_id !== me?.id).slice(0, 15).map((v) => (
             <TouchableOpacity

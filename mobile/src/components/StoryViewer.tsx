@@ -64,7 +64,11 @@ export function StoryViewer({ groups, initialGroupIndex, onClose }: Props) {
     }
   }
 
-  if (!group || !story) { onClose(); return null; }
+  useEffect(() => {
+    if (!group || !story) onClose();
+  }, [group, story]);
+
+  if (!group || !story) return null;
 
   return (
     <Modal visible animationType="fade" transparent onRequestClose={onClose}>

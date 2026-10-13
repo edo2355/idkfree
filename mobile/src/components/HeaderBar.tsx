@@ -38,9 +38,7 @@ export function HeaderBar({ showBack = false, title }: Props) {
           <Text style={{ color: theme.text, fontSize: 22 }}>←</Text>
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity onPress={() => navigation.navigate('Settings')} activeOpacity={0.6}>
-          <Text style={{ color: theme.text, fontSize: 20 }}>⚙️</Text>
-        </TouchableOpacity>
+        <View style={{ width: 24 }} />
       )}
 
       <View
@@ -67,10 +65,6 @@ export function HeaderBar({ showBack = false, title }: Props) {
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
         <TouchableOpacity onPress={() => navigation.navigate('Chats')} activeOpacity={0.6}>
           <CommentIcon size={22} color={theme.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Notifications')} activeOpacity={0.6}>
-          <NotificationIcon size={22} color={theme.text} />
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('Profile')} activeOpacity={0.6}>

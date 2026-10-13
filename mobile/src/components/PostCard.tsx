@@ -217,7 +217,7 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
 
         {/* Republicar */}
         <TouchableOpacity onPress={doRepost} disabled={reposting} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
-          <Text style={{ fontSize: 20, color: theme.textMuted, opacity: reposting ? 0.5 : 1 }}>🔁</Text>
+          <Text style={{ fontSize: 20, opacity: reposting ? 0.3 : 0.5 }}>🔁</Text>
         </TouchableOpacity>
 
         {/* Dibujar (solo si NO es tuyo) */}
