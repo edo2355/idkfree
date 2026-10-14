@@ -166,13 +166,16 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
   if (deleted) return null;
 
   return (
-    <View
+    <Pressable
+      onPress={handleDoubleTap}
+      delayLongPress={400}
       style={{
         backgroundColor: theme.bg,
         borderBottomWidth: 1,
         borderBottomColor: theme.border,
         paddingTop: 12,
         paddingBottom: 12,
+        position: 'relative',
         marginBottom: 0,
       }}
     >
@@ -277,7 +280,21 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
         visible={showDrawings}
         onClose={() => setShowDrawings(false)}
       />
-    </View>
+
+      {/* Corazón flotante al doble tap */}
+      <Animated.View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: '40%',
+          left: '42%',
+          opacity: heartOpacity,
+          transform: [{ scale: heartScale }],
+        }}
+      >
+        <HeartIcon size={110} color={theme.accent} filled />
+      </Animated.View>
+    </Pressable>
   );
 }
 
