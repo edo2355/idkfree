@@ -9,6 +9,7 @@ import { resolveAssetUrl } from '../utils/assetUrl';
 import { PostGrid } from '../components/PostGrid';
 import { ProfileTabs, type ProfileTab } from '../components/ProfileTabs';
 import { Skeleton } from '../components/Skeleton';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function ProfileScreen() {
   const theme = useTheme();
@@ -56,6 +57,7 @@ export function ProfileScreen() {
   if (loading || !profile) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="topo" />
         <View style={{ paddingTop: 60, paddingHorizontal: 20, paddingBottom: 8 }}>
           <Skeleton width={100} height={24} />
         </View>

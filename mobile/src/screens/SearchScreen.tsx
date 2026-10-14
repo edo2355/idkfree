@@ -10,6 +10,7 @@ import { SearchIcon } from '../components/icons/SearchIcon';
 import { HeaderBar } from '../components/HeaderBar';
 import { PostMasonry } from '../components/PostMasonry';
 import { UserRowSkeleton, MasonrySkeleton } from '../components/Skeleton';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 type Tab = 'personas' | 'posts';
 
@@ -56,6 +57,7 @@ export function SearchScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="radar" />
       <HeaderBar title="Buscar" />
 
       {/* Buscador */}

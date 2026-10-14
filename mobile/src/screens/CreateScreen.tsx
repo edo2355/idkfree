@@ -6,6 +6,7 @@ import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { HeaderBar } from '../components/HeaderBar';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function CreateScreen() {
   const theme = useTheme();
@@ -112,6 +113,7 @@ export function CreateScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="wave" />
       <HeaderBar />
       <ScrollView contentContainerStyle={{ padding: 20 }}>
         <Text style={{ fontSize: 22, color: theme.text, fontFamily: fonts.displayBoldItalic, letterSpacing: 0.5, marginBottom: 4 }}>

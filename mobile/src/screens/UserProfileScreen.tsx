@@ -7,6 +7,7 @@ import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { PostGrid } from '../components/PostGrid';
 import { ProfileTabs, type ProfileTab } from '../components/ProfileTabs';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function UserProfileScreen() {
   const theme = useTheme();

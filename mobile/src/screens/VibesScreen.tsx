@@ -6,6 +6,7 @@ import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { Avatar } from '../components/Avatar';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 type Tab = 'recientes' | 'todos' | 'legado';
 

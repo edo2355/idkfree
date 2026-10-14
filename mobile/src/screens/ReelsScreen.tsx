@@ -6,6 +6,7 @@ import { api } from '../api/client';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { HeaderBar } from '../components/HeaderBar';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
@@ -111,6 +112,7 @@ export function ReelsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="film" />
       <HeaderBar />
 
       {/* Tabs */}

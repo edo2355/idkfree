@@ -10,6 +10,7 @@ import { HeaderBar } from '../components/HeaderBar';
 import { StoriesRow } from '../components/StoriesRow';
 import { NotesRow } from '../components/NotesRow';
 import type { Post } from '../../shared/types';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function FeedScreen() {
   const theme = useTheme();
@@ -36,6 +37,7 @@ export function FeedScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="grid" />
       <HeaderBar />
 
       <ScrollView

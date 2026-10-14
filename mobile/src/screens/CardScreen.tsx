@@ -7,6 +7,7 @@ import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { exportCardAsPDF, saveImageToGallery } from '../utils/cardExport';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function CardScreen() {
   const theme = useTheme();

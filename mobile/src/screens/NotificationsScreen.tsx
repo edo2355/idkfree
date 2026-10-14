@@ -6,6 +6,7 @@ import { api } from '../api/client';
 import { Avatar } from '../components/Avatar';
 import { HeaderBar } from '../components/HeaderBar';
 import type { Notification } from '../../shared/types';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function NotificationsScreen() {
   const theme = useTheme();
@@ -47,6 +48,7 @@ export function NotificationsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="pulse" />
       <HeaderBar showBack title="Notificaciones" />
       <View style={{ paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
         {items.some((n) => !n.read_at) ? (

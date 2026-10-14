@@ -8,6 +8,7 @@ import { NotesRow } from '../components/NotesRow';
 import { ChatRowSkeleton } from '../components/Skeleton';
 import { Avatar } from '../components/Avatar';
 import { HeaderBar } from '../components/HeaderBar';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function ChatsScreen() {
   const theme = useTheme();
@@ -48,6 +49,7 @@ export function ChatsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="radio" />
       <HeaderBar showBack title="Chats" />
 
       {loading ? (

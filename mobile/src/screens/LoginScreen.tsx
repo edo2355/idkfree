@@ -10,6 +10,7 @@ import { Button } from '../components/Button';
 import { ApiError } from '../../shared/api/client';
 import { ConfigScreen } from './ConfigScreen';
 import { SymbolIcon } from '../components/icons/SymbolIcon';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function LoginScreen() {
   const theme = useTheme();
