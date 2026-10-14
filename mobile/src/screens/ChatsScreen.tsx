@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
+import { NotesRow } from '../components/NotesRow';
 import { Avatar } from '../components/Avatar';
 import { HeaderBar } from '../components/HeaderBar';
 
@@ -53,7 +54,10 @@ export function ChatsScreen() {
           <ActivityIndicator color={theme.text} />
         </View>
       ) : (
-        <FlatList
+        <>
+          <NotesRow />
+
+          <FlatList
           data={items}
           keyExtractor={(c) => c.other_id}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.text} />}
@@ -91,6 +95,7 @@ export function ChatsScreen() {
             </TouchableOpacity>
           )}
         />
+        </>
       )}
     </View>
   );
