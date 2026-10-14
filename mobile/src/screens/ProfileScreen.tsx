@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useTheme } from '../stores/themeStore';
+import { useTheme, useThemeStore } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
@@ -27,6 +27,9 @@ export function ProfileScreen() {
     try {
       const res = await api.profile.get(user.alias);
       setProfile(res);
+      if ((res?.user as any)?.accent_color) {
+        useThemeStore.getState().setAccent((res.user as any).accent_color);
+      }
       const [postsRes, vibesRes, legacyRes] = await Promise.all([
         api.posts.userPosts(res.user.id),
         api.vibes.userVibes(user.alias).catch(() => ({ vibes: [] })),

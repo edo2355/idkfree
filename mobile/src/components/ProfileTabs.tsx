@@ -30,7 +30,7 @@ export function ProfileTabs({ active, onChange, showLegacy = true }: Props) {
             paddingVertical: 12,
             alignItems: 'center',
             borderBottomWidth: active === t.key ? 2 : 0,
-            borderBottomColor: theme.text,
+            borderBottomColor: theme.accent,
           }}
         >
           <Text style={{

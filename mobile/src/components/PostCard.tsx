@@ -194,7 +194,7 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
       {/* Actions */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 24, marginTop: 4 }}>
         <TouchableOpacity onPress={toggleLike} disabled={busy} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
-          <HeartIcon size={22} color={liked ? theme.danger : theme.textMuted} filled={liked} />
+          <HeartIcon size={22} color={liked ? theme.accent : theme.textMuted} filled={liked} />
           {likesCount > 0 ? (
             <Text style={{ color: liked ? theme.danger : theme.textMuted, fontFamily: fonts.medium, fontSize: 13 }}>
               {likesCount}
