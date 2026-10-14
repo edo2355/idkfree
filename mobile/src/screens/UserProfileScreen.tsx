@@ -5,27 +5,36 @@ import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
-import { PostCard } from '../components/PostCard';
+import { PostGrid } from '../components/PostGrid';
+import { ProfileTabs, type ProfileTab } from '../components/ProfileTabs';
 
 export function UserProfileScreen() {
   const theme = useTheme();
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
   const alias: string = route.params?.alias;
-
   const [profile, setProfile] = useState<any>(null);
   const [posts, setPosts] = useState<any[]>([]);
+  const [vibes, setVibes] = useState<any[]>([]);
+  const [legacyVibes, setLegacyVibes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [tab, setTab] = useState<ProfileTab>('posts');
 
   async function load() {
     setLoading(true);
     try {
       const res = await api.profile.get(alias);
       setProfile(res);
-      const postsRes = await api.posts.userPosts(res.user.id);
+      const [postsRes, vibesRes, legacyRes] = await Promise.all([
+        api.posts.userPosts(res.user.id),
+        api.vibes.userVibes(alias).catch(() => ({ vibes: [] })),
+        api.vibes.legacy({ limit: 50 }).catch(() => ({ vibes: [] })),
+      ]);
       setPosts(postsRes.posts ?? []);
+      setVibes(vibesRes.vibes ?? []);
+      setLegacyVibes((legacyRes.vibes ?? []).filter((v: any) => v.author_id === res.user.id));
     } catch (e) { console.log('profile error', e); }
     setLoading(false);
   }
@@ -35,8 +44,7 @@ export function UserProfileScreen() {
   useEffect(() => {
     (async () => {
       if (!profile?.user) { setAvatarUri(null); return; }
-      const resolved = await resolveAssetUrl(profile.user.avatar_url);
-      setAvatarUri(resolved);
+      setAvatarUri(await resolveAssetUrl(profile.user.avatar_url));
     })();
   }, [profile]);
 
@@ -69,17 +77,19 @@ export function UserProfileScreen() {
 
   const u = profile.user;
   const stats = profile.stats;
+  const photoPosts = posts.filter((p: any) => p.image_url || p.video_url);
+  const textPosts = posts.filter((p: any) => !p.image_url && !p.video_url);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ paddingBottom: 40 }}>
-      {/* Header top bar */}
+      {/* Back */}
       <View style={{ paddingTop: 60, paddingHorizontal: 16, paddingBottom: 8 }}>
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6}>
           <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 15 }}>← Atrás</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Avatar */}
+      {/* Avatar + info */}
       <View style={{ alignItems: 'center', marginTop: 12 }}>
         {avatarUri ? (
           <Image source={{ uri: avatarUri }} style={{ width: 96, height: 96, borderRadius: 48 }} />
@@ -121,15 +131,13 @@ export function UserProfileScreen() {
 
       {/* Botón seguir */}
       {!profile.is_me ? (
-        <View style={{ paddingHorizontal: 32, marginTop: 20 }}>
+        <View style={{ paddingHorizontal: 32, marginTop: 20, marginBottom: 16 }}>
           <TouchableOpacity
             onPress={toggleFollow}
             disabled={busy}
             activeOpacity={0.7}
             style={{
-              paddingVertical: 12,
-              borderRadius: 8,
-              alignItems: 'center',
+              paddingVertical: 12, borderRadius: 8, alignItems: 'center',
               backgroundColor: profile.is_following ? 'transparent' : theme.text,
               borderWidth: profile.is_following ? 1 : 0,
               borderColor: theme.border,
@@ -142,17 +150,57 @@ export function UserProfileScreen() {
         </View>
       ) : null}
 
-      {/* Posts */}
-      <View style={{ marginTop: 24, paddingHorizontal: 16 }}>
-        <Text style={{ color: theme.text, fontSize: 15, fontFamily: fonts.medium, marginBottom: 12 }}>
-          Posts
-        </Text>
-        {posts.length === 0 ? (
-          <Text style={{ color: theme.textMuted, textAlign: 'center', paddingVertical: 30, fontFamily: fonts.regular }}>
-            Sin posts todavía
-          </Text>
+      {/* Tabs */}
+      <ProfileTabs active={tab} onChange={setTab} />
+
+      {/* Contenido */}
+      <View style={{ padding: 2 }}>
+        {tab === 'posts' ? (
+          <PostGrid posts={photoPosts.length > 0 ? photoPosts : posts} />
+        ) : tab === 'notas' ? (
+          <View style={{ padding: 16 }}>
+            {textPosts.length === 0 && vibes.length === 0 ? (
+              <Text style={{ color: theme.textMuted, textAlign: 'center', paddingVertical: 40, fontFamily: fonts.regular }}>
+                Sin notas
+              </Text>
+            ) : (
+              <>
+                {textPosts.map((p) => (
+                  <View key={p.id} style={{ backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 12, padding: 14, marginBottom: 10 }}>
+                    <Text style={{ color: theme.text, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }}>
+                      {p.body}
+                    </Text>
+                  </View>
+                ))}
+                {vibes.map((v) => (
+                  <View key={v.id} style={{ backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 12, padding: 14, marginBottom: 10 }}>
+                    <Text style={{ color: theme.text, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }}>
+                      {v.message}
+                    </Text>
+                  </View>
+                ))}
+              </>
+            )}
+          </View>
         ) : (
-          posts.map((p) => <PostCard key={p.id} post={p} />)
+          <View style={{ padding: 16 }}>
+            {legacyVibes.length === 0 ? (
+              <View style={{ paddingVertical: 40, alignItems: 'center' }}>
+                <Text style={{ fontSize: 40, marginBottom: 10 }}>🕯️</Text>
+                <Text style={{ color: theme.textMuted, textAlign: 'center', fontFamily: fonts.regular, fontSize: 13 }}>
+                  Sin contenido legacy
+                </Text>
+              </View>
+            ) : (
+              legacyVibes.map((v) => (
+                <View key={v.id} style={{ backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 12, padding: 14, marginBottom: 10 }}>
+                  <Text style={{ color: theme.text, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }}>
+                    {v.message}
+                  </Text>
+                </View>
+              ))
+            )}
+          </View>
         )}
       </View>
     </ScrollView>
