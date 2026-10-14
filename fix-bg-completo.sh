@@ -33,21 +33,18 @@ if 'ScreenBackground' not in src:
 
 # Añadir ScreenBackground tras el primer <View style={{ flex: 1, backgroundColor: theme.bg }}>
 if '<ScreenBackground' not in src:
-    # Caso 1: View principal
     pattern = r'(return \(\s*\n\s*)<View style=\{\{ flex: 1, backgroundColor: theme\.bg \}\}>'
     new = r'\1<View style={{ flex: 1, backgroundColor: theme.bg }}>\n      <ScreenBackground variant="' + variant + '" />'
     src2 = re.sub(pattern, new, src, count=1)
     if src2 != src:
         src = src2
     else:
-        # Caso 2: Return con ScrollView directo
+        # Caso: ScrollView directo
         pattern2 = r'(return \(\s*\n\s*)<ScrollView'
         new2 = r'\1<View style={{ flex: 1, backgroundColor: theme.bg }}>\n      <ScreenBackground variant="' + variant + '" />\n      <ScrollView'
         src3 = re.sub(pattern2, new2, src, count=1)
         if src3 != src:
             src = src3
-            # Cerrar el View antes del último );
-            # Buscar el último </ScrollView>\n  );\n} y añadir </View>
             src = re.sub(r'(</ScrollView>\s*\n\s*)\);\s*\n\}', r'\1</View>\n  );\n}', src, count=1)
 
 if src != orig:
@@ -75,7 +72,7 @@ if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo "  ✅ TSC limpio"
   cd ~/idkfree
   git add -A
-  git commit -m "feat(bg): ScreenBackground en Register, Splash, Settings, EditProfile, ChangePassword, Recovery, Config, Hashtag, Chat" 2>&1 | head -2
+  git commit -m "feat(bg): ScreenBackground en 9 pantallas restantes (Register, Splash, Settings, EditProfile, ChangePassword, Recovery, Config, Hashtag, Chat)" 2>&1 | head -2
   git push 2>&1 | tail -2
 else
   echo "  ❌ TSC con errores"
@@ -83,5 +80,5 @@ fi
 
 echo ""
 echo "════════════════════════════════════════════════════"
-echo "  ✅ Backgrounds aplicados a todas las pantallas"
+echo "  ✅ Backgrounds aplicados"
 echo "════════════════════════════════════════════════════"
