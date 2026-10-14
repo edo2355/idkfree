@@ -86,6 +86,11 @@ export function createApi(config: ApiConfig) {
     },
     profile: {
       get: (alias: string) => request<any>(`/users/${alias}`),
+      suggestions: (p?: { limit?: number }) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        return request<any>(`/users/suggestions?${q}`);
+      },
       update: (d: any) => request<any>('/me/profile', { method: 'PATCH', body: JSON.stringify(d) }),
       changePassword: (currentPassword: string, newPassword: string) =>
         request<any>('/me/change-password', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) }),

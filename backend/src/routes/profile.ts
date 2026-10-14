@@ -8,8 +8,7 @@ import {
   getProfileByAlias,
   updateProfile,
   changePassword,
-  VALID_ACCENTS,
-} from '../services/profileService.js';
+  VALID_ACCENTS,, getSuggestedUsers} from '../services/profileService.js';
 import { requireAuth } from '../middleware/auth.js';
 
 // ------------------------------------------------------------
@@ -95,6 +94,18 @@ export async function profileRoutes(app: FastifyInstance) {
       if (result === 'NOT_FOUND') return reply.code(404).send({ error: 'Usuario no encontrado' });
       if (result === 'INVALID_CURRENT') return reply.code(401).send({ error: 'Contraseña actual incorrecta' });
       return reply.send({ ok: true });
+    } catch (err: any) {
+      app.log.error(err);
+      return reply.code(500).send({ error: 'Error interno' });
+    }
+  });
+
+  // GET /api/users/suggestions — usuarios que quizás conozcas
+  app.get('/users/suggestions', { preHandler: [requireAuth] }, async (req, reply) => {
+    const { limit } = req.query as any;
+    try {
+      const res = await getSuggestedUsers(req.userId!, limit ? parseInt(limit) : 10);
+      return reply.send(res);
     } catch (err: any) {
       app.log.error(err);
       return reply.code(500).send({ error: 'Error interno' });

@@ -123,3 +123,32 @@ export async function changePassword(
   await query(`UPDATE users SET password_hash = $1 WHERE id = $2`, [newHash, userId]);
   return 'OK';
 }
+
+
+// ------------------------------------------------------------
+// Sugerencias: usuarios que NO sigues y NO eres tú
+// Ordenados: primero los que tienen más posts, luego aleatorio
+// ------------------------------------------------------------
+export async function getSuggestedUsers(userId: string, limit = 10) {
+  const res = await query<{
+    id: string;
+    alias: string;
+    name: string | null;
+    avatar_url: string | null;
+    bio: string | null;
+    posts_count: number;
+    followers_count: number;
+  }>(
+    `SELECT u.id, u.alias, u.name, u.avatar_url, u.bio,
+            (SELECT COUNT(*) FROM posts WHERE author_id = u.id AND deleted_at IS NULL) AS posts_count,
+            (SELECT COUNT(*) FROM follows WHERE followed_id = u.id) AS followers_count
+     FROM users u
+     WHERE u.id != $1
+       AND u.deleted_at IS NULL
+       AND u.id NOT IN (SELECT followed_id FROM follows WHERE follower_id = $1)
+     ORDER BY posts_count DESC, followers_count DESC, RANDOM()
+     LIMIT $2`,
+    [userId, limit]
+  );
+  return { users: res.rows };
+}
