@@ -9,6 +9,7 @@ import { Avatar } from '../components/Avatar';
 import { SearchIcon } from '../components/icons/SearchIcon';
 import { HeaderBar } from '../components/HeaderBar';
 import { PostMasonry } from '../components/PostMasonry';
+import { UserRowSkeleton, MasonrySkeleton } from '../components/Skeleton';
 
 type Tab = 'personas' | 'posts';
 
@@ -108,7 +109,14 @@ export function SearchScreen() {
       </View>
 
       {/* Contenido */}
-      {tab === 'personas' ? (
+      {loading && !showingSuggestions ? (
+        <View style={{ paddingHorizontal: 16 }}>
+          <UserRowSkeleton />
+          <UserRowSkeleton />
+          <UserRowSkeleton />
+          <UserRowSkeleton />
+        </View>
+      ) : tab === 'personas' ? (
         <FlatList
           data={showingSuggestions ? suggestedUsers : users}
           keyExtractor={(u) => u.id}

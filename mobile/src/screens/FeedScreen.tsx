@@ -4,6 +4,7 @@ import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { PostMasonry } from '../components/PostMasonry';
+import { MasonrySkeleton } from '../components/Skeleton';
 import { CommentsModal } from '../components/CommentsModal';
 import { HeaderBar } from '../components/HeaderBar';
 import { StoriesRow } from '../components/StoriesRow';
@@ -46,7 +47,11 @@ export function FeedScreen() {
       >
         <StoriesRow />
         <NotesRow />
-        <PostMasonry posts={posts} />
+        {loading ? (
+          <MasonrySkeleton />
+        ) : (
+          <PostMasonry posts={posts} />
+        )}
         {!loading && posts.length === 0 ? (
           <Text style={{ textAlign: 'center', color: theme.textMuted, padding: 40, fontFamily: fonts.regular }}>
             👋 Tu feed está vacío.

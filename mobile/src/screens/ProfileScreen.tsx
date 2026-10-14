@@ -8,6 +8,7 @@ import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { PostGrid } from '../components/PostGrid';
 import { ProfileTabs, type ProfileTab } from '../components/ProfileTabs';
+import { Skeleton } from '../components/Skeleton';
 
 export function ProfileScreen() {
   const theme = useTheme();
@@ -54,8 +55,28 @@ export function ProfileScreen() {
 
   if (loading || !profile) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.bg, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator color={theme.text} />
+      <View style={{ flex: 1, backgroundColor: theme.bg }}>
+        <View style={{ paddingTop: 60, paddingHorizontal: 20, paddingBottom: 8 }}>
+          <Skeleton width={100} height={24} />
+        </View>
+        <View style={{ alignItems: 'center', marginTop: 12 }}>
+          <Skeleton width={96} height={96} borderRadius={48} />
+          <Skeleton width={120} height={18} style={{ marginTop: 12 }} />
+          <Skeleton width={80} height={14} style={{ marginTop: 6 }} />
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, gap: 32 }}>
+          <Skeleton width={60} height={40} borderRadius={8} />
+          <Skeleton width={60} height={40} borderRadius={8} />
+          <Skeleton width={60} height={40} borderRadius={8} />
+        </View>
+        <View style={{ paddingHorizontal: 32, marginTop: 20 }}>
+          <Skeleton width="100%" height={44} borderRadius={8} />
+        </View>
+        <View style={{ flexDirection: 'row', gap: 2, marginTop: 24, paddingHorizontal: 2 }}>
+          <View style={{ flex: 1 }}><Skeleton width="100%" height={100} borderRadius={2} /></View>
+          <View style={{ flex: 1 }}><Skeleton width="100%" height={100} borderRadius={2} /></View>
+          <View style={{ flex: 1 }}><Skeleton width="100%" height={100} borderRadius={2} /></View>
+        </View>
       </View>
     );
   }

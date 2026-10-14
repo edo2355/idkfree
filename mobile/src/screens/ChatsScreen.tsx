@@ -5,6 +5,7 @@ import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { NotesRow } from '../components/NotesRow';
+import { ChatRowSkeleton } from '../components/Skeleton';
 import { Avatar } from '../components/Avatar';
 import { HeaderBar } from '../components/HeaderBar';
 
@@ -50,8 +51,11 @@ export function ChatsScreen() {
       <HeaderBar showBack title="Chats" />
 
       {loading ? (
-        <View style={{ padding: 40, alignItems: 'center' }}>
-          <ActivityIndicator color={theme.text} />
+        <View style={{ paddingHorizontal: 16 }}>
+          <ChatRowSkeleton />
+          <ChatRowSkeleton />
+          <ChatRowSkeleton />
+          <ChatRowSkeleton />
         </View>
       ) : (
         <>
