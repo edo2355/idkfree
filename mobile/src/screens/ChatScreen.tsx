@@ -7,6 +7,7 @@ import { api } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../components/Avatar';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 interface Msg {
   id: string;

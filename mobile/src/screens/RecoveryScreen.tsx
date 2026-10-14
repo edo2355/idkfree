@@ -7,6 +7,7 @@ import { api } from '../api/client';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { ApiError } from '../../shared/api/client';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 type Step = 'choose' | 'panic' | 'restore' | 'fenix';
 
@@ -68,7 +69,9 @@ export function RecoveryScreen() {
   }
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ padding: 24, paddingTop: 60, paddingBottom: 40 }}>
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="radar" />
+      <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ padding: 24, paddingTop: 60, paddingBottom: 40 }}>
       <Text style={{ fontSize: 26, color: theme.text, textAlign: 'center', marginBottom: 8, fontFamily: fonts.displayBoldItalic, letterSpacing: 0.5 }}>
         Recuperar cuenta
       </Text>
@@ -160,5 +163,6 @@ export function RecoveryScreen() {
         </>
       )}
     </ScrollView>
+  </View>
   );
 }

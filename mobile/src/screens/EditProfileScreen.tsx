@@ -7,6 +7,7 @@ import { fonts } from '../theme/fonts';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function EditProfileScreen() {
   const theme = useTheme();
@@ -98,7 +99,9 @@ export function EditProfileScreen() {
   }
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}>
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="topo" />
+      <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6}>
           <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 15 }}>← Atrás</Text>
@@ -183,5 +186,6 @@ export function EditProfileScreen() {
         )}
       </TouchableOpacity>
     </ScrollView>
+  </View>
   );
 }

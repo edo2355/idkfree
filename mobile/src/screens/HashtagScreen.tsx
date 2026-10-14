@@ -5,6 +5,7 @@ import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { PostCard } from '../components/PostCard';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function HashtagScreen() {
   const theme = useTheme();
@@ -28,6 +29,7 @@ export function HashtagScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="wave" />
       <View style={{ paddingTop: 60, paddingHorizontal: 20, paddingBottom: 16, flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: theme.border }}>
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6} style={{ marginRight: 16 }}>
           <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 15 }}>←</Text>

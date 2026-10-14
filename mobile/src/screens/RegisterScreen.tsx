@@ -8,6 +8,7 @@ import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { CardModalScreen } from './CardModalScreen';
 import { ApiError } from '../../shared/api/client';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function RegisterScreen() {
   const theme = useTheme();

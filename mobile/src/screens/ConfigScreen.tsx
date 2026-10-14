@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { darkTheme } from '../theme/dark';
 import { fonts } from '../theme/fonts';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 interface Props {
   onClose: () => void;

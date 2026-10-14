@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 export function ChangePasswordScreen() {
   const theme = useTheme();
@@ -42,7 +43,9 @@ export function ChangePasswordScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}>
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="pulse" />
+      <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}>
       <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6} style={{ marginBottom: 24 }}>
         <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 15 }}>← Atrás</Text>
       </TouchableOpacity>
@@ -68,5 +71,6 @@ export function ChangePasswordScreen() {
         )}
       </TouchableOpacity>
     </ScrollView>
+  </View>
   );
 }

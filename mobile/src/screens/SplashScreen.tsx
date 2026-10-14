@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, Image } from 'react-native';
 import { darkTheme } from '../theme/dark';
 import { fonts } from '../theme/fonts';
+import { ScreenBackground } from '../components/ScreenBackground';
 
 const TIPS = [
   'No lo sé, gratis o libre',
