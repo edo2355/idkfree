@@ -1,48 +1,72 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme, useThemeStore } from '../stores/themeStore';
 import { useAuthStore } from '../stores/authStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { ACCENTS, type AccentName } from '../theme/accents';
+import { ScreenBackground } from '../components/ScreenBackground';
 
-function Section({ title }: { title: string }) {
+const MONO = 'monospace';
+
+// Habilitar animación de layout en Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+// ---------- Grupo expandible ----------
+function Group({ title, code, children, defaultOpen = false }: any) {
   const theme = useTheme();
+  const [open, setOpen] = useState(defaultOpen);
+
+  function toggle() {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setOpen((o: boolean) => !o);
+  }
+
   return (
-    <Text style={{
-      color: theme.textMuted,
-      fontFamily: fonts.medium,
-      fontSize: 11,
-      letterSpacing: 1.5,
-      marginTop: 28,
-      marginBottom: 8,
-    }}>
-      {title}
-    </Text>
+    <View style={{ marginTop: 18 }}>
+      <TouchableOpacity onPress={toggle} activeOpacity={0.7} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}>
+        <Text style={{ color: theme.accent, fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, marginRight: 8 }}>
+          {code}
+        </Text>
+        <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 13, letterSpacing: 1, flex: 1 }}>
+          {title}
+        </Text>
+        <Text style={{ color: theme.textMuted, fontFamily: MONO, fontSize: 14 }}>
+          {open ? '−' : '+'}
+        </Text>
+      </TouchableOpacity>
+      {open ? (
+        <View style={{ marginTop: 4, borderLeftWidth: 1, borderLeftColor: theme.border, paddingLeft: 12 }}>
+          {children}
+        </View>
+      ) : null}
+    </View>
   );
 }
 
-function Row({ label, value, danger, onPress }: { label: string; value?: string; danger?: boolean; onPress?: () => void }) {
+// ---------- Fila ----------
+function Row({ label, value, danger, onPress, accent }: any) {
   const theme = useTheme();
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={!onPress}
       activeOpacity={onPress ? 0.6 : 1}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 14,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.border,
-      }}
+      style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: theme.border }}
     >
-      <Text style={{ color: danger ? theme.danger : theme.text, fontFamily: fonts.regular, fontSize: 15, flex: 1 }}>
+      <Text style={{
+        color: danger ? theme.danger : accent ? theme.accent : theme.text,
+        fontFamily: fonts.regular,
+        fontSize: 14,
+        flex: 1,
+      }}>
         {label}
       </Text>
       {value ? (
-        <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 13, marginRight: 8 }}>
+        <Text style={{ color: theme.textMuted, fontFamily: MONO, fontSize: 11, marginRight: 8, letterSpacing: 0.5 }}>
           {value}
         </Text>
       ) : null}
@@ -51,6 +75,7 @@ function Row({ label, value, danger, onPress }: { label: string; value?: string;
   );
 }
 
+// ---------- Pantalla ----------
 export function SettingsScreen() {
   const theme = useTheme();
   const navigation = useNavigation<any>();
@@ -58,6 +83,7 @@ export function SettingsScreen() {
   const setTheme = useThemeStore((s) => s.setTheme);
   const accent = useThemeStore((s) => s.accent);
   const setAccent = useThemeStore((s) => s.setAccent);
+  const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const [saving, setSaving] = useState(false);
 
@@ -71,125 +97,179 @@ export function SettingsScreen() {
   }
 
   function handleLogout() {
-    Alert.alert(
-      'Cerrar sesión',
-      '¿Seguro que quieres salir?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Salir', style: 'destructive', onPress: () => clearAuth() },
-      ]
-    );
+    Alert.alert('Cerrar sesión', '¿Seguro que quieres salir?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Salir', style: 'destructive', onPress: () => clearAuth() },
+    ]);
   }
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: theme.bg }}
-      contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 60 }}
-    >
-      <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6}>
-        <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 15 }}>← Atrás</Text>
-      </TouchableOpacity>
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <ScreenBackground variant="hex" opacity={0.04} />
+      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 60 }}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6}>
+          <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 15 }}>← Atrás</Text>
+        </TouchableOpacity>
 
-      <Text style={{ fontSize: 28, color: theme.text, fontFamily: fonts.displayBoldItalic, letterSpacing: 0.5, marginTop: 20 }}>
-        Ajustes
-      </Text>
+        {/* Header */}
+        <View style={{ marginTop: 20 }}>
+          <Text style={{ color: theme.textSubtle, fontFamily: MONO, fontSize: 10, letterSpacing: 2, marginBottom: 6 }}>
+            IDKFREE · SYS · v2.0.0
+          </Text>
+          <Text style={{ fontSize: 30, color: theme.text, fontFamily: fonts.displayBoldItalic, letterSpacing: 0.5 }}>
+            Ajustes
+          </Text>
+          {user?.alias ? (
+            <Text style={{ color: theme.textMuted, fontFamily: MONO, fontSize: 11, letterSpacing: 1, marginTop: 8 }}>
+              NODE @{user.alias.toUpperCase()} · SESIÓN ACTIVA
+            </Text>
+          ) : null}
+        </View>
 
-      {/* CUENTA */}
-      <Section title="CUENTA" />
-      <Row label="Editar perfil" onPress={() => navigation.navigate('EditProfile')} />
-      <Row label="Cambiar contraseña" onPress={() => navigation.navigate('ChangePassword')} />
-      <Row label="Carnet IDKFREE" onPress={() => navigation.navigate('Card')} />
+        {/* ============ GRUPO 01 · CUENTA ============ */}
+        <Group title="CUENTA" code="[01]" defaultOpen>
+          <Row label="Editar perfil" onPress={() => navigation.navigate('EditProfile')} />
+          <Row label="Cambiar contraseña" onPress={() => navigation.navigate('ChangePassword')} />
+          <Row label="Carnet IDKFREE" onPress={() => navigation.navigate('Card')} />
+        </Group>
 
-      {/* APARIENCIA */}
-      <Section title="APARIENCIA" />
-      <View style={{ flexDirection: 'row', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-        {(['light', 'dark', 'auto'] as const).map((t) => (
+        {/* ============ GRUPO 02 · APARIENCIA ============ */}
+        <Group title="APARIENCIA" code="[02]" defaultOpen>
+          <Row
+            label="Tema"
+            value={mode.toUpperCase()}
+          />
+          <View style={{ flexDirection: 'row', paddingVertical: 10, paddingBottom: 14, gap: 8 }}>
+            {(['light', 'dark', 'auto'] as const).map((t) => (
+              <TouchableOpacity
+                key={t}
+                onPress={() => setTheme(t)}
+                activeOpacity={0.7}
+                style={{
+                  paddingHorizontal: 14,
+                  paddingVertical: 8,
+                  borderRadius: 20,
+                  borderWidth: 1,
+                  borderColor: mode === t ? theme.text : theme.border,
+                  backgroundColor: mode === t ? theme.text : 'transparent',
+                }}
+              >
+                <Text style={{ color: mode === t ? theme.bg : theme.text, fontFamily: MONO, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase' }}>
+                  {t}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Row label="Color de acento" value={accent.toUpperCase()} />
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingVertical: 12, paddingBottom: 16 }}>
+            {(Object.keys(ACCENTS) as AccentName[]).map((name) => {
+              const isActive = accent === name;
+              const colorHex = ACCENTS[name][mode === 'light' ? 'light' : 'dark'];
+              return (
+                <TouchableOpacity
+                  key={name}
+                  onPress={() => handleChangeAccent(name)}
+                  activeOpacity={0.7}
+                  style={{ alignItems: 'center', width: 52 }}
+                >
+                  <View
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: 17,
+                      backgroundColor: colorHex,
+                      borderWidth: isActive ? 3 : 1,
+                      borderColor: isActive ? theme.text : theme.border,
+                    }}
+                  />
+                  <Text style={{ color: theme.textMuted, fontFamily: MONO, fontSize: 8, marginTop: 4, textTransform: 'capitalize', letterSpacing: 0.5 }}>
+                    {name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </Group>
+
+        {/* ============ GRUPO 03 · PRIVACIDAD ============ */}
+        <Group title="PRIVACIDAD Y DATOS" code="[03]">
+          <Row label="Tus datos" onPress={() => navigation.navigate('MyData')} />
+          <Row label="Política de Privacidad" onPress={() => navigation.navigate('Privacy')} />
+        </Group>
+
+        {/* ============ GRUPO 04 · LEGAL ============ */}
+        <Group title="LEGAL" code="[04]">
+          <Row label="Términos y Condiciones" onPress={() => navigation.navigate('Terms')} />
+          <Row label="Política de Privacidad" onPress={() => navigation.navigate('Privacy')} />
+          <Row label="Tus datos" onPress={() => navigation.navigate('MyData')} />
+        </Group>
+
+        {/* ============ GRUPO 05 · CONEXIÓN ============ */}
+        <Group title="CONEXIÓN" code="[05]">
+          <Row label="Servidor" value="127.0.0.1:3000" />
+          <Row label="Estado" value="● ONLINE" />
+        </Group>
+
+        {/* ============ GRUPO 06 · ACERCA DE ============ */}
+        <Group title="ACERCA DE" code="[06]">
+          <Row label="Sobre IDKFREE" onPress={() => navigation.navigate('About')} />
+          <Row label="Versión" value="2.0.0" />
+          <Row label="Desarrollado por" value="Edo Amate" />
+          <Row label="Contacto" value="hello@idkfree.app" />
+        </Group>
+
+        {/* ============ CUENTA PELIGROSA ============ */}
+        <View style={{ marginTop: 32, paddingTop: 20, borderTopWidth: 1, borderTopColor: theme.danger }}>
+          <Text style={{ color: theme.danger, fontFamily: MONO, fontSize: 10, letterSpacing: 2, marginBottom: 12 }}>
+            ⚠ CUENTA PELIGROSA
+          </Text>
           <TouchableOpacity
-            key={t}
-            onPress={() => setTheme(t)}
+            onPress={handleLogout}
             activeOpacity={0.7}
             style={{
-              paddingHorizontal: 14,
-              paddingVertical: 8,
-              borderRadius: 20,
+              paddingVertical: 14,
+              borderRadius: 8,
+              alignItems: 'center',
+              backgroundColor: 'transparent',
               borderWidth: 1,
-              borderColor: mode === t ? theme.text : theme.border,
-              backgroundColor: mode === t ? theme.text : 'transparent',
-              marginRight: 8,
+              borderColor: theme.danger,
+              marginBottom: 10,
             }}
           >
-            <Text style={{ color: mode === t ? theme.bg : theme.text, fontFamily: fonts.medium, fontSize: 13, textTransform: 'capitalize' }}>
-              {t}
+            <Text style={{ color: theme.danger, fontFamily: fonts.medium, fontSize: 14 }}>
+              Cerrar sesión
             </Text>
           </TouchableOpacity>
-        ))}
-      </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('MyData')}
+            activeOpacity={0.7}
+            style={{
+              paddingVertical: 14,
+              borderRadius: 8,
+              alignItems: 'center',
+              backgroundColor: theme.danger,
+            }}
+          >
+            <Text style={{ color: '#FFF', fontFamily: fonts.medium, fontSize: 14 }}>
+              Eliminar mi cuenta
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Color de acento */}
-      <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 13, marginTop: 16, marginBottom: 12 }}>
-        Color de acento
-      </Text>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-        {(Object.keys(ACCENTS) as AccentName[]).map((name) => {
-          const isActive = accent === name;
-          const colorHex = ACCENTS[name][mode === 'light' ? 'light' : 'dark'];
-          return (
-            <TouchableOpacity
-              key={name}
-              onPress={() => handleChangeAccent(name)}
-              activeOpacity={0.7}
-              style={{ alignItems: 'center', width: 60 }}
-            >
-              <View
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 20,
-                  backgroundColor: colorHex,
-                  borderWidth: isActive ? 3 : 1,
-                  borderColor: isActive ? theme.text : theme.border,
-                }}
-              />
-              <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 10, marginTop: 4, textTransform: 'capitalize' }}>
-                {name}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      {/* CONEXIÓN */}
-      <Section title="CONEXIÓN" />
-      <Row label="Servidor" value="127.0.0.1:3000" />
-
-      {/* ACERCA DE */}
-      <Section title="ACERCA DE" />
-      <Row label="Versión" value="2.0.0" />
-      <Row label="Desarrollado por" value="Edo Amate" />
-      <Row label="Sitio" value="idkfree.app" />
-
-      {/* PELIGRO */}
-      <Section title="CUENTA PELIGROSA" />
-      <TouchableOpacity
-        onPress={handleLogout}
-        activeOpacity={0.7}
-        style={{
-          paddingVertical: 14,
-          borderRadius: 8,
-          alignItems: 'center',
-          backgroundColor: theme.danger,
-          marginTop: 8,
-        }}
-      >
-        <Text style={{ color: '#FFFFFF', fontFamily: fonts.medium, fontSize: 14 }}>
-          Cerrar sesión
-        </Text>
-      </TouchableOpacity>
-
-      {/* Pie */}
-      <Text style={{ color: theme.textSubtle, fontFamily: fonts.regular, fontSize: 11, textAlign: 'center', marginTop: 32, letterSpacing: 1 }}>
-        IDKFREE · 2026 · v2.0.0
-      </Text>
-    </ScrollView>
+        {/* Footer */}
+        <View style={{ marginTop: 40, alignItems: 'center' }}>
+          <Text style={{ color: theme.textSubtle, fontFamily: MONO, fontSize: 9, letterSpacing: 2, textAlign: 'center' }}>
+            IDKFREE.OS · v2.0.0
+          </Text>
+          <Text style={{ color: theme.textSubtle, fontFamily: MONO, fontSize: 8, letterSpacing: 2, textAlign: 'center', marginTop: 6 }}>
+            © 2026 EDO AMATE
+          </Text>
+          <Text style={{ color: theme.textSubtle, fontFamily: MONO, fontSize: 8, letterSpacing: 4, textAlign: 'center', marginTop: 10 }}>
+            "MÁS QUE UNA PREGUNTA"
+          </Text>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
