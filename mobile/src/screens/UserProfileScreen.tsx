@@ -7,6 +7,7 @@ import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { PostGrid } from '../components/PostGrid';
 import { ProfileTabs, type ProfileTab } from '../components/ProfileTabs';
+import { StatsHero } from '../components/StatsHero';
 import { ScreenBackground } from '../components/ScreenBackground';
 
 export function UserProfileScreen() {
@@ -114,21 +115,11 @@ export function UserProfileScreen() {
         ) : null}
       </View>
 
-      {/* Stats */}
-      <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, gap: 32 }}>
-        <View style={{ alignItems: 'center' }}>
-          <Text style={{ color: theme.text, fontSize: 18, fontFamily: fonts.medium }}>{stats.posts}</Text>
-          <Text style={{ color: theme.textMuted, fontSize: 12, fontFamily: fonts.regular }}>Posts</Text>
-        </View>
-        <View style={{ alignItems: 'center' }}>
-          <Text style={{ color: theme.text, fontSize: 18, fontFamily: fonts.medium }}>{stats.followers}</Text>
-          <Text style={{ color: theme.textMuted, fontSize: 12, fontFamily: fonts.regular }}>Seguidores</Text>
-        </View>
-        <View style={{ alignItems: 'center' }}>
-          <Text style={{ color: theme.text, fontSize: 18, fontFamily: fonts.medium }}>{stats.following}</Text>
-          <Text style={{ color: theme.textMuted, fontSize: 12, fontFamily: fonts.regular }}>Siguiendo</Text>
-        </View>
-      </View>
+      {/* Stats Hero OSHIMA */}
+      <StatsHero
+        stats={stats}
+        joinedAt={u.created_at ? String(u.created_at).slice(0, 10).replace(/-/g, '.') : undefined}
+      />
 
       {/* Botón seguir */}
       {!profile.is_me ? (
