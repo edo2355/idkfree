@@ -9,6 +9,10 @@ import { VibesScreen } from '../screens/VibesScreen';
 import { NotificationsScreen } from '../screens/NotificationsScreen';
 import { ChatsScreen } from '../screens/ChatsScreen';
 import { ChatScreen } from '../screens/ChatScreen';
+import { TermsScreen } from '../screens/TermsScreen';
+import { PrivacyScreen } from '../screens/PrivacyScreen';
+import { AboutScreen } from '../screens/AboutScreen';
+import { MyDataScreen } from '../screens/MyDataScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +32,10 @@ export function RootNavigator() {
       <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="Chats" component={ChatsScreen} options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="Chat" component={ChatScreen} options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="Terms" component={TermsScreen} options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="About" component={AboutScreen} options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="MyData" component={MyDataScreen} options={{ animation: 'slide_from_right' }} />
     </Stack.Navigator>
   );
 }

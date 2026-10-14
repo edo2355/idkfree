@@ -268,8 +268,11 @@ export function CardScreen() {
       <Text style={{ fontSize: 26, color: theme.text, fontFamily: fonts.displayBoldItalic, letterSpacing: 0.5, marginBottom: 4 }}>
         Tu carnet
       </Text>
-      <Text style={{ color: theme.textMuted, fontFamily: MONO, fontSize: 10, letterSpacing: 2, marginBottom: 20 }}>
+      <Text style={{ color: theme.textMuted, fontFamily: MONO, fontSize: 10, letterSpacing: 2, marginBottom: 8 }}>
         IDKFREE.CARD · {nodeId}
+      </Text>
+      <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 12, lineHeight: 18, marginBottom: 20 }}>
+        Este carnet existe porque en 2023 me hackearon una cuenta y nunca la pude recuperar. Y porque en Cuba te piden el carnet todo el tiempo. Ahora tenés uno que no se pierde, no se falsifica y te devuelve todas tus cuentas.
       </Text>
 
       {/* ========== CARNET ========== */}

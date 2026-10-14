@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { mobileStorage } from '../utils/storage';
 
-export interface AuthUser { id: string; alias: string; name?: string | null; }
+export interface AuthUser { id: string; alias: string; name?: string | null; email?: string | null; avatar_url?: string | null; }
 
 interface AuthState {
   user: AuthUser | null;
