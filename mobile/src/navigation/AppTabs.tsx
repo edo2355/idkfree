@@ -1,14 +1,12 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, Text, Pressable } from 'react-native';
-import { useRef } from 'react';
+import { View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeIcon } from '../components/icons/HomeIcon';
 import { ReelsIcon } from '../components/icons/ReelsIcon';
 import { SearchIcon } from '../components/icons/SearchIcon';
 import { useTheme } from '../stores/themeStore';
 import { useAuthStore } from '../stores/authStore';
-import { useFeedStore } from '../stores/feedStore';
 import { Avatar } from '../components/Avatar';
 import { fonts } from '../theme/fonts';
 import { FeedScreen } from '../screens/FeedScreen';
@@ -85,27 +83,7 @@ export function AppTabs() {
       <Tab.Screen
         name='Feed'
         component={FeedScreen}
-        options={{
-          tabBarIcon: ({ color }) => <HomeIcon size={24} color={color} />,
-          tabBarButton: (props) => {
-            const lastTap = useRef<number>(0);
-            const toggleFeed = useFeedStore((s) => s.toggleMode);
-            return (
-              <Pressable
-                {...(props as any)}
-                onPress={(e) => {
-                  const now = Date.now();
-                  if (now - lastTap.current < 300) {
-                    toggleFeed();
-                  } else {
-                    props.onPress?.(e as any);
-                  }
-                  lastTap.current = now;
-                }}
-              />
-            );
-          },
-        }}
+        options={{ tabBarIcon: ({ color }) => <HomeIcon size={24} color={color} /> }}
       />
       <Tab.Screen
         name='Search'

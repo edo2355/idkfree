@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
@@ -116,17 +116,7 @@ export function PostMasonry({ posts, onEndReached }: Props) {
   if (posts.length === 0) return null;
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: theme.bg }}
-      contentContainerStyle={{ padding: PAD, paddingBottom: 80 }}
-      onScroll={({ nativeEvent }) => {
-        const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-        if (onEndReached && layoutMeasurement.height + contentOffset.y >= contentSize.height - 200) {
-          onEndReached();
-        }
-      }}
-      scrollEventThrottle={400}
-    >
+    <View style={{ padding: PAD }}>
       <View style={{ flexDirection: 'row', gap: GAP }}>
         <View style={{ flex: 1, gap: GAP }}>
           {left.map((p) => <MasonryCard key={p.id} post={p} />)}
@@ -135,6 +125,6 @@ export function PostMasonry({ posts, onEndReached }: Props) {
           {right.map((p) => <MasonryCard key={p.id} post={p} />)}
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 }
