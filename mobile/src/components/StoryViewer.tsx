@@ -32,7 +32,7 @@ export function StoryViewer({ groups, initialGroupIndex, onClose }: Props) {
   useEffect(() => {
     if ((!group || !story) && !closedRef.current) {
       closedRef.current = true;
-      onClose();
+      setTimeout(() => onClose(), 0);
     }
   }, [group, story, onClose]);
 
@@ -66,7 +66,7 @@ export function StoryViewer({ groups, initialGroupIndex, onClose }: Props) {
             setGroupIdx(groupIdx + 1);
             setStoryIdx(0);
           } else {
-            onClose();
+            setTimeout(() => onClose(), 0);
           }
         }, 0);
       }
@@ -78,7 +78,7 @@ export function StoryViewer({ groups, initialGroupIndex, onClose }: Props) {
     if (!group) return;
     if (storyIdx < group.stories.length - 1) setStoryIdx(storyIdx + 1);
     else if (groupIdx < groups.length - 1) { setGroupIdx(groupIdx + 1); setStoryIdx(0); }
-    else onClose();
+    else setTimeout(() => onClose(), 0);
   }
 
   function prev() {

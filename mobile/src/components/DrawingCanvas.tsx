@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, PanResponder, Dimensions, ActivityIndicator, Alert } from 'react-native';
+import { useRef, useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, PanResponder, Dimensions, ActivityIndicator, Alert, ImageBackground } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { captureRef } from 'react-native-view-shot';
 import { useTheme } from '../stores/themeStore';
@@ -28,9 +28,12 @@ export function DrawingCanvas({ postId, imageUrl, onClose, onSaved }: Props) {
 
   const screen = Dimensions.get('window');
 
-  useState(() => {
-    (async () => setResolvedImage(await resolveAssetUrl(imageUrl)))();
-  });
+  useEffect(() => {
+    (async () => {
+      const u = await resolveAssetUrl(imageUrl);
+      setResolvedImage(u);
+    })();
+  }, [imageUrl]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -107,25 +110,26 @@ export function DrawingCanvas({ postId, imageUrl, onClose, onSaved }: Props) {
         style={{ flex: 1, backgroundColor: '#000' }}
         {...panResponder.panHandlers}
       >
-        {/* Imagen de fondo */}
-        {resolvedImage && (
-          <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-            {/* @ts-ignore */}
-            <View style={{ flex: 1 }}>
-              {/* imagen via ImageBackground no, usamos Image normal */}
-            </View>
+        {resolvedImage ? (
+          <ImageBackground
+            source={{ uri: resolvedImage }}
+            style={{ flex: 1 }}
+            resizeMode="contain"
+          >
+            <Svg style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} pointerEvents="none">
+              {paths.map((p, i) => (
+                <Path key={i} d={p} stroke={color} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              ))}
+              {currentPath ? (
+                <Path d={currentPath} stroke={color} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              ) : null}
+            </Svg>
+          </ImageBackground>
+        ) : (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator color="#FFF" />
           </View>
         )}
-
-        {/* Paths SVG */}
-        <Svg style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} pointerEvents="none">
-          {paths.map((p, i) => (
-            <Path key={i} d={p} stroke={color} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          ))}
-          {currentPath ? (
-            <Path d={currentPath} stroke={color} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          ) : null}
-        </Svg>
       </View>
 
       {/* Barra inferior colores */}

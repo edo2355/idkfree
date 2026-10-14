@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
 import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
@@ -81,6 +81,12 @@ export function StoriesRow() {
     setLoading(false);
   }
 
+  const handleClose = useCallback(() => {
+    setViewerOpen(false);
+    // Recargar tras cerrar (diferido para no bloquear render)
+    setTimeout(() => { load(); }, 50);
+  }, []);
+
   if (loading) {
     return (
       <View style={{ paddingVertical: 12, alignItems: 'center' }}>
@@ -160,7 +166,7 @@ export function StoriesRow() {
         <StoryViewer
           groups={groups}
           initialGroupIndex={startIndex}
-          onClose={() => { setViewerOpen(false); load(); }}
+          onClose={handleClose}
         />
       )}
     </>

@@ -1,12 +1,14 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { useRef } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeIcon } from '../components/icons/HomeIcon';
 import { ReelsIcon } from '../components/icons/ReelsIcon';
 import { SearchIcon } from '../components/icons/SearchIcon';
 import { useTheme } from '../stores/themeStore';
 import { useAuthStore } from '../stores/authStore';
+import { useFeedStore } from '../stores/feedStore';
 import { Avatar } from '../components/Avatar';
 import { fonts } from '../theme/fonts';
 import { FeedScreen } from '../screens/FeedScreen';
@@ -49,7 +51,7 @@ function CreateIcon({ color, focused }: { color: string; focused: boolean }) {
         borderColor: theme.border,
       }}
     >
-      <Text style={{ color: focused ? theme.bg : theme.text, fontSize: 24, fontFamily: fonts.regular, marginTop: -2 }}>
+      <Text style={{ color: focused ? theme.bg : theme.text, fontSize: 26, fontFamily: fonts.regular, marginTop: -3, lineHeight: 30 }}>
         +
       </Text>
     </View>
@@ -83,7 +85,27 @@ export function AppTabs() {
       <Tab.Screen
         name='Feed'
         component={FeedScreen}
-        options={{ tabBarIcon: ({ color }) => <HomeIcon size={24} color={color} /> }}
+        options={{
+          tabBarIcon: ({ color }) => <HomeIcon size={24} color={color} />,
+          tabBarButton: (props) => {
+            const lastTap = useRef<number>(0);
+            const toggleFeed = useFeedStore((s) => s.toggleMode);
+            return (
+              <Pressable
+                {...(props as any)}
+                onPress={(e) => {
+                  const now = Date.now();
+                  if (now - lastTap.current < 300) {
+                    toggleFeed();
+                  } else {
+                    props.onPress?.(e as any);
+                  }
+                  lastTap.current = now;
+                }}
+              />
+            );
+          },
+        }}
       />
       <Tab.Screen
         name='Search'
