@@ -69,7 +69,8 @@ export function ChatScreen() {
   if (loading || !other) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.bg, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator color={theme.text} />
+    
+        <ScreenBackground variant="radio" />    <ActivityIndicator color={theme.text} />
       </View>
     );
   }

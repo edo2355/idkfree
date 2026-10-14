@@ -42,7 +42,8 @@ export function SplashScreen({ onFinish }: Props) {
 
   return (
     <View style={{ flex: 1, backgroundColor: darkTheme.bg, alignItems: 'center', justifyContent: 'center', padding: 32 }}>
-      <Image
+    
+      <ScreenBackground variant="particles" />  <Image
         source={require('../../assets/icon.png')}
         style={{ width: 120, height: 120, marginBottom: 24 }}
         resizeMode="contain"

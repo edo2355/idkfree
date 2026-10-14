@@ -68,7 +68,6 @@ export function RegisterScreen() {
       />
     );
   }
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
