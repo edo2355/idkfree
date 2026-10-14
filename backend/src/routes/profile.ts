@@ -8,7 +8,7 @@ import {
   getProfileByAlias,
   updateProfile,
   changePassword,
-  VALID_ACCENTS,, getSuggestedUsers} from '../services/profileService.js';
+  VALID_ACCENTS, getSuggestedUsers} from '../services/profileService.js';
 import { requireAuth } from '../middleware/auth.js';
 
 // ------------------------------------------------------------
