@@ -35,34 +35,44 @@ export function Login() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 24,
-      }}
-    >
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+      background: 'var(--bg)',
+    }}>
       <form
         onSubmit={handleSubmit}
         style={{
-          background: 'var(--color-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: 32,
           width: '100%',
-          maxWidth: 380,
+          maxWidth: 400,
           display: 'flex',
           flexDirection: 'column',
           gap: 20,
         }}
       >
+        {/* Logo + título */}
         <div style={{ textAlign: 'center', marginBottom: 8 }}>
-          <div style={{ fontSize: 48 }}>🌱</div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, marginTop: 8 }}>Aldea</h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>
-            Tu pueblo en internet
+          <div style={{ fontSize: 60, marginBottom: 8, color: 'var(--text)' }}>◇</div>
+          <h1 style={{
+            fontFamily: 'var(--font-display)',
+            fontStyle: 'italic',
+            fontSize: 42,
+            fontWeight: 900,
+            letterSpacing: 1,
+            color: 'var(--text)',
+          }}>
+            IDKFREE
+          </h1>
+          <p style={{
+            color: 'var(--text-muted)',
+            fontSize: 15,
+            marginTop: 6,
+            letterSpacing: 0.5,
+          }}>
+            No lo sé, gratis o libre
           </p>
         </div>
 
@@ -85,15 +95,14 @@ export function Login() {
         />
 
         {error && (
-          <div
-            style={{
-              padding: 10,
-              background: '#FEE',
-              color: 'var(--color-danger)',
-              borderRadius: 'var(--radius)',
-              fontSize: 14,
-            }}
-          >
+          <div style={{
+            padding: 12,
+            background: 'rgba(239,68,68,0.1)',
+            border: '1px solid var(--danger)',
+            color: 'var(--danger)',
+            borderRadius: 'var(--radius)',
+            fontSize: 14,
+          }}>
             {error}
           </div>
         )}
@@ -102,8 +111,43 @@ export function Login() {
           Entrar
         </Button>
 
-        <div style={{ textAlign: 'center', fontSize: 14 }}>
-          ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
+        <div style={{
+          textAlign: 'center',
+          fontSize: 15,
+          color: 'var(--text)',
+          marginTop: 4,
+        }}>
+          <Link to="/register" style={{ color: 'var(--text)' }}>
+            Crear cuenta
+          </Link>
+        </div>
+
+        {/* Firma Edo Amate */}
+        <div style={{
+          textAlign: 'center',
+          marginTop: 40,
+          paddingTop: 24,
+          borderTop: '1px solid var(--border)',
+        }}>
+          <div style={{
+            fontSize: 12,
+            color: 'var(--text-muted)',
+            letterSpacing: 3,
+            marginBottom: 8,
+            textTransform: 'lowercase',
+          }}>
+            from
+          </div>
+          <div style={{
+            fontFamily: 'var(--font-display)',
+            fontStyle: 'italic',
+            fontSize: 24,
+            fontWeight: 700,
+            color: 'var(--text)',
+            letterSpacing: 1,
+          }}>
+            edo amate
+          </div>
         </div>
       </form>
     </div>

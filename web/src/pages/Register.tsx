@@ -9,173 +9,86 @@ export function Register() {
   const [email, setEmail] = useState('');
   const [alias, setAlias] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [pinPanic, setPinPanic] = useState('');
-  const [pinRecovery, setPinRecovery] = useState('');
-  const [pinDestroy, setPinDestroy] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const setAuth = useAuthStore((s) => s.setAuth);
   const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
-      await api.auth.register({
-        email,
-        alias,
-        password,
-        name: name || undefined,
-        pins: {
-          panic: pinPanic,
-          recovery: pinRecovery,
-          destroy: pinDestroy,
-        },
-      });
-
-      // Tras registrarse, redirigimos al login
-      navigate('/login', {
-        state: { message: 'Cuenta creada. Guarda tu carnet e inicia sesión.' },
-      });
+      const res = await api.auth.register({ email, alias, password });
+      setAuth({ id: res.userId, alias: res.alias }, res.accessToken);
+      navigate('/');
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('Error de conexión');
-      }
+      if (err instanceof ApiError) setError(err.message);
+      else setError('Error de conexión');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 24,
-      }}
-    >
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+      background: 'var(--bg)',
+    }}>
       <form
         onSubmit={handleSubmit}
         style={{
-          background: 'var(--color-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: 32,
           width: '100%',
-          maxWidth: 440,
+          maxWidth: 400,
           display: 'flex',
           flexDirection: 'column',
           gap: 20,
         }}
       >
-        <h1 style={{ fontSize: 22, fontWeight: 700, textAlign: 'center' }}>
-          Crear cuenta en Aldea
-        </h1>
-
-        <Input
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <Input
-          label="Alias"
-          value={alias}
-          onChange={(e) => setAlias(e.target.value.toLowerCase())}
-          placeholder="ana_garcia"
-          hint="Solo minúsculas, números y guión bajo"
-          required
-        />
-
-        <Input
-          label="Nombre (opcional)"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <Input
-          label="Contraseña"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          hint="Mínimo 12 caracteres, 1 mayúscula, 1 minúscula, 1 número"
-          required
-        />
-
-        <div
-          style={{
-            borderTop: '1px solid var(--color-border)',
-            paddingTop: 16,
-            marginTop: 8,
-          }}
-        >
-          <p style={{ fontSize: 14, color: 'var(--color-text-muted)', marginBottom: 12 }}>
-            🔑 Elige tus 3 PINs (4 dígitos cada uno)
+        <div style={{ textAlign: 'center', marginBottom: 8 }}>
+          <div style={{ fontSize: 48, marginBottom: 8, color: 'var(--text)' }}>◇</div>
+          <h1 style={{
+            fontFamily: 'var(--font-display)',
+            fontStyle: 'italic',
+            fontSize: 34,
+            fontWeight: 900,
+            color: 'var(--text)',
+          }}>
+            Crear cuenta
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: 14, marginTop: 6 }}>
+            Únete a IDKFREE
           </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <Input
-              label="🚨 PIN de Pánico"
-              type="text"
-              inputMode="numeric"
-              maxLength={4}
-              value={pinPanic}
-              onChange={(e) => setPinPanic(e.target.value.replace(/\D/g, ''))}
-              placeholder="0000"
-              required
-            />
-            <Input
-              label="🔓 PIN de Restablecer"
-              type="text"
-              inputMode="numeric"
-              maxLength={4}
-              value={pinRecovery}
-              onChange={(e) => setPinRecovery(e.target.value.replace(/\D/g, ''))}
-              placeholder="0000"
-              required
-            />
-            <Input
-              label="🕊️ PIN de Fénix"
-              type="text"
-              inputMode="numeric"
-              maxLength={4}
-              value={pinDestroy}
-              onChange={(e) => setPinDestroy(e.target.value.replace(/\D/g, ''))}
-              placeholder="0000"
-              required
-            />
-          </div>
         </div>
 
+        <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" required />
+        <Input label="Alias" value={alias} onChange={(e) => setAlias(e.target.value)} placeholder="@tu_alias" required />
+        <Input label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
+
         {error && (
-          <div
-            style={{
-              padding: 10,
-              background: '#FEE',
-              color: 'var(--color-danger)',
-              borderRadius: 'var(--radius)',
-              fontSize: 14,
-            }}
-          >
+          <div style={{
+            padding: 12,
+            background: 'rgba(239,68,68,0.1)',
+            border: '1px solid var(--danger)',
+            color: 'var(--danger)',
+            borderRadius: 'var(--radius)',
+            fontSize: 14,
+          }}>
             {error}
           </div>
         )}
 
         <Button type="submit" size="lg" loading={loading}>
-          Crear cuenta
+          Registrarme
         </Button>
 
-        <div style={{ textAlign: 'center', fontSize: 14 }}>
-          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
+        <div style={{ textAlign: 'center', fontSize: 15, color: 'var(--text)' }}>
+          ¿Ya tienes cuenta? <Link to="/login" style={{ color: 'var(--text)' }}>Entrar</Link>
         </div>
       </form>
     </div>

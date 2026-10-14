@@ -2,47 +2,46 @@ import type { InputHTMLAttributes } from 'react';
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  error?: string;
-  hint?: string;
 }
 
-export function Input({ label, error, hint, style, ...rest }: Props) {
+export function Input({ label, style, ...rest }: Props) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       {label && (
-        <label
-          style={{
-            fontSize: '14px',
-            fontWeight: 500,
-            color: 'var(--color-text)',
-          }}
-        >
+        <label style={{
+          fontSize: 11,
+          letterSpacing: 1.5,
+          color: 'var(--text-muted)',
+          fontFamily: 'var(--font-ui)',
+          fontWeight: 500,
+          textTransform: 'uppercase',
+        }}>
           {label}
         </label>
       )}
       <input
+        {...rest}
         style={{
-          padding: '10px 12px',
-          fontSize: '15px',
-          border: `1px solid ${error ? 'var(--color-danger)' : 'var(--color-border)'}`,
+          padding: '14px 16px',
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
           borderRadius: 'var(--radius)',
-          background: 'var(--color-surface)',
-          color: 'var(--color-text)',
+          color: 'var(--text)',
+          fontSize: 15,
+          fontFamily: 'var(--font-ui)',
           outline: 'none',
+          transition: 'border-color 0.15s',
           ...style,
         }}
-        {...rest}
+        onFocus={(e) => {
+          e.currentTarget.style.borderColor = 'var(--text)';
+          rest.onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = 'var(--border)';
+          rest.onBlur?.(e);
+        }}
       />
-      {hint && !error && (
-        <span style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>
-          {hint}
-        </span>
-      )}
-      {error && (
-        <span style={{ fontSize: '13px', color: 'var(--color-danger)' }}>
-          {error}
-        </span>
-      )}
     </div>
   );
 }
