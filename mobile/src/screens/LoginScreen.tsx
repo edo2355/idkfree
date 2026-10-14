@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Text, Image, ScrollView, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View, Modal } from 'react-native';
+import { Text, Image, ScrollView, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View, Modal, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Svg, { Line, Rect, Circle, Path } from 'react-native-svg';
 import { useTheme } from '../stores/themeStore';
@@ -48,6 +48,7 @@ function TechLabel({ children, color, size = 9, spacing = 1.5 }: any) {
 // ---------- Pantalla ----------
 export function LoginScreen() {
   const theme = useTheme();
+  const { width: SW } = useWindowDimensions();
   const navigation = useNavigation<any>();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [email, setEmail] = useState('');
@@ -203,11 +204,13 @@ export function LoginScreen() {
 
         {/* Firma Edo Amate */}
         <View style={{ alignItems: 'center', marginBottom: 20 }}>
-          <Image
-            source={require('../../assets/logo-edo-white.png')}
-            style={{ width: 240, height: 100, opacity: 0.9 }}
-            resizeMode="contain"
-          />
+          <View style={{ width: SW * 0.68, height: 105, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+            <Image
+              source={require('../../assets/logo-edo-white.png')}
+              style={{ width: SW * 0.68, height: SW * 0.68, opacity: 0.9 }}
+              resizeMode="cover"
+            />
+          </View>
         </View>
 
         {/* Footer técnico */}

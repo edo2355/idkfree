@@ -65,7 +65,8 @@ export function ConfigScreen({ onClose }: Props) {
   return (
     <View style={styles.overlay}>
     
-      <ScreenBackground variant="grid" />  <ScrollView contentContainerStyle={styles.card}>
+      <ScreenBackground variant="grid" />
+      <ScrollView contentContainerStyle={styles.card}>
         <Text style={styles.title}>Servidor</Text>
         <Text style={styles.subtitle}>
           Elige cómo conectar la app con el backend
