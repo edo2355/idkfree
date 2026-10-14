@@ -272,6 +272,17 @@ export function createApi(config: ApiConfig) {
       destroy: (cardId: string, pin: string, confirmText: string) =>
         request<any>('/recovery/destroy', { method: 'POST', body: JSON.stringify({ cardId, pin, confirmText }) }),
     },
+    streams: {
+      start: (title: string, description?: string) =>
+        request<any>('/streams/start', { method: 'POST', body: JSON.stringify({ title, description }) }),
+      end: (id: string) => request<any>(`/streams/${id}/end`, { method: 'POST' }),
+      active: (p?: { limit?: number }) => {
+        const q = new URLSearchParams();
+        if (p?.limit) q.set('limit', String(p.limit));
+        return request<any>(`/streams/active?${q}`);
+      },
+      get: (id: string) => request<any>(`/streams/${id}`),
+    },
     institutions: {
       create: (d: any) => request<any>('/institutions', { method: 'POST', body: JSON.stringify(d) }),
       list: () => request<any>('/institutions'),
