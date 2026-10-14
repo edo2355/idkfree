@@ -9,6 +9,8 @@ import { Avatar } from './Avatar';
 import { HeartIcon } from './icons/HeartIcon';
 import { CommentIcon } from './icons/CommentIcon';
 import { ShareIcon } from './icons/ShareIcon';
+import { RepostIcon } from './icons/RepostIcon';
+import { BookmarkIcon } from './icons/BookmarkIcon';
 import { MoreIcon } from './icons/MoreIcon';
 import { api } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
@@ -38,6 +40,7 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
   const [showDrawings, setShowDrawings] = useState(false);
   const [drawingsCount, setDrawingsCount] = useState(0);
   const [reposting, setReposting] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     resolveAssetUrl(post.image_url).then((u) => { console.log("IMG URL:", u); setImageUrl(u); });
