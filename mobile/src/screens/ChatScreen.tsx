@@ -83,15 +83,32 @@ export function ChatScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6} style={{ padding: 6 }}>
           <Text style={{ color: theme.text, fontSize: 18 }}>←</Text>
         </TouchableOpacity>
-        <Avatar name={other.name ?? other.alias} url={other.avatar_url} size={36} />
-        <View style={{ marginLeft: 10, flex: 1 }}>
-          <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 15 }}>
-            {other.name ?? other.alias}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('UserProfile', { alias: other.alias })}
+          activeOpacity={0.7}
+          style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}
+        >
+          <Avatar name={other.name ?? other.alias} url={other.avatar_url} size={36} />
+          <View style={{ marginLeft: 10, flex: 1 }}>
+            <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 15 }}>
+              {other.name ?? other.alias}
+            </Text>
+            <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 12 }}>
+              @{other.alias}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* Botón ver perfil (opcional, redundante con el tap) */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('UserProfile', { alias: other.alias })}
+          activeOpacity={0.6}
+          style={{ padding: 8 }}
+        >
+          <Text style={{ color: theme.textMuted, fontFamily: fonts.medium, fontSize: 12 }}>
+            Perfil
           </Text>
-          <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 12 }}>
-            @{other.alias}
-          </Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Mensajes */}

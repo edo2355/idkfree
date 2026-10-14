@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { useAuthStore } from '../stores/authStore';
+import { useFeedStore } from '../stores/feedStore';
 import { NotificationIcon } from './icons/NotificationIcon';
 import { CommentIcon } from './icons/CommentIcon';
 import { Avatar } from './Avatar';
@@ -63,6 +64,13 @@ export function HeaderBar({ showBack = false, title }: Props) {
       </View>
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        {/* Toggle masonry solo en Feed (sin showBack, sin title) */}
+        {!showBack && !title ? (
+          <TouchableOpacity onPress={() => useFeedStore.getState().toggleMode()} activeOpacity={0.6}>
+            <Text style={{ fontSize: 18, color: theme.text }}>▦</Text>
+          </TouchableOpacity>
+        ) : null}
+
         <TouchableOpacity onPress={() => navigation.navigate('Chats')} activeOpacity={0.6}>
           <CommentIcon size={22} color={theme.text} />
         </TouchableOpacity>
