@@ -6,7 +6,7 @@ import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { resolveAssetUrl } from '../utils/assetUrl';
 
-const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
+const { width: SCREEN_W } = Dimensions.get('window');
 const STORY_DURATION_MS = 5000;
 
 interface Props {
@@ -23,30 +23,56 @@ export function StoryViewer({ groups, initialGroupIndex, onClose }: Props) {
   const [mediaUri, setMediaUri] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const timerRef = useRef<any>(null);
+  const closedRef = useRef(false);
 
   const group = groups[groupIdx];
   const story = group?.stories?.[storyIdx];
 
+  // Cerrar si no hay story — con useEffect (no durante render)
   useEffect(() => {
+    if ((!group || !story) && !closedRef.current) {
+      closedRef.current = true;
+      onClose();
+    }
+  }, [group, story, onClose]);
+
+  // Resolver URL
+  useEffect(() => {
+    let cancelled = false;
     (async () => {
-      if (!story) { setMediaUri(null); return; }
+      if (!story) { if (!cancelled) setMediaUri(null); return; }
       const uri = await resolveAssetUrl(story.media_url);
-      setMediaUri(uri);
+      if (!cancelled) setMediaUri(uri);
     })();
+    return () => { cancelled = true; };
   }, [story?.id]);
 
-  // Auto-avance
+  // Autoavance: solo si hay story válida
   useEffect(() => {
+    if (!group || !story) return;
     setProgress(0);
-    if (timerRef.current) clearInterval(timerRef.current);
+    const startTime = Date.now();
     timerRef.current = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 1) { next(); return 0; }
-        return p + (100 / (STORY_DURATION_MS / 100));
-      });
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min(100, (elapsed / STORY_DURATION_MS) * 100);
+      setProgress(pct);
+      if (pct >= 100) {
+        clearInterval(timerRef.current);
+        // Avanzar al siguiente (fuera del render actual)
+        setTimeout(() => {
+          if (storyIdx < group.stories.length - 1) {
+            setStoryIdx(storyIdx + 1);
+          } else if (groupIdx < groups.length - 1) {
+            setGroupIdx(groupIdx + 1);
+            setStoryIdx(0);
+          } else {
+            onClose();
+          }
+        }, 0);
+      }
     }, 100);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [story?.id, groupIdx, storyIdx]);
+  }, [story?.id, groupIdx, storyIdx, group, groups.length, onClose]);
 
   function next() {
     if (!group) return;
@@ -63,10 +89,6 @@ export function StoryViewer({ groups, initialGroupIndex, onClose }: Props) {
       setStoryIdx(pg.stories.length - 1);
     }
   }
-
-  useEffect(() => {
-    if (!group || !story) onClose();
-  }, [group, story]);
 
   if (!group || !story) return null;
 

@@ -44,18 +44,18 @@ export function LoginScreen() {
         </TouchableOpacity>
 
         <View style={{ alignSelf: 'center', marginBottom: 12 }}><SymbolIcon size={140} color={theme.text} /></View>
-        <Text style={{ fontSize: 34, fontFamily: fonts.displayBoldItalic, letterSpacing: 1, color: theme.text, textAlign: 'center' }}>IDKFREE</Text>
-        <Text style={{ color: theme.textMuted, textAlign: 'center', marginBottom: 32, fontFamily: fonts.medium, letterSpacing: 0.5 }}>No lo sé, gratis o libre</Text>
+        <Text style={{ fontSize: 44, fontFamily: fonts.displayBoldItalic, letterSpacing: 1, color: theme.text, textAlign: 'center' }}>IDKFREE</Text>
+        <Text style={{ fontSize: 17, color: theme.textMuted, textAlign: 'center', marginBottom: 36, fontFamily: fonts.medium, letterSpacing: 0.8 }}>No lo sé, gratis o libre</Text>
         <Input label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="tu@email.com" />
         <Input label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry placeholder="••••••••" />
         {error ? <Text style={{ color: theme.danger, marginBottom: 12, fontFamily: fonts.regular }}>{error}</Text> : null}
         <Button size="lg" loading={loading} onPress={handleLogin}>Entrar</Button>
-        <Text style={{ color: theme.text, textAlign: 'center', marginTop: 16, fontFamily: fonts.medium, letterSpacing: 0.5 }} onPress={() => navigation.navigate('Register')}>Crear cuenta</Text>
-        <Text style={{ color: theme.text, textAlign: 'center', marginTop: 12, fontFamily: fonts.medium, letterSpacing: 0.5 }} onPress={() => navigation.navigate('Recovery')}>Recuperar cuenta</Text>
+        <Text style={{ fontSize: 16, color: theme.text, textAlign: 'center', marginTop: 20, fontFamily: fonts.medium, letterSpacing: 0.5 }} onPress={() => navigation.navigate('Register')}>Crear cuenta</Text>
+        <Text style={{ fontSize: 16, color: theme.text, textAlign: 'center', marginTop: 14, fontFamily: fonts.medium, letterSpacing: 0.5 }} onPress={() => navigation.navigate('Recovery')}>Recuperar cuenta</Text>
 
         {/* Firma from Edo Amate */}
         <View style={{ alignItems: 'center', marginTop: 40, marginBottom: 20 }}>
-          <Text style={{ fontSize: 12, fontFamily: fonts.medium, color: theme.textMuted, letterSpacing: 2, marginBottom: 8, textTransform: 'lowercase' }}>from</Text>
+          <Text style={{ fontSize: 14, fontFamily: fonts.medium, color: theme.textMuted, letterSpacing: 3, marginBottom: 10, textTransform: 'lowercase' }}>from</Text>
           <Image
             source={require('../../assets/logo-edo-white.png')}
             style={{ width: 240, height: 100, opacity: 0.9, marginTop: 4 }}
