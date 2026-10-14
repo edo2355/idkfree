@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, Alert, ActionSheetIOS, Platform, ActivityIndicator } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { View, Text, Image, TouchableOpacity, Alert, ActionSheetIOS, Platform, ActivityIndicator, Animated, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { resolveAssetUrl as resolveAsset } from '../utils/assetUrl';
@@ -41,6 +41,9 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
   const [drawingsCount, setDrawingsCount] = useState(0);
   const [reposting, setReposting] = useState(false);
   const [saved, setSaved] = useState(false);
+  const lastTapRef = useRef<number>(0);
+  const heartScale = useRef(new Animated.Value(0)).current;
+  const heartOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     resolveAssetUrl(post.image_url).then((u) => { console.log("IMG URL:", u); setImageUrl(u); });
@@ -72,6 +75,24 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
       setLikesCount(likesCount);
     }
     setBusy(false);
+  }
+
+  function handleDoubleTap() {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      // Double tap
+      if (!liked && !busy) {
+        toggleLike();
+      }
+      // Animar corazón
+      heartScale.setValue(0.5);
+      heartOpacity.setValue(1);
+      Animated.parallel([
+        Animated.spring(heartScale, { toValue: 1.2, useNativeDriver: true, friction: 3 }),
+        Animated.timing(heartOpacity, { toValue: 0, duration: 700, delay: 200, useNativeDriver: true }),
+      ]).start();
+    }
+    lastTapRef.current = now;
   }
 
   async function doRepost() {
