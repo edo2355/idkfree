@@ -7,7 +7,8 @@ interface Props {
 }
 
 export function Layout({ children }: Props) {
-  const { user, logout } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.clearAuth);
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>

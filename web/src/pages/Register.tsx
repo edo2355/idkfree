@@ -8,7 +8,11 @@ import { Input } from '../components/Input';
 export function Register() {
   const [email, setEmail] = useState('');
   const [alias, setAlias] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [pinPanic, setPinPanic] = useState('');
+  const [pinRecovery, setPinRecovery] = useState('');
+  const [pinDestroy, setPinDestroy] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -18,10 +22,24 @@ export function Register() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+
+    if (pinPanic.length !== 4 || pinRecovery.length !== 4 || pinDestroy.length !== 4) {
+      setError('Los 3 PINs deben tener 4 dígitos');
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await api.auth.register({ email, alias, password });
-      setAuth({ id: res.userId, alias: res.alias }, res.accessToken);
+      await api.auth.register({
+        email,
+        alias,
+        name: name || undefined,
+        password,
+        pins: { panic: pinPanic, recovery: pinRecovery, destroy: pinDestroy },
+      });
+      // Register no devuelve token → auto-login
+      const login = await api.auth.login(email, password);
+      setAuth({ id: login.userId, alias: login.alias }, login.accessToken);
       navigate('/');
     } catch (err) {
       if (err instanceof ApiError) setError(err.message);
@@ -47,7 +65,7 @@ export function Register() {
           maxWidth: 400,
           display: 'flex',
           flexDirection: 'column',
-          gap: 20,
+          gap: 16,
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: 8 }}>
@@ -68,7 +86,28 @@ export function Register() {
 
         <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" required />
         <Input label="Alias" value={alias} onChange={(e) => setAlias(e.target.value)} placeholder="@tu_alias" required />
+        <Input label="Nombre (opcional)" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre" />
         <Input label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
+
+        <div style={{ marginTop: 8, marginBottom: 4 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: 12, letterSpacing: 1.5, marginBottom: 10, textTransform: 'uppercase' }}>
+            PINs de seguridad (4 dígitos cada uno)
+          </p>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ flex: 1 }}>
+              <Input label="Pánico" value={pinPanic} onChange={(e) => setPinPanic(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="0000" inputMode="numeric" maxLength={4} required />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Input label="Recuperar" value={pinRecovery} onChange={(e) => setPinRecovery(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="0000" inputMode="numeric" maxLength={4} required />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Input label="Destruir" value={pinDestroy} onChange={(e) => setPinDestroy(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="0000" inputMode="numeric" maxLength={4} required />
+            </div>
+          </div>
+          <p style={{ color: 'var(--text-subtle)', fontSize: 11, marginTop: 8, lineHeight: 1.5 }}>
+            ⚠️ Anota estos PINs. Sin ellos no podrás recuperar tu cuenta.
+          </p>
+        </div>
 
         {error && (
           <div style={{
