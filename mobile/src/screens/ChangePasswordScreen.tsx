@@ -4,6 +4,7 @@ import { idkAlert as Alert } from '../components/IDKAlert';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
+import { IDKButton } from '../components/IDKButton';
 import { api } from '../api/client';
 import { ScreenBackground } from '../components/ScreenBackground';
 
@@ -16,19 +17,22 @@ export function ChangePasswordScreen() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  async function save() {
+  async function save(): Promise<boolean> {
     setError('');
-    if (next.length < 8) { setError('Mínimo 8 caracteres'); return; }
-    if (next !== confirm) { setError('Las contraseñas no coinciden'); return; }
+    if (next.length < 8) { setError('Mínimo 8 caracteres'); return false; }
+    if (next !== confirm) { setError('Las contraseñas no coinciden'); return false; }
     setSaving(true);
     try {
       await api.profile.changePassword(current, next);
-      Alert.alert('Listo', 'Contraseña actualizada');
-      navigation.goBack();
+      Alert.alert('✓ CONTRASEÑA ACTUALIZADA', 'Tu contraseña ha sido cambiada.',
+        [{ text: 'OK', onPress: () => navigation.goBack() }]);
+      setSaving(false);
+      return true;
     } catch (e: any) {
       setError(e?.message ?? 'No se pudo cambiar');
+      setSaving(false);
+      return false;
     }
-    setSaving(false);
   }
 
   const inputStyle = {
@@ -66,11 +70,11 @@ export function ChangePasswordScreen() {
 
       {error ? <Text style={{ color: theme.danger, fontFamily: fonts.medium, fontSize: 13, marginBottom: 12 }}>{error}</Text> : null}
 
-      <TouchableOpacity onPress={save} disabled={saving} activeOpacity={0.7} style={{ backgroundColor: theme.text, paddingVertical: 14, borderRadius: 8, alignItems: 'center', marginTop: 8 }}>
-        {saving ? <ActivityIndicator color={theme.bg} /> : (
-          <Text style={{ color: theme.bg, fontFamily: fonts.medium, fontSize: 15 }}>Guardar</Text>
-        )}
-      </TouchableOpacity>
+      <View style={{ marginTop: 8 }}>
+        <IDKButton size="lg" onPress={save}>
+          GUARDAR CONTRASEÑA
+        </IDKButton>
+      </View>
     </ScrollView>
   </View>
   );
