@@ -1,10 +1,10 @@
 // ============================================================
-// IDKButton.tsx — Botón con barra de carga animada
-// Al tocar → barra llena de izq a der → verde si OK / rojo si falla
+// IDKButton.tsx — Botón con bloques de carga estilo OSHIMA
+// Al tocar → bloques se encienden izq→der → verde OK / rojo error
 // ============================================================
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  TouchableOpacity, Text, ViewStyle, Animated, StyleSheet, Easing,
+  TouchableOpacity, Text, ViewStyle, StyleSheet, View,
 } from 'react-native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
@@ -18,7 +18,8 @@ interface Props {
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   style?: ViewStyle;
-  loadingDuration?: number; // cuánto tarda la barra en llenarse durante loading (default 700ms)
+  blockCount?: number;      // cuántos bloquecitos (default 24)
+  loadingDuration?: number; // tiempo total de llenado durante loading
   successDuration?: number;
   errorDuration?: number;
   successColor?: string;
@@ -35,7 +36,8 @@ export function IDKButton({
   size = 'md',
   disabled,
   style,
-  loadingDuration = 700,
+  blockCount = 24,
+  loadingDuration = 900,
   successDuration = 900,
   errorDuration = 1200,
   successColor = SUCCESS_DEFAULT,
@@ -43,27 +45,64 @@ export function IDKButton({
 }: Props) {
   const theme = useTheme();
   const [status, setStatus] = useState<Status>('idle');
-  const progress = useRef(new Animated.Value(0)).current; // 0..1 ancho barra
+  const [filled, setFilled] = useState(0); // bloques encendidos (0..blockCount)
+  const intervalRef = useRef<any>(null);
 
   const sizes = {
-    sm: { paddingVertical: 8, paddingHorizontal: 12, fontSize: 12 },
-    md: { paddingVertical: 12, paddingHorizontal: 16, fontSize: 13 },
-    lg: { paddingVertical: 16, paddingHorizontal: 20, fontSize: 14 },
+    sm: { paddingVertical: 8, paddingHorizontal: 12, fontSize: 12, blockH: 3 },
+    md: { paddingVertical: 12, paddingHorizontal: 16, fontSize: 13, blockH: 4 },
+    lg: { paddingVertical: 16, paddingHorizontal: 20, fontSize: 14, blockH: 5 },
   };
   const s = sizes[size];
   const isDisabled = disabled || status === 'loading';
 
-  // Reset tras éxito/error → barra se contrae y vuelve a idle
+  // Al cambiar status, coordinar bloques
+  useEffect(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (status === 'loading') {
+      // Llenar hasta ~75% mientras espera al backend
+      const target = Math.floor(blockCount * 0.75);
+      intervalRef.current = setInterval(() => {
+        setFilled((f) => {
+          if (f >= target) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+            return f;
+          }
+          return f + 1;
+        });
+      }, Math.max(30, loadingDuration / target));
+    }
+
+    if (status === 'success') {
+      // Salto rápido a full
+      setFilled(blockCount);
+    }
+
+    if (status === 'error') {
+      // Los bloques se vuelven rojos, no se llenan más
+      // (mantienen el nivel donde quedaron)
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [status]);
+
+  // Reset tras éxito/error
   useEffect(() => {
     if (status === 'success' || status === 'error') {
       const duration = status === 'success' ? successDuration : errorDuration;
       const t = setTimeout(() => {
-        Animated.timing(progress, {
-          toValue: 0,
-          duration: 280,
-          easing: Easing.out(Easing.quad),
-          useNativeDriver: false,
-        }).start(() => setStatus('idle'));
+        setStatus('idle');
+        setFilled(0);
       }, duration);
       return () => clearTimeout(t);
     }
@@ -73,15 +112,7 @@ export function IDKButton({
     if (isDisabled) return;
 
     setStatus('loading');
-    progress.setValue(0);
-
-    // Barra que llena de 0 → 0.7 durante el loading (indeterminado hasta ~70%)
-    Animated.timing(progress, {
-      toValue: 0.7,
-      duration: loadingDuration,
-      easing: Easing.out(Easing.quad),
-      useNativeDriver: false,
-    }).start();
+    setFilled(0);
 
     let ok = false;
     try {
@@ -91,44 +122,29 @@ export function IDKButton({
       ok = false;
     }
 
-    // La barra salta a 1 y se colorea
-    Animated.timing(progress, {
-      toValue: 1,
-      duration: 220,
-      easing: Easing.out(Easing.quad),
-      useNativeDriver: false,
-    }).start();
-
-    // Color final
     setStatus(ok ? 'success' : 'error');
   }
 
-  // Colores según estado
-  const fillColor =
-    status === 'success' ? successColor :
-    status === 'error' ? errorColor :
-    variant === 'danger' ? theme.danger :
-    variant === 'primary' ? '#FFFFFF' :
-    theme.accent ?? '#FFFFFF';
-
-  const textColor =
+  // Colores por estado
+  const activeColor =
     status === 'success' ? successColor :
     status === 'error' ? errorColor :
     variant === 'primary' ? '#050505' :
     variant === 'danger' ? theme.danger :
+    (theme.accent ?? '#FFFFFF');
+
+  const bgColor = variant === 'primary' ? '#FFFFFF' : 'transparent';
+
+  const textColor =
+    variant === 'primary' ? '#050505' :
+    variant === 'danger' ? theme.danger :
     theme.text;
 
-  // Ancho de la barra: 0..100%
-  const barWidth = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0%', '100%'],
-  });
-
-  // Opacidad del texto (mantiene legible encima de la barra)
-  const textOpacity = progress.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [1, 0.55, 0],
-  });
+  // En success/error forzamos color del bloque
+  const blockColor =
+    status === 'success' ? successColor :
+    status === 'error' ? errorColor :
+    (variant === 'primary' ? '#050505' : (theme.accent ?? '#FFFFFF'));
 
   return (
     <TouchableOpacity
@@ -139,7 +155,7 @@ export function IDKButton({
         styles.button,
         {
           borderColor: variant === 'primary' ? 'transparent' : theme.border,
-          backgroundColor: variant === 'primary' ? '#FFFFFF' : 'transparent',
+          backgroundColor: bgColor,
           paddingVertical: s.paddingVertical,
           paddingHorizontal: s.paddingHorizontal,
           opacity: isDisabled && status === 'idle' ? 0.5 : 1,
@@ -147,32 +163,13 @@ export function IDKButton({
         style,
       ]}
     >
-      {/* Barra de carga (capa inferior) */}
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          {
-            backgroundColor: fillColor,
-            width: barWidth,
-            opacity: status === 'loading' || status === 'success' || status === 'error' ? 1 : 0,
-          },
-        ]}
-        pointerEvents="none"
-      />
-
-      {/* Texto (capa superior) */}
-      <Animated.Text
+      {/* Texto */}
+      <Text
         style={[
           styles.text,
           {
-            color: status === 'loading' || status === 'success' || status === 'error'
-              ? '#050505'
-              : textColor,
+            color: status === 'error' ? errorColor : textColor,
             fontSize: s.fontSize,
-            opacity:
-              status === 'success' || status === 'error'
-                ? 1
-                : textOpacity,
           },
         ]}
         numberOfLines={1}
@@ -180,7 +177,25 @@ export function IDKButton({
         {status === 'success' ? '✓ ' + children :
          status === 'error' ? '✗ ' + children :
          children}
-      </Animated.Text>
+      </Text>
+
+      {/* Bloques OSHIMA debajo del texto */}
+      <View style={styles.blocksRow} pointerEvents="none">
+        {Array.from({ length: blockCount }).map((_, i) => {
+          const on = i < filled;
+          return (
+            <View
+              key={i}
+              style={{
+                flex: 1,
+                height: s.blockH,
+                marginHorizontal: 0.5,
+                backgroundColor: on ? blockColor : 'rgba(0,0,0,0.12)',
+              }}
+            />
+          );
+        })}
+      </View>
     </TouchableOpacity>
   );
 }
@@ -199,5 +214,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1.5,
     textAlign: 'center',
+    marginBottom: 6,
+  },
+  blocksRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 4,
   },
 });
