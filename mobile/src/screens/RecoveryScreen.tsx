@@ -2,7 +2,7 @@
 // RecoveryScreen.tsx — Protocolo de Recuperación Táctica
 // Acepta params del Scanner (cardId, action, secret)
 // ============================================================
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
@@ -30,6 +30,18 @@ export function RecoveryScreen({ navigation, route }: any) {
   const [pin, setPin] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Sincroniza params cuando el Scanner navega de vuelta con datos
+  useEffect(() => {
+    if (params.cardId) setCardId(params.cardId);
+    if (params.secret) setSecret(params.secret);
+    if (params.action) setAction(params.action);
+    if (params.cardId || params.action) {
+      // limpiar PIN para que el usuario lo reingrese
+      setPin('');
+      setNewPassword('');
+    }
+  }, [params.cardId, params.secret, params.action]);
 
   async function handleExecute() {
     if (!cardId || !secret || !action || !pin) {
