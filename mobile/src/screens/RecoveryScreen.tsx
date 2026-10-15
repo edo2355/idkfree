@@ -67,7 +67,7 @@ export function RecoveryScreen({ navigation, route }: any) {
           [{ text: 'OK', onPress: () => navigation.navigate('Login') }]);
       } else if (action === 'fenix') {
         await api.recovery.fenix(cardId, secret, pin);
-        Alert.alert('[X] CUENTA BORRADA', 'Tu cuenta ha sido destruida.',
+        Alert.alert('[X] CUENTA MARCADA', 'Tu cuenta será eliminada en 24h si no se revierte con el PIN mental.',
           [{ text: 'OK', onPress: () => navigation.navigate('Login') }]);
       }
       setLoading(false);
