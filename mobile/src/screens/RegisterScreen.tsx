@@ -174,7 +174,7 @@ export function RegisterScreen({ navigation }: any) {
           {loading ? (
             <ActivityIndicator color="#000" />
           ) : (
-            <Text style={styles.buttonText}>GENERAR CARNET TÁCTICO ✦</Text>
+            <Text style={styles.buttonText}>GENERAR CARNET TÁCTICO ◆</Text>
           )}
         </TouchableOpacity>
 

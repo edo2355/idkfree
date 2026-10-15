@@ -58,15 +58,15 @@ export function RecoveryScreen({ navigation, route }: any) {
     try {
       if (action === 'panic') {
         await api.recovery.panic(cardId, secret, pin);
-        Alert.alert('✅ CUENTA BLOQUEADA', 'Tu cuenta ha sido bloqueada. Usa el PIN de pánico para desbloquearla.',
+        Alert.alert('✓ CUENTA BLOQUEADA', 'Tu cuenta ha sido bloqueada. Usa el PIN de pánico para desbloquearla.',
           [{ text: 'OK', onPress: () => navigation.navigate('Login') }]);
       } else if (action === 'restore') {
         await api.recovery.restore(cardId, secret, pin, newPassword);
-        Alert.alert('✅ CONTRASEÑA ACTUALIZADA', 'Ya puedes iniciar sesión con tu nueva contraseña.',
+        Alert.alert('✓ CONTRASEÑA ACTUALIZADA', 'Ya puedes iniciar sesión con tu nueva contraseña.',
           [{ text: 'OK', onPress: () => navigation.navigate('Login') }]);
       } else if (action === 'fenix') {
         await api.recovery.fenix(cardId, secret, pin);
-        Alert.alert('🔥 CUENTA BORRADA', 'Tu cuenta ha sido destruida.',
+        Alert.alert('[X] CUENTA BORRADA', 'Tu cuenta ha sido destruida.',
           [{ text: 'OK', onPress: () => navigation.navigate('Login') }]);
       }
     } catch (e: any) {

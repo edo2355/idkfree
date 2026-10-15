@@ -56,7 +56,7 @@ export function FeedScreen() {
         )}
         {!loading && posts.length === 0 ? (
           <Text style={{ textAlign: 'center', color: theme.textMuted, padding: 40, fontFamily: fonts.regular }}>
-            👋 Tu feed está vacío.
+            [ ] Tu feed está vacío.
           </Text>
         ) : null}
       </ScrollView>

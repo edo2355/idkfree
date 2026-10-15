@@ -22,7 +22,7 @@ export function ScannerScreen({ navigation }: any) {
         <Text style={styles.systemTag}>// SECURITY_ACCESS_REQUIRED</Text>
         <Text style={styles.permissionText}>Se requiere acceso a la cámara para escanear carnets orbitales.</Text>
         <TouchableOpacity style={styles.button} onPress={requestPermission}>
-          <Text style={styles.buttonText}>CONCEDER ACCESO ✦</Text>
+          <Text style={styles.buttonText}>CONCEDER ACCESO ◆</Text>
         </TouchableOpacity>
       </View>
     );

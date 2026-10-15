@@ -245,20 +245,20 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
 
         {/* Republicar */}
         <TouchableOpacity onPress={doRepost} disabled={reposting} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
-          <Text style={{ fontSize: 20, opacity: reposting ? 0.3 : 0.5 }}>🔁</Text>
+          <Text style={{ fontSize: 20, opacity: reposting ? 0.3 : 0.5 }}>↻</Text>
         </TouchableOpacity>
 
         {/* Dibujar (solo si NO es tuyo) */}
         {!isMine && imageUrl ? (
           <TouchableOpacity onPress={() => setShowDrawing(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
-            <Text style={{ fontSize: 18, color: theme.textMuted }}>✏️</Text>
+            <Text style={{ fontSize: 18, color: theme.textMuted }}>[EDIT]️</Text>
           </TouchableOpacity>
         ) : null}
 
         {/* Ver dibujos (si hay) */}
         {drawingsCount > 0 ? (
           <TouchableOpacity onPress={() => setShowDrawings(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} activeOpacity={0.6}>
-            <Text style={{ fontSize: 14, color: theme.textMuted }}>🎨</Text>
+            <Text style={{ fontSize: 14, color: theme.textMuted }}>[ART]</Text>
             <Text style={{ color: theme.textMuted, fontFamily: fonts.medium, fontSize: 12 }}>
               {drawingsCount}
             </Text>
@@ -347,7 +347,7 @@ function VideoPlayerInner({ uri, muted, onToggleMute }: { uri: string; muted: bo
         activeOpacity={0.7}
         style={{ position: 'absolute', bottom: 10, right: 10, width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(0,0,0,0.65)', alignItems: 'center', justifyContent: 'center' }}
       >
-        <Text style={{ color: '#FFF', fontSize: 16 }}>{muted ? '🔇' : '🔊'}</Text>
+        <Text style={{ color: '#FFF', fontSize: 16 }}>{muted ? '[MUTE]' : '[SON]'}</Text>
       </TouchableOpacity>
     </View>
   );

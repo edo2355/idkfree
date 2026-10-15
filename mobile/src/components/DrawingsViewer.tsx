@@ -53,7 +53,7 @@ export function DrawingsViewer({ postId, visible, onClose }: Props) {
           </View>
         ) : drawings.length === 0 ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 48, marginBottom: 12 }}>✏️</Text>
+            <Text style={{ fontSize: 48, marginBottom: 12 }}>[EDIT]️</Text>
             <Text style={{ color: '#AAA', fontFamily: fonts.regular }}>Sin dibujos aún</Text>
           </View>
         ) : (

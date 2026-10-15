@@ -65,7 +65,7 @@ export function CreateScreen() {
           // SECURITY_ACCESS_REQUIRED{'\n\n'}Se requiere acceso a la cámara.
         </Text>
         <TouchableOpacity onPress={requestPermission} style={{ backgroundColor: '#32D3EE', paddingHorizontal: 20, paddingVertical: 12 }}>
-          <Text style={{ color: '#000', fontFamily: 'monospace', fontWeight: 'bold', letterSpacing: 1 }}>CONCEDER ACCESO ✦</Text>
+          <Text style={{ color: '#000', fontFamily: 'monospace', fontWeight: 'bold', letterSpacing: 1 }}>CONCEDER ACCESO ◆</Text>
         </TouchableOpacity>
       </View>
     );
@@ -193,7 +193,7 @@ export function CreateScreen() {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 14, letterSpacing: 2 }}>[ OPCIONES ]</Text>
             <TouchableOpacity onPress={() => setSettingsOpen(false)}>
-              <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 14 }}>[ ✕ ]</Text>
+              <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 14 }}>[ ✗ ]</Text>
             </TouchableOpacity>
           </View>
 
@@ -275,7 +275,7 @@ export function CreateScreen() {
       <View style={{ flex: 1, backgroundColor: noteBg }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 50 }}>
           <TouchableOpacity onPress={() => { setMode('camera'); setNoteText(''); }}>
-            <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 14 }}>[ ✕ ]</Text>
+            <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 14 }}>[ ✗ ]</Text>
           </TouchableOpacity>
           <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 11, letterSpacing: 2 }}>NUEVA NOTA · 48H</Text>
           <TouchableOpacity onPress={publishNote} disabled={!noteText.trim() || posting}>
@@ -318,7 +318,7 @@ export function CreateScreen() {
       <View style={{ flex: 1, backgroundColor: '#000' }}>
         <Image source={{ uri: capturedUri }} style={{ flex: 1 }} resizeMode="contain" />
         <TouchableOpacity onPress={resetCamera} style={{ position: 'absolute', top: 50, left: 20, backgroundColor: 'rgba(0,0,0,0.7)', paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#333' }}>
-          <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 11 }}>[ ✕ ]</Text>
+          <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 11 }}>[ ✗ ]</Text>
         </TouchableOpacity>
         <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.85)', padding: 20, paddingBottom: 40 }}>
           <TextInput
@@ -385,7 +385,7 @@ export function CreateScreen() {
       {/* Top bar */}
       <View style={{ position: 'absolute', top: 50, left: 0, right: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20 }}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#333' }}>
-          <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 11 }}>[ ✕ ]</Text>
+          <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 11 }}>[ ✗ ]</Text>
         </TouchableOpacity>
 
         <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -395,10 +395,10 @@ export function CreateScreen() {
             </View>
           )}
           <TouchableOpacity onPress={() => setFlash(flash === 'off' ? 'on' : 'off')} style={{ backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#333' }}>
-            <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 11 }}>{flash === 'off' ? '⚡ OFF' : '⚡ ON'}</Text>
+            <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 11 }}>{flash === 'off' ? '[FLASH] OFF' : '[FLASH] ON'}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setSettingsOpen(true)} style={{ backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#333' }}>
-            <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 11 }}>⚙</Text>
+            <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 11 }}>[CFG]</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -435,7 +435,7 @@ export function CreateScreen() {
       <View style={{ position: 'absolute', bottom: 40, left: 0, right: 0, alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 40 }}>
           <TouchableOpacity onPress={pickFromGallery} style={{ width: 48, height: 48, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontSize: 22 }}>🖼️</Text>
+            <Text style={{ fontSize: 22 }}>[IMG]</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -458,7 +458,7 @@ export function CreateScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => setFacing(facing === 'back' ? 'front' : 'back')} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontSize: 22 }}>🔄</Text>
+            <Text style={{ fontSize: 22 }}>↻</Text>
           </TouchableOpacity>
         </View>
       </View>

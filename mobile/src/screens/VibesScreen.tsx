@@ -11,11 +11,11 @@ import { ScreenBackground } from '../components/ScreenBackground';
 type Tab = 'recientes' | 'todos' | 'legado';
 
 const MOODS: Record<string, string> = {
-  silencio: '🤫',
-  charlar: '💬',
-  crear: '🎨',
-  tranquilo: '🌊',
-  nose: '🤷',
+  silencio: '[MUTE]',
+  charlar: '[CHAT]',
+  crear: '[ART]',
+  tranquilo: '[WAVE]',
+  nose: '[?]',
 };
 
 export function VibesScreen() {
@@ -99,7 +99,7 @@ export function VibesScreen() {
           ListEmptyComponent={
             <View style={{ paddingVertical: 60, alignItems: 'center' }}>
               <Text style={{ fontSize: 48, marginBottom: 12 }}>
-                {tab === 'legado' ? '🕯️' : '💭'}
+                {tab === 'legado' ? '[LEGACY]️' : '[•]'}
               </Text>
               <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, textAlign: 'center' }}>
                 {tab === 'legado'
@@ -125,7 +125,7 @@ export function VibesScreen() {
                     @{item.author_alias}
                   </Text>
                 </View>
-                <Text style={{ fontSize: 28 }}>{MOODS[item.mood] ?? '💭'}</Text>
+                <Text style={{ fontSize: 28 }}>{MOODS[item.mood] ?? '[•]'}</Text>
               </View>
               {item.message ? (
                 <Text style={{ color: theme.text, fontFamily: fonts.regular, fontSize: 15, lineHeight: 21 }}>
@@ -134,7 +134,7 @@ export function VibesScreen() {
               ) : null}
               {item.resonances_count > 0 ? (
                 <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 11, marginTop: 8 }}>
-                  💜 {item.resonances_count} resonancias
+                  ◆ {item.resonances_count} resonancias
                 </Text>
               ) : null}
             </View>

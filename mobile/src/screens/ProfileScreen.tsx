@@ -178,7 +178,7 @@ export function ProfileScreen() {
           <View style={{ padding: 16 }}>
             {legacyVibes.length === 0 ? (
               <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-                <Text style={{ fontSize: 40, marginBottom: 10 }}>🕯️</Text>
+                <Text style={{ fontSize: 40, marginBottom: 10 }}>[LEGACY]️</Text>
                 <Text style={{ color: theme.textMuted, textAlign: 'center', fontFamily: fonts.regular, fontSize: 13 }}>
                   Sin contenido legacy
                 </Text>

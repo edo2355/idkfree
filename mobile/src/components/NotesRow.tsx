@@ -9,11 +9,11 @@ import { api } from '../api/client';
 import { Avatar } from './Avatar';
 
 const MOODS = [
-  { key: 'silencio', emoji: '🤫' },
-  { key: 'charlar', emoji: '💬' },
-  { key: 'crear', emoji: '🎨' },
-  { key: 'tranquilo', emoji: '🌊' },
-  { key: 'nose', emoji: '🤷' },
+  { key: 'silencio', emoji: '[MUTE]' },
+  { key: 'charlar', emoji: '[CHAT]' },
+  { key: 'crear', emoji: '[ART]' },
+  { key: 'tranquilo', emoji: '[WAVE]' },
+  { key: 'nose', emoji: '[?]' },
 ];
 
 export function NotesRow() {
@@ -89,7 +89,7 @@ export function NotesRow() {
             >
               <View style={{ width: 56, height: 56, borderRadius: 28, padding: 2, borderWidth: 1, borderColor: theme.border }}>
                 <View style={{ flex: 1, borderRadius: 25, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.surface }}>
-                  <Text style={{ fontSize: 22 }}>{MOODS.find((m) => m.key === v.mood)?.emoji ?? '💭'}</Text>
+                  <Text style={{ fontSize: 22 }}>{MOODS.find((m) => m.key === v.mood)?.emoji ?? '[•]'}</Text>
                 </View>
               </View>
               <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 10, marginTop: 4 }} numberOfLines={1}>

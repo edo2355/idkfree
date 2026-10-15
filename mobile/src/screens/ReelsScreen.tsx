@@ -168,7 +168,7 @@ export function ReelsScreen() {
                   decelerationRate="fast"
                   ListEmptyComponent={
                     <View style={{ justifyContent: 'center', alignItems: 'center', padding: 40, height: SCREEN_H - 240 }}>
-                      <Text style={{ fontSize: 48, marginBottom: 16 }}>🎬</Text>
+                      <Text style={{ fontSize: 48, marginBottom: 16 }}>[REEL]</Text>
                       <Text style={{ color: theme.text, fontFamily: fonts.displayBoldItalic, fontSize: 20, textAlign: 'center', marginBottom: 8 }}>
                         Aún no hay reels
                       </Text>
@@ -184,7 +184,7 @@ export function ReelsScreen() {
               )
             ) : (
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 }}>
-                <Text style={{ fontSize: 48, marginBottom: 16 }}>📡</Text>
+                <Text style={{ fontSize: 48, marginBottom: 16 }}>[LIVE]</Text>
                 <Text style={{ color: theme.text, fontFamily: fonts.displayBoldItalic, fontSize: 22, textAlign: 'center', marginBottom: 8 }}>
                   Streams en vivo
                 </Text>

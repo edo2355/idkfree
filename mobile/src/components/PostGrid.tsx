@@ -58,7 +58,7 @@ export function PostGrid({ posts }: Props) {
   if (posts.length === 0) {
     return (
       <View style={{ paddingVertical: 60, alignItems: 'center' }}>
-        <Text style={{ fontSize: 32, marginBottom: 8 }}>📷</Text>
+        <Text style={{ fontSize: 32, marginBottom: 8 }}>[CAM]</Text>
         <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 13 }}>
           Sin posts todavía
         </Text>

@@ -145,7 +145,7 @@ export function MyDataScreen() {
             'Información de otras apps',
           ].map((t, i) => (
             <View key={i} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-              <Text style={{ color: theme.textSubtle }}>✕</Text>
+              <Text style={{ color: theme.textSubtle }}>✗</Text>
               <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 13 }}>
                 {t}
               </Text>
@@ -185,7 +185,7 @@ export function MyDataScreen() {
             style={{ paddingVertical: 14, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
           >
             <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 14 }}>
-              📦 Exportar mis datos
+              [DATA] Exportar mis datos
             </Text>
           </TouchableOpacity>
 

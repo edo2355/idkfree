@@ -27,7 +27,7 @@ export function CardModalScreen({ qrPayloads, pins, onConfirm }: Props) {
       {/* QR Pánico */}
       <QRSection
         theme={theme}
-        title="🚨 QR de Pánico"
+        title="[!] QR de Pánico"
         subtitle="Úsalo si te ves en peligro — bloquea todo."
         payload={qrPayloads.panic}
       />
@@ -35,7 +35,7 @@ export function CardModalScreen({ qrPayloads, pins, onConfirm }: Props) {
       {/* QR Restablecer */}
       <QRSection
         theme={theme}
-        title="🔓 QR de Restablecer"
+        title="[OPEN] QR de Restablecer"
         subtitle="Para recuperar tu cuenta si olvidas la contraseña."
         payload={qrPayloads.restore}
       />
@@ -43,22 +43,22 @@ export function CardModalScreen({ qrPayloads, pins, onConfirm }: Props) {
       {/* QR Fénix */}
       <QRSection
         theme={theme}
-        title="🕊️ QR Fénix"
+        title="[FENIX]️ QR Fénix"
         subtitle="Borra todo permanentemente. Sin vuelta atrás."
         payload={qrPayloads.fenix}
       />
 
       {/* PINs del carnet */}
       <Text style={{ color: theme.text, fontFamily: fonts.medium, marginTop: 16, marginBottom: 12, textAlign: 'center', fontSize: 16 }}>
-        🔑 Tus 3 PINs del carnet
+        [KEY] Tus 3 PINs del carnet
       </Text>
-      <PinRow theme={theme} label="🚨 Pánico" value={pins.panic} />
-      <PinRow theme={theme} label="🔓 Restablecer" value={pins.recovery} />
-      <PinRow theme={theme} label="🕊️ Fénix" value={pins.destroy} />
+      <PinRow theme={theme} label="[!] Pánico" value={pins.panic} />
+      <PinRow theme={theme} label="[OPEN] Restablecer" value={pins.recovery} />
+      <PinRow theme={theme} label="[FENIX]️ Fénix" value={pins.destroy} />
 
       <View style={{ padding: 14, backgroundColor: theme.surfaceElevated, borderRadius: 10, marginTop: 20, borderWidth: 1, borderColor: theme.border }}>
         <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 13, marginBottom: 6 }}>
-          🔒 Tus 3 PINs secretos
+          [LOCK] Tus 3 PINs secretos
         </Text>
         <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 12, lineHeight: 18 }}>
           Estos NO se muestran aquí. Solo tú los sabes. Guárdalos mentalmente o en un gestor de contraseñas.

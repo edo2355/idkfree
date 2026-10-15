@@ -297,7 +297,7 @@ export function CardScreen() {
                   return;
                 }
                 await MediaLibrary.saveToLibraryAsync(uri);
-                Alert.alert('✅ Guardado', 'Carnet guardado en tu galería con calidad completa');
+                Alert.alert('✓ Guardado', 'Carnet guardado en tu galería con calidad completa');
               } catch (e: any) {
                 Alert.alert('Error', e?.message ?? 'No se pudo guardar');
               }
@@ -577,7 +577,7 @@ export function CardScreen() {
       {/* Info bloque */}
       <View style={{ padding: 16, borderRadius: 8, backgroundColor: theme.surfaceElevated, borderWidth: 1, borderColor: theme.border, marginBottom: 20 }}>
         <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 13, marginBottom: 6 }}>
-          🛡️  Cuenta protegida
+          [SEC]️  Cuenta protegida
         </Text>
         <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 12, lineHeight: 18 }}>
           Los PINs del carnet solo se muestran UNA VEZ al registrarte. Si los perdiste, no se pueden recuperar.
@@ -591,7 +591,7 @@ export function CardScreen() {
         style={{ paddingVertical: 14, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: theme.border, marginBottom: 10 }}
       >
         <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 14 }}>
-          {exporting === 'png' ? 'Guardando...' : '📷 Guardar imagen (PNG)'}
+          {exporting === 'png' ? 'Guardando...' : '[CAM] Guardar imagen (PNG)'}
         </Text>
       </TouchableOpacity>
 
@@ -602,7 +602,7 @@ export function CardScreen() {
         style={{ paddingVertical: 14, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: theme.border, marginBottom: 10 }}
       >
         <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 14 }}>
-          {exporting === 'pdf' ? 'Generando...' : '📄 Exportar PDF (A6 imprimible)'}
+          {exporting === 'pdf' ? 'Generando...' : '[PDF] Exportar PDF (A6 imprimible)'}
         </Text>
       </TouchableOpacity>
 
@@ -637,7 +637,7 @@ export function renderScannerButton(navigation: any) {
       onPress={() => navigation.navigate('Scanner')}
     >
       <Text style={{ fontFamily: 'monospace', fontSize: 11, color: '#32D3EE', fontWeight: 'bold', letterSpacing: 1 }}>
-        [ 📷 ABRIR ESCÁNER DE CÁMARA ]
+        [ [CAM] ABRIR ESCÁNER DE CÁMARA ]
       </Text>
     </TouchableOpacity>
   );
