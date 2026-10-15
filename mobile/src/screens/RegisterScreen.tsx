@@ -1,5 +1,5 @@
 // ============================================================
-// RegisterScreen.tsx — Registro Táctico usando api.auth.register
+// RegisterScreen.tsx — Registro Táctico corregido
 // ============================================================
 import React, { useState } from 'react';
 import {
@@ -46,7 +46,7 @@ export function RegisterScreen({ navigation }: any) {
         pin_fenix: pinFenix || '0000',
       });
 
-      if (res.token && res.user) {
+      if (res?.token && res?.user) {
         setAuth(res.user, res.token);
       } else {
         Alert.alert('SISTEMA', 'Respuesta inesperada del servidor.');

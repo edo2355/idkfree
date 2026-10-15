@@ -1,5 +1,5 @@
 // ============================================================
-// CardScreen.tsx — Carnet Digital Táctico con Escáner Integrado
+// CardScreen.tsx — Carnet Digital Táctico (Diseño Original)
 // ============================================================
 import React, { useState, useEffect } from 'react';
 import {
@@ -52,54 +52,47 @@ export function CardScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header Táctico */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.systemTag}>// ORBITAL_IDENTIFIER_CARD</Text>
-            <Text style={styles.title}>Carnet Digital</Text>
-          </View>
-          <TouchableOpacity 
-            style={styles.scanHeaderButton}
-            onPress={() => navigation.navigate('Scanner')}
-          >
-            <Text style={styles.scanHeaderButtonText}>📷 ESCANEAR</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Tarjeta de Carnet */}
-        <View style={styles.cardContainer}>
-          <View style={styles.cardTop}>
-            <Text style={styles.brandTitle}>IDKFREE ✦</Text>
-            <Text style={styles.cardId}>ID: {user?.id?.substring(0, 12) || 'UNKNOWN'}</Text>
+        {/* Card Container */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.logoText}>IDKFREE</Text>
+            <Text style={styles.subLogoText}>CARD SYSTEM v1.0</Text>
           </View>
 
           <View style={styles.cardBody}>
-            {/* Foto con Filtro Dossier */}
-            <View style={styles.photoBox}>
+            <View style={styles.photoContainer}>
               {resolvedAvatarUri ? (
-                <DossierPhotoFilter source={{ uri: resolvedAvatarUri }} variant="noir" showCoordinates style={styles.photo} />
+                <DossierPhotoFilter source={{ uri: resolvedAvatarUri }} variant="noir" style={styles.photo} />
               ) : (
                 <View style={styles.noPhoto}>
-                  <Text style={styles.noPhotoText}>SIN FOTO</Text>
+                  <Text style={styles.noPhotoText}>NO PHOTO</Text>
                 </View>
               )}
             </View>
 
-            {/* Datos Personales */}
-            <View style={styles.infoBox}>
-              <Text style={styles.nameText}>{user?.name || 'Sujeto Anónimo'}</Text>
-              <Text style={styles.aliasText}>@{user?.alias || 'alias'}</Text>
-              <Text style={styles.statusBadge}>STATUS: ACTIVO / VERIFICADO</Text>
+            <View style={styles.details}>
+              <Text style={styles.label}>TITULAR</Text>
+              <Text style={styles.valueName}>{user?.name || 'Sujeto Anónimo'}</Text>
+
+              <Text style={styles.label}>ALIAS</Text>
+              <Text style={styles.valueAlias}>@{user?.alias || 'alias'}</Text>
+
+              <Text style={styles.label}>IDENTIFICADOR</Text>
+              <Text style={styles.valueId}>{user?.id?.substring(0, 16) || 'IDK-000000'}</Text>
             </View>
           </View>
 
-          {/* Código QR Táctico */}
-          <View style={styles.qrSection}>
-            <View style={styles.qrFrame}>
-              <QRCode value={qrPayload} size={140} color="#FFF" backgroundColor="#000" />
-            </View>
-            <Text style={styles.qrHint}>[ PAYLOAD CIFRADO ORBITAL ]</Text>
+          <View style={styles.qrContainer}>
+            <QRCode value={qrPayload} size={150} color="#FFFFFF" backgroundColor="#000000" />
+            <Text style={styles.qrLabel}>SCAN TO VERIFY CREDENTIALS</Text>
           </View>
+
+          <TouchableOpacity 
+            style={styles.scanButton}
+            onPress={() => navigation.navigate('Scanner')}
+          >
+            <Text style={styles.scanButtonText}>[ ABRIR ESCÁNER DE CAMARA ]</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -113,73 +106,48 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-    paddingTop: 50,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    paddingTop: 60,
     alignItems: 'center',
-    marginBottom: 20,
   },
-  systemTag: {
-    fontFamily: 'monospace',
-    fontSize: 10,
-    color: '#32D3EE',
-    letterSpacing: 1,
-  },
-  title: {
-    fontFamily: fonts.displayBoldItalic,
-    fontSize: 28,
-    color: '#FFF',
-  },
-  scanHeaderButton: {
-    backgroundColor: '#0F0F0F',
-    borderWidth: 1,
-    borderColor: '#32D3EE',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  scanHeaderButtonText: {
-    fontFamily: 'monospace',
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#32D3EE',
-  },
-  cardContainer: {
+  card: {
+    width: '100%',
     backgroundColor: '#0A0A0A',
     borderWidth: 1,
-    borderColor: '#222',
+    borderColor: '#262626',
+    borderRadius: 8,
     padding: 20,
-    borderRadius: 4,
   },
-  cardTop: {
+  cardHeader: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#1A1A1A',
+    paddingBottom: 12,
+    marginBottom: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#222',
-    paddingBottom: 12,
-    marginBottom: 16,
+    alignItems: 'baseline',
   },
-  brandTitle: {
+  logoText: {
     fontFamily: fonts.displayBoldItalic,
-    fontSize: 20,
-    color: '#FFF',
+    fontSize: 22,
+    color: '#FFFFFF',
+    letterSpacing: 1,
   },
-  cardId: {
+  subLogoText: {
     fontFamily: 'monospace',
-    fontSize: 11,
-    color: '#888',
+    fontSize: 10,
+    color: '#A855F7',
   },
   cardBody: {
     flexDirection: 'row',
     marginBottom: 20,
   },
-  photoBox: {
-    width: 90,
-    height: 110,
+  photoContainer: {
+    width: 100,
+    height: 120,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: '#333333',
+    backgroundColor: '#000000',
+    overflow: 'hidden',
   },
   photo: {
     width: '100%',
@@ -187,54 +155,64 @@ const styles = StyleSheet.create({
   },
   noPhoto: {
     flex: 1,
-    backgroundColor: '#111',
     justifyContent: 'center',
     alignItems: 'center',
   },
   noPhotoText: {
     fontFamily: 'monospace',
     fontSize: 9,
-    color: '#555',
+    color: '#555555',
   },
-  infoBox: {
+  details: {
     flex: 1,
     marginLeft: 16,
-    justifyContent: 'center',
   },
-  nameText: {
-    fontFamily: fonts.displayBoldItalic,
-    fontSize: 18,
-    color: '#FFF',
-  },
-  aliasText: {
-    fontFamily: 'monospace',
-    fontSize: 12,
-    color: '#AB55F7',
-    marginBottom: 8,
-  },
-  statusBadge: {
-    fontFamily: 'monospace',
-    fontSize: 8,
-    color: '#32D3EE',
-    letterSpacing: 0.5,
-  },
-  qrSection: {
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#222',
-    paddingTop: 16,
-  },
-  qrFrame: {
-    padding: 10,
-    backgroundColor: '#000',
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  qrHint: {
+  label: {
     fontFamily: 'monospace',
     fontSize: 9,
-    color: '#666',
+    color: '#666666',
+    marginTop: 6,
+  },
+  valueName: {
+    fontFamily: fonts.displayBoldItalic,
+    fontSize: 16,
+    color: '#FFFFFF',
+  },
+  valueAlias: {
+    fontFamily: 'monospace',
+    fontSize: 12,
+    color: '#22D3EE',
+  },
+  valueId: {
+    fontFamily: 'monospace',
+    fontSize: 10,
+    color: '#A3A3A3',
+  },
+  qrContainer: {
+    alignItems: 'center',
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#1A1A1A',
+  },
+  qrLabel: {
+    fontFamily: 'monospace',
+    fontSize: 9,
+    color: '#555555',
     marginTop: 10,
     letterSpacing: 1,
+  },
+  scanButton: {
+    marginTop: 16,
+    backgroundColor: '#111111',
+    borderWidth: 1,
+    borderColor: '#333333',
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  scanButtonText: {
+    fontFamily: 'monospace',
+    fontSize: 10,
+    color: '#32D3EE',
+    fontWeight: 'bold',
   },
 });
