@@ -46,7 +46,7 @@
       "expo-video"
     ],
     "extra": {
-      "apiUrl": "http://10.111.157.67:3000/api",
+      "apiUrl": "https://idkfree.onrender.com/api",
       "eas": {
         "projectId": "a5993b12-c5b9-43c3-b222-8d60f5e206f4"
       }
