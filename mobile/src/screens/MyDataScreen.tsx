@@ -5,6 +5,7 @@ import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { useAuthStore } from '../stores/authStore';
 import { ScreenBackground } from '../components/ScreenBackground';
+import { IDKButton } from '../components/IDKButton';
 
 const MONO = 'monospace';
 
@@ -33,15 +34,16 @@ export function MyDataScreen() {
   const navigation = useNavigation<any>();
   const user = useAuthStore((s) => s.user);
 
-  function handleExport() {
+  async function handleExport(): Promise<boolean> {
     Alert.alert(
       'Exportar mis datos',
       'Se generará un archivo con toda tu información. Esta función estará disponible próximamente.',
       [{ text: 'OK' }]
     );
+    return true;
   }
 
-  function handleDelete() {
+  async function handleDelete(): Promise<boolean> {
     Alert.alert(
       'Eliminar mi cuenta',
       'Esta acción es irreversible. Se borrarán todos tus datos en 30 días. ¿Estás seguro?',
@@ -50,6 +52,7 @@ export function MyDataScreen() {
         { text: 'Entendido', style: 'destructive' },
       ]
     );
+    return true;
   }
 
   return (
@@ -179,25 +182,13 @@ export function MyDataScreen() {
 
         {/* Acciones */}
         <View style={{ marginTop: 32, gap: 10 }}>
-          <TouchableOpacity
-            onPress={handleExport}
-            activeOpacity={0.7}
-            style={{ paddingVertical: 14, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
-          >
-            <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 14 }}>
-              [DATA] Exportar mis datos
-            </Text>
-          </TouchableOpacity>
+          <IDKButton size="lg" variant="secondary" onPress={handleExport}>
+            EXPORTAR MIS DATOS
+          </IDKButton>
 
-          <TouchableOpacity
-            onPress={handleDelete}
-            activeOpacity={0.7}
-            style={{ paddingVertical: 14, borderRadius: 8, alignItems: 'center', backgroundColor: theme.danger }}
-          >
-            <Text style={{ color: '#FFF', fontFamily: fonts.medium, fontSize: 14 }}>
-              Eliminar mi cuenta
-            </Text>
-          </TouchableOpacity>
+          <IDKButton size="lg" variant="danger" onPress={handleDelete}>
+            ELIMINAR MI CUENTA
+          </IDKButton>
         </View>
 
         {/* Contacto */}

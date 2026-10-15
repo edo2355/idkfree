@@ -9,6 +9,7 @@ import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { ScreenBackground } from '../components/ScreenBackground';
+import { IDKButton } from '../components/IDKButton';
 
 export function EditProfileScreen() {
   const theme = useTheme();
@@ -76,7 +77,7 @@ export function EditProfileScreen() {
     setAvatarPreview(null);
   }
 
-  async function save() {
+  async function save(): Promise<boolean> {
     setSaving(true);
     try {
       await api.profile.update({
@@ -84,11 +85,13 @@ export function EditProfileScreen() {
         bio: bio.trim() || null,
         avatar_url: avatar,
       });
-      navigation.goBack();
+      setSaving(false);
+      return true;
     } catch (e: any) {
       Alert.alert('Error', e?.message ?? 'No se pudo guardar');
+      setSaving(false);
+      return false;
     }
-    setSaving(false);
   }
 
   if (loading) {
@@ -181,11 +184,11 @@ export function EditProfileScreen() {
         {bio.length}/160
       </Text>
 
-      <TouchableOpacity onPress={save} disabled={saving || uploading} activeOpacity={0.7} style={{ backgroundColor: theme.text, paddingVertical: 14, borderRadius: 8, alignItems: 'center', marginTop: 20 }}>
-        {saving ? <ActivityIndicator color={theme.bg} /> : (
-          <Text style={{ color: theme.bg, fontFamily: fonts.medium, fontSize: 15 }}>Guardar cambios</Text>
-        )}
-      </TouchableOpacity>
+      <View style={{ marginTop: 20 }}>
+        <IDKButton size="lg" onPress={save}>
+          GUARDAR CAMBIOS
+        </IDKButton>
+      </View>
     </ScrollView>
   </View>
   );

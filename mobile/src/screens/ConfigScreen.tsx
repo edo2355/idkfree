@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { darkTheme } from '../theme/dark';
 import { fonts } from '../theme/fonts';
 import { ScreenBackground } from '../components/ScreenBackground';
+import { IDKButton } from '../components/IDKButton';
 
 interface Props {
   onClose: () => void;
@@ -32,11 +33,11 @@ export function ConfigScreen({ onClose }: Props) {
     }
   }
 
-  async function testAndSave() {
+  async function testAndSave(): Promise<boolean> {
     const baseUrl = buildUrl();
     if (!baseUrl) {
       setMessage({ ok: false, text: 'Introduce una dirección válida' });
-      return;
+      return false;
     }
     setTesting(true);
     setMessage(null);
@@ -51,13 +52,16 @@ export function ConfigScreen({ onClose }: Props) {
       if (res.ok) {
         await AsyncStorage.setItem(STORAGE_KEY, baseUrl);
         setMessage({ ok: true, text: '✓ Conectado correctamente' });
-        setTimeout(onClose, 700);
+        setTimeout(onClose, 900);
+        return true;
       } else {
         setMessage({ ok: false, text: `✗ Servidor respondió ${res.status}` });
+        return false;
       }
     } catch (e: any) {
       const msg = e?.name === 'AbortError' ? 'Timeout (8s)' : 'No se pudo conectar';
       setMessage({ ok: false, text: `✗ ${msg}` });
+      return false;
     }
     setTesting(false);
   }
@@ -123,15 +127,9 @@ export function ConfigScreen({ onClose }: Props) {
           </>
         )}
 
-        <TouchableOpacity
-          style={[styles.button, testing && { opacity: 0.6 }]}
-          onPress={testAndSave}
-          disabled={testing}
-        >
-          {testing
-            ? <ActivityIndicator color="#050505" />
-            : <Text style={styles.buttonText}>Probar y guardar</Text>}
-        </TouchableOpacity>
+        <IDKButton size="lg" onPress={testAndSave}>
+          PROBAR Y GUARDAR
+        </IDKButton>
 
         {message && (
           <Text style={[styles.message, { color: message.ok ? darkTheme.success : darkTheme.danger }]}>
