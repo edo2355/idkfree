@@ -1,6 +1,8 @@
 // ============================================================
-// IDKButton.tsx — Botón con bloques de carga estilo OSHIMA
-// Al tocar → bloques se encienden izq→der → verde OK / rojo error
+// IDKButton.tsx — Bloques grandes que llenan todo el botón
+// Loading: bloques se encienden izq→der hasta 60%
+// OK: saltan a 100% en verde
+// Error: retroceden a 50% en rojo
 // ============================================================
 import React, { useState, useRef, useEffect } from 'react';
 import {
@@ -18,8 +20,8 @@ interface Props {
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   style?: ViewStyle;
-  blockCount?: number;      // cuántos bloquecitos (default 24)
-  loadingDuration?: number; // tiempo total de llenado durante loading
+  blockCount?: number;
+  loadingDuration?: number;
   successDuration?: number;
   errorDuration?: number;
   successColor?: string;
@@ -36,7 +38,7 @@ export function IDKButton({
   size = 'md',
   disabled,
   style,
-  blockCount = 24,
+  blockCount = 20,
   loadingDuration = 900,
   successDuration = 900,
   errorDuration = 1200,
@@ -45,18 +47,37 @@ export function IDKButton({
 }: Props) {
   const theme = useTheme();
   const [status, setStatus] = useState<Status>('idle');
-  const [filled, setFilled] = useState(0); // bloques encendidos (0..blockCount)
+  const [filled, setFilled] = useState(0);
   const intervalRef = useRef<any>(null);
 
   const sizes = {
-    sm: { paddingVertical: 8, paddingHorizontal: 12, fontSize: 12, blockH: 3 },
-    md: { paddingVertical: 12, paddingHorizontal: 16, fontSize: 13, blockH: 4 },
-    lg: { paddingVertical: 16, paddingHorizontal: 20, fontSize: 14, blockH: 5 },
+    sm: { paddingVertical: 10, paddingHorizontal: 14, fontSize: 12, minHeight: 40 },
+    md: { paddingVertical: 14, paddingHorizontal: 18, fontSize: 13, minHeight: 52 },
+    lg: { paddingVertical: 18, paddingHorizontal: 20, fontSize: 14, minHeight: 60 },
   };
   const s = sizes[size];
   const isDisabled = disabled || status === 'loading';
 
-  // Al cambiar status, coordinar bloques
+  // Fondo del botón base (blanco para primary)
+  const baseBg = variant === 'primary' ? '#FFFFFF' : 'transparent';
+
+  // Color base del texto
+  const baseTextColor =
+    variant === 'primary' ? '#050505' :
+    variant === 'danger' ? theme.danger :
+    theme.text;
+
+  // Color de los bloques según estado
+  const blockColor =
+    status === 'success' ? successColor :
+    status === 'error' ? errorColor :
+    variant === 'primary' ? '#050505' :
+    variant === 'danger' ? theme.danger :
+    (theme.accent ?? '#FFFFFF');
+
+  // Texto encima: durante loading/success/error se oculta
+  const showText = status === 'idle';
+
   useEffect(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -64,28 +85,31 @@ export function IDKButton({
     }
 
     if (status === 'loading') {
-      // Llenar hasta ~75% mientras espera al backend
-      const target = Math.floor(blockCount * 0.75);
+      // Sube hasta 60%
+      const target = Math.floor(blockCount * 0.6);
       intervalRef.current = setInterval(() => {
         setFilled((f) => {
           if (f >= target) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
             return f;
           }
           return f + 1;
         });
-      }, Math.max(30, loadingDuration / target));
+      }, Math.max(25, loadingDuration / target));
     }
 
     if (status === 'success') {
-      // Salto rápido a full
+      // Salta a 100%
       setFilled(blockCount);
     }
 
     if (status === 'error') {
-      // Los bloques se vuelven rojos, no se llenan más
-      // (mantienen el nivel donde quedaron)
+      // Retrocede a 50%
+      const target = Math.floor(blockCount * 0.5);
+      setFilled(target);
     }
 
     return () => {
@@ -125,27 +149,6 @@ export function IDKButton({
     setStatus(ok ? 'success' : 'error');
   }
 
-  // Colores por estado
-  const activeColor =
-    status === 'success' ? successColor :
-    status === 'error' ? errorColor :
-    variant === 'primary' ? '#050505' :
-    variant === 'danger' ? theme.danger :
-    (theme.accent ?? '#FFFFFF');
-
-  const bgColor = variant === 'primary' ? '#FFFFFF' : 'transparent';
-
-  const textColor =
-    variant === 'primary' ? '#050505' :
-    variant === 'danger' ? theme.danger :
-    theme.text;
-
-  // En success/error forzamos color del bloque
-  const blockColor =
-    status === 'success' ? successColor :
-    status === 'error' ? errorColor :
-    (variant === 'primary' ? '#050505' : (theme.accent ?? '#FFFFFF'));
-
   return (
     <TouchableOpacity
       onPress={handlePress}
@@ -155,47 +158,47 @@ export function IDKButton({
         styles.button,
         {
           borderColor: variant === 'primary' ? 'transparent' : theme.border,
-          backgroundColor: bgColor,
+          backgroundColor: baseBg,
           paddingVertical: s.paddingVertical,
           paddingHorizontal: s.paddingHorizontal,
+          minHeight: s.minHeight,
           opacity: isDisabled && status === 'idle' ? 0.5 : 1,
         },
         style,
       ]}
     >
-      {/* Texto */}
-      <Text
-        style={[
-          styles.text,
-          {
-            color: status === 'error' ? errorColor : textColor,
-            fontSize: s.fontSize,
-          },
-        ]}
-        numberOfLines={1}
-      >
-        {status === 'success' ? '✓ ' + children :
-         status === 'error' ? '✗ ' + children :
-         children}
-      </Text>
+      {/* Bloques grandes que ocupan TODO el botón */}
+      {filled > 0 && (
+        <View style={styles.blocksRow} pointerEvents="none">
+          {Array.from({ length: blockCount }).map((_, i) => {
+            const on = i < filled;
+            return (
+              <View
+                key={i}
+                style={{
+                  flex: 1,
+                  height: '100%',
+                  marginHorizontal: 1,
+                  backgroundColor: on ? blockColor : 'rgba(0,0,0,0.08)',
+                }}
+              />
+            );
+          })}
+        </View>
+      )}
 
-      {/* Bloques OSHIMA debajo del texto */}
-      <View style={styles.blocksRow} pointerEvents="none">
-        {Array.from({ length: blockCount }).map((_, i) => {
-          const on = i < filled;
-          return (
-            <View
-              key={i}
-              style={{
-                flex: 1,
-                height: s.blockH,
-                marginHorizontal: 0.5,
-                backgroundColor: on ? blockColor : 'rgba(0,0,0,0.12)',
-              }}
-            />
-          );
-        })}
-      </View>
+      {/* Texto encima (solo visible en idle) */}
+      {showText && (
+        <Text
+          style={[
+            styles.text,
+            { color: baseTextColor, fontSize: s.fontSize },
+          ]}
+          numberOfLines={1}
+        >
+          {children}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 }
@@ -205,7 +208,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 48,
     overflow: 'hidden',
     position: 'relative',
   },
@@ -214,12 +216,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1.5,
     textAlign: 'center',
-    marginBottom: 6,
   },
   blocksRow: {
+    ...StyleSheet.absoluteFillObject,
     flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    paddingHorizontal: 4,
+    alignItems: 'stretch',
   },
 });
