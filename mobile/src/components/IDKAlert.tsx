@@ -110,6 +110,7 @@ export function IDKAlertProvider({ children }: { children: React.ReactNode }) {
                     key={i}
                     style={[
                       styles.button,
+                      !isStacked && styles.buttonRow,
                       isStacked && styles.buttonStacked,
                       isDestructive && styles.buttonDanger,
                       isCancel && styles.buttonCancel,
@@ -221,12 +222,17 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   button: {
-    flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 48,
     borderWidth: 1,
     borderColor: '#333333',
     backgroundColor: '#0F0F0F',
+  },
+  buttonRow: {
+    flex: 1,
   },
   buttonStacked: {
     width: '100%',

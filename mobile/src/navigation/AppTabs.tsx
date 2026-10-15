@@ -16,6 +16,10 @@ import { SettingsScreen } from '../screens/SettingsScreen';
 import { EditProfileScreen } from '../screens/EditProfileScreen';
 import { ChangePasswordScreen } from '../screens/ChangePasswordScreen';
 import { CardScreen } from '../screens/CardScreen';
+import { AboutScreen } from '../screens/AboutScreen';
+import { PrivacyScreen } from '../screens/PrivacyScreen';
+import { TermsScreen } from '../screens/TermsScreen';
+import { MyDataScreen } from '../screens/MyDataScreen';
 import { CreateScreen } from '../screens/CreateScreen';
 import { ReelsScreen } from '../screens/ReelsScreen';
 
@@ -30,6 +34,10 @@ function ProfileStackNav() {
       <ProfileStack.Screen name='EditProfile' component={EditProfileScreen} />
       <ProfileStack.Screen name='ChangePassword' component={ChangePasswordScreen} />
       <ProfileStack.Screen name='Card' component={CardScreen} />
+      <ProfileStack.Screen name='About' component={AboutScreen} />
+      <ProfileStack.Screen name='Privacy' component={PrivacyScreen} />
+      <ProfileStack.Screen name='Terms' component={TermsScreen} />
+      <ProfileStack.Screen name='MyData' component={MyDataScreen} />
     </ProfileStack.Navigator>
   );
 }
