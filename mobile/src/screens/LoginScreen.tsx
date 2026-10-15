@@ -9,6 +9,7 @@ import { api } from '../api/client';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { IDKButton } from '../components/IDKButton';
+import { ServerStatusDot } from '../components/ServerStatusDot';
 import { ApiError } from '../../shared/api/client';
 import { ConfigScreen } from './ConfigScreen';
 import { ScreenBackground } from '../components/ScreenBackground';
@@ -95,7 +96,7 @@ export function LoginScreen() {
         {/* Header técnico */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: theme.danger }} />
+            <ServerStatusDot size={6} />
             <TechLabel color={theme.textMuted} size={8}>IDKFREE.OS</TechLabel>
           </View>
           <TechLabel color={theme.textSubtle} size={8}>v2.0.0 · 2026</TechLabel>
