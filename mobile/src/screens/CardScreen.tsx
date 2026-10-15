@@ -9,6 +9,8 @@ import { useAuthStore } from '../stores/authStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { exportCardAsPDF } from '../utils/cardExport';
+import * as MediaLibrary from 'expo-media-library';
+import * as Sharing from 'expo-sharing';
 import { ScreenBackground } from '../components/ScreenBackground';
 import { DossierPhotoFilter } from '../components/DossierPhotoFilter';
 import { resolveAssetUrl } from '../utils/assetUrl';
@@ -183,6 +185,7 @@ export function CardScreen() {
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState<'png' | 'pdf' | null>(null);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [cardSize, setCardSize] = useState({ w: 0, h: 0 });
   const cardRef = useRef<ViewShot>(null);
 
   useEffect(() => {
@@ -233,15 +236,69 @@ export function CardScreen() {
     if (!cardRef.current) return;
     setExporting('png');
     try {
-      const uri = await captureRef(cardRef, { format: 'png', quality: 1, result: 'tmpfile' });
-      const Sharing = require('expo-sharing');
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Guardar carnet IDKFREE' });
-      } else {
-        Alert.alert('Listo', 'Imagen generada en: ' + uri);
-      }
+      // pixelRatio: 3 → exporta a 3× resolución real (WhatsApp no la destruye)
+      // width/height × 3 → 3× resolución (WhatsApp no la destruye)
+      const w = Math.max(1, Math.round((cardSize.w || 360) * 3));
+      const h = Math.max(1, Math.round((cardSize.h || 600) * 3));
+      const uri = await captureRef(cardRef, {
+        format: 'png',
+        quality: 1,
+        result: 'tmpfile',
+        width: w,
+        height: h,
+      });
+
+      Alert.alert(
+        'CARNET GENERADO',
+        'Elige qué hacer con el archivo:',
+        [
+          {
+            text: 'GUARDAR EN GALERÍA',
+            onPress: async () => {
+              try {
+                const perm = await MediaLibrary.requestPermissionsAsync();
+                if (!perm.granted) {
+                  Alert.alert('Permiso requerido', 'Necesitamos acceso a la galería');
+                  return;
+                }
+                await MediaLibrary.saveToLibraryAsync(uri);
+                Alert.alert('✅ Guardado', 'Carnet guardado en tu galería con calidad completa');
+              } catch (e: any) {
+                Alert.alert('Error', e?.message ?? 'No se pudo guardar');
+              }
+            },
+          },
+          {
+            text: 'COMPARTIR IMAGEN',
+            onPress: async () => {
+              try {
+                if (await Sharing.isAvailableAsync()) {
+                  await Sharing.shareAsync(uri, {
+                    mimeType: 'image/png',
+                    dialogTitle: 'Compartir carnet IDKFREE',
+                  });
+                }
+              } catch (e: any) {
+                Alert.alert('Error', e?.message ?? 'No se pudo compartir');
+              }
+            },
+          },
+          {
+            text: 'COMPARTIR PDF',
+            style: 'default',
+            onPress: async () => {
+              try {
+                await exportCardAsPDF(card);
+              } catch (e: any) {
+                Alert.alert('Error', e?.message ?? 'No se pudo generar el PDF');
+              }
+            },
+          },
+          { text: 'CANCELAR', style: 'cancel' },
+        ]
+      );
     } catch (e: any) {
-      Alert.alert('Error', e?.message ?? 'No se pudo guardar la imagen');
+      Alert.alert('Error', e?.message ?? 'No se pudo generar la imagen');
     }
     setExporting(null);
   }
@@ -287,7 +344,15 @@ export function CardScreen() {
       </Text>
 
       {/* ========== CARNET ========== */}
-      <ViewShot ref={cardRef} options={{ format: 'png', quality: 1 }} style={{ backgroundColor: '#050505' }}>
+      <ViewShot
+        ref={cardRef}
+        options={{ format: 'png', quality: 1 }}
+        style={{ backgroundColor: '#050505' }}
+        onLayout={(e: any) => {
+          const { width, height } = e.nativeEvent.layout;
+          if (width && height) setCardSize({ w: width, h: height });
+        }}
+      >
         <View style={{
           backgroundColor: theme.bg,
           borderWidth: 1,
