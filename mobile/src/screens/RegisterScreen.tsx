@@ -1,128 +1,313 @@
-import { useState } from 'react';
-import { Text, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useTheme } from '../stores/themeStore';
-import { fonts } from '../theme/fonts';
+// ============================================================
+// RegisterScreen.tsx — Registro Táctico usando api.auth.register
+// ============================================================
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
-import { Input } from '../components/Input';
-import { Button } from '../components/Button';
-import { CardModalScreen } from './CardModalScreen';
-import { ApiError } from '../../shared/api/client';
-import { ScreenBackground } from '../components/ScreenBackground';
+import { fonts } from '../theme/fonts';
 
-export function RegisterScreen() {
-  const theme = useTheme();
-  const navigation = useNavigation<any>();
+export function RegisterScreen({ navigation }: any) {
+  const setAuth = useAuthStore((s) => s.setAuth);
 
-  const [email, setEmail] = useState('');
   const [alias, setAlias] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-
-  // 3 PINs secretos (obligatorios)
-  const [pin1, setPin1] = useState('');
-  const [pin2, setPin2] = useState('');
-  const [pin3, setPin3] = useState('');
-
-  const [error, setError] = useState('');
+  const [password, setPassword] = useState('');
+  const [pinPanic, setPinPanic] = useState('');
+  const [pinRestore, setPinRestore] = useState('');
+  const [pinFenix, setPinFenix] = useState('');
   const [loading, setLoading] = useState(false);
-  const [cardData, setCardData] = useState<any>(null);
 
-  async function handleRegister() {
-    setError('');
-
-    // Validación local
-    if (pin1.length < 4 || pin2.length < 4 || pin3.length < 4) {
-      setError('Los 3 PINs secretos deben tener al menos 4 dígitos');
-      return;
-    }
-    const secrets = [pin1, pin2, pin3];
-    if (new Set(secrets).size !== 3) {
-      setError('Los 3 PINs secretos deben ser diferentes entre sí');
+  const handleRegister = async () => {
+    if (!alias || !email || !password) {
+      Alert.alert('SISTEMA', 'Campos obligatorios incompletos (alias, email, contraseña).');
       return;
     }
 
     setLoading(true);
     try {
       const res = await api.auth.register({
-        email,
         alias,
+        email,
+        name,
         password,
-        name: name || undefined,
-        secretPins: secrets,
+        pin_panic: pinPanic || '0000',
+        pin_restore: pinRestore || '0000',
+        pin_fenix: pinFenix || '0000',
       });
-      setCardData(res);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Error de conexión');
+
+      if (res.token && res.user) {
+        setAuth(res.user, res.token);
+      } else {
+        Alert.alert('SISTEMA', 'Respuesta inesperada del servidor.');
+      }
+    } catch (err: any) {
+      Alert.alert('ERROR DE REGISTRO', err?.message || 'Error al conectar con la red.');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  if (cardData) {
-    return (
-      <CardModalScreen
-        qrPayloads={cardData.qrPayloads}
-        pins={cardData.pins}
-        onConfirm={() => navigation.navigate('Login')}
-      />
-    );
-  }
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flex: 1, backgroundColor: theme.bg }}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={{ fontSize: 28, color: theme.text, textAlign: 'center', marginBottom: 24, fontFamily: fonts.displayBoldItalic, letterSpacing: 0.5 }}>
-          Crear cuenta
-        </Text>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        {/* Cabecera Táctica */}
+        <View style={styles.header}>
+          <Text style={styles.systemTag}>// IDKFREE_REGISTRY_PROTOCOL</Text>
+          <Text style={styles.title}>Crear Carnet</Text>
+          <Text style={styles.subtitle}>Inicializa tus credenciales cifradas en la red.</Text>
+        </View>
 
-        <Input label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
-        <Input label="Alias" value={alias} onChangeText={(v) => setAlias(v.toLowerCase())} autoCapitalize="none" hint="minúsculas, números, _" />
-        <Input label="Nombre (opcional)" value={name} onChangeText={setName} />
-        <Input label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry hint="Mín 12, 1 mayúscula, 1 minúscula, 1 número" />
+        {/* Inputs de Identidad */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>[01] IDENTIDAD</Text>
+          
+          <Text style={styles.label}>ALIAS (@) *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="alias_unico"
+            placeholderTextColor="#555"
+            value={alias}
+            onChangeText={setAlias}
+            autoCapitalize="none"
+          />
 
-        <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 15, marginTop: 20, marginBottom: 8 }}>
-          🔒 Tus 3 PINs secretos
-        </Text>
-        <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 12, marginBottom: 12, lineHeight: 18 }}>
-          Solo tú los sabrás. NO se imprimen en el carnet. 4-8 dígitos cada uno, todos diferentes.
-        </Text>
+          <Text style={styles.label}>EMAIL *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="contacto@red.com"
+            placeholderTextColor="#555"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
-        <Input
-          label="PIN Secreto 1"
-          value={pin1}
-          onChangeText={(v) => setPin1(v.replace(/\D/g, '').slice(0, 8))}
-          keyboardType="number-pad"
-          maxLength={8}
-          secureTextEntry
-        />
-        <Input
-          label="PIN Secreto 2"
-          value={pin2}
-          onChangeText={(v) => setPin2(v.replace(/\D/g, '').slice(0, 8))}
-          keyboardType="number-pad"
-          maxLength={8}
-          secureTextEntry
-        />
-        <Input
-          label="PIN Secreto 3"
-          value={pin3}
-          onChangeText={(v) => setPin3(v.replace(/\D/g, '').slice(0, 8))}
-          keyboardType="number-pad"
-          maxLength={8}
-          secureTextEntry
-        />
+          <Text style={styles.label}>NOMBRE / APODO</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre público"
+            placeholderTextColor="#555"
+            value={name}
+            onChangeText={setName}
+          />
 
-        {error ? (
-          <Text style={{ color: theme.danger, marginBottom: 12, fontFamily: fonts.regular }}>{error}</Text>
-        ) : null}
+          <Text style={styles.label}>CONTRASEÑA *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="••••••••••••"
+            placeholderTextColor="#555"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+        </View>
 
-        <Button size="lg" loading={loading} onPress={handleRegister}>Crear cuenta</Button>
+        {/* Bloque Táctico de PINs de Seguridad */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>[02] LLAVES Y PINS DE SEGURIDAD</Text>
+          <Text style={styles.pinHint}>
+            Configura tus códigos de emergencia (4 dígitos para protocolos de tu carnet).
+          </Text>
+
+          <View style={styles.pinRow}>
+            <View style={styles.pinBox}>
+              <Text style={styles.pinLabel}>PÁNICO</Text>
+              <TextInput
+                style={styles.pinInput}
+                placeholder="0000"
+                placeholderTextColor="#444"
+                keyboardType="numeric"
+                maxLength={4}
+                secureTextEntry
+                value={pinPanic}
+                onChangeText={setPinPanic}
+              />
+            </View>
+
+            <View style={styles.pinBox}>
+              <Text style={styles.pinLabel}>RESTAURAR</Text>
+              <TextInput
+                style={styles.pinInput}
+                placeholder="0000"
+                placeholderTextColor="#444"
+                keyboardType="numeric"
+                maxLength={4}
+                secureTextEntry
+                value={pinRestore}
+                onChangeText={setPinRestore}
+              />
+            </View>
+
+            <View style={styles.pinBox}>
+              <Text style={styles.pinLabel}>FÉNIX</Text>
+              <TextInput
+                style={styles.pinInput}
+                placeholder="0000"
+                placeholderTextColor="#444"
+                keyboardType="numeric"
+                maxLength={4}
+                secureTextEntry
+                value={pinFenix}
+                onChangeText={setPinFenix}
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Botón de Acción Táctico */}
+        <TouchableOpacity 
+          style={[styles.button, loading && styles.buttonDisabled]} 
+          onPress={handleRegister}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#000" />
+          ) : (
+            <Text style={styles.buttonText}>GENERAR CARNET TÁCTICO ✦</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.linkButton} 
+          onPress={() => navigation.navigate('Login')}
+        >
+          <Text style={styles.linkText}>¿Ya posees credenciales? Iniciar Sesión</Text>
+        </TouchableOpacity>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({ container: { padding: 24, paddingTop: 60, paddingBottom: 40 } });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#050505',
+  },
+  scrollContent: {
+    padding: 24,
+    paddingTop: 60,
+  },
+  header: {
+    marginBottom: 28,
+    borderBottomWidth: 1,
+    borderBottomColor: '#222',
+    paddingBottom: 16,
+  },
+  systemTag: {
+    fontFamily: 'monospace',
+    fontSize: 10,
+    color: '#32D3EE',
+    letterSpacing: 1.5,
+    marginBottom: 6,
+  },
+  title: {
+    fontFamily: fonts.displayBoldItalic,
+    fontSize: 32,
+    color: '#FFF',
+  },
+  subtitle: {
+    fontFamily: 'monospace',
+    fontSize: 12,
+    color: '#888',
+    marginTop: 4,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontFamily: 'monospace',
+    fontSize: 11,
+    color: '#AB55F7',
+    letterSpacing: 1,
+    marginBottom: 12,
+  },
+  label: {
+    fontFamily: 'monospace',
+    fontSize: 10,
+    color: '#AAA',
+    marginBottom: 6,
+    marginTop: 10,
+  },
+  input: {
+    backgroundColor: '#0F0F0F',
+    borderWidth: 1,
+    borderColor: '#262626',
+    borderRadius: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: '#FFF',
+    fontFamily: 'monospace',
+    fontSize: 13,
+  },
+  pinHint: {
+    fontFamily: 'monospace',
+    fontSize: 10,
+    color: '#666',
+    marginBottom: 12,
+  },
+  pinRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  pinBox: {
+    width: '30%',
+  },
+  pinLabel: {
+    fontFamily: 'monospace',
+    fontSize: 9,
+    color: '#888',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  pinInput: {
+    backgroundColor: '#0F0F0F',
+    borderWidth: 1,
+    borderColor: '#333',
+    paddingVertical: 10,
+    textAlign: 'center',
+    color: '#32D3EE',
+    fontFamily: 'monospace',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  button: {
+    backgroundColor: '#FFF',
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#FFF',
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  buttonText: {
+    fontFamily: 'monospace',
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#000',
+    letterSpacing: 1,
+  },
+  linkButton: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  linkText: {
+    fontFamily: 'monospace',
+    fontSize: 11,
+    color: '#888',
+    textDecorationLine: 'underline',
+  },
+});

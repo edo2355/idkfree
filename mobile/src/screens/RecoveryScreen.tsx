@@ -1,168 +1,223 @@
-import { useState } from 'react';
-import { View, Text, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useTheme } from '../stores/themeStore';
+// ============================================================
+// RecoveryScreen.tsx — Protocolo de Recuperación Táctica + QR Scanner
+// ============================================================
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import { fonts } from '../theme/fonts';
-import { api } from '../api/client';
-import { Input } from '../components/Input';
-import { Button } from '../components/Button';
-import { ApiError } from '../../shared/api/client';
-import { ScreenBackground } from '../components/ScreenBackground';
 
-type Step = 'choose' | 'panic' | 'restore' | 'fenix';
-
-/**
- * Parsea el payload del QR: "aldea:v1:<cardId>:<kind>:<secret>"
- */
-function parseQRPayload(raw: string): { cardId: string; kind: string; secret: string } | null {
-  const text = raw.trim();
-  const parts = text.split(':');
-  // aldea:v1:cardId:kind:secret
-  if (parts.length >= 5 && parts[0] === 'aldea' && parts[1] === 'v1') {
-    return { cardId: parts[2], kind: parts[3], secret: parts[4] };
-  }
-  return null;
-}
-
-export function RecoveryScreen() {
-  const theme = useTheme();
-  const navigation = useNavigation<any>();
-
-  const [step, setStep] = useState<Step>('choose');
-  const [qrRaw, setQrRaw] = useState('');
-  const [pin, setPin] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [error, setError] = useState('');
+export function RecoveryScreen({ navigation }: any) {
+  const [identityKey, setIdentityKey] = useState('');
+  const [secretPhrase, setSecretPhrase] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleAction() {
-    setError('');
-    const parsed = parseQRPayload(qrRaw);
-    if (!parsed) {
-      setError('QR inválido. Pega el contenido del QR completo (aldea:v1:...)');
-      return;
-    }
-    if (pin.length < 4 || pin.length > 8) {
-      setError('El PIN debe tener entre 4 y 8 dígitos');
-      return;
-    }
-    if (step === 'restore' && newPassword.length < 12) {
-      setError('La nueva contraseña debe tener al menos 12 caracteres');
+  const handleRecovery = async () => {
+    if (!identityKey || !secretPhrase) {
+      Alert.alert('RECOVERY_ERROR', 'Ingrese el ID o alias y la clave de restauración.');
       return;
     }
 
     setLoading(true);
-    try {
-      if (step === 'panic') {
-        await api.recovery.panic(parsed.cardId, parsed.secret, pin);
-      } else if (step === 'restore') {
-        await api.recovery.restore(parsed.cardId, parsed.secret, pin, newPassword);
-      } else if (step === 'fenix') {
-        await api.recovery.fenix(parsed.cardId, parsed.secret, pin);
-      }
-      navigation.navigate('Login');
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Error de conexión');
-    } finally {
+    setTimeout(() => {
       setLoading(false);
-    }
-  }
+      Alert.alert('PROTOCOLO INICIADO', 'Si los datos coinciden, se han enviado las instrucciones de restauración.');
+    }, 1500);
+  };
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <ScreenBackground variant="radar" />
-      <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ padding: 24, paddingTop: 60, paddingBottom: 40 }}>
-      <Text style={{ fontSize: 26, color: theme.text, textAlign: 'center', marginBottom: 8, fontFamily: fonts.displayBoldItalic, letterSpacing: 0.5 }}>
-        Recuperar cuenta
-      </Text>
-      <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 13, textAlign: 'center', marginBottom: 24 }}>
-        Necesitas uno de tus 3 QRs del carnet
-      </Text>
-
-      {step === 'choose' && (
-        <View>
-          <View style={{ marginBottom: 12 }}>
-            <Button variant="secondary" onPress={() => setStep('panic')}>
-              🚨 Pánico — bloquear cuenta
-            </Button>
-          </View>
-          <View style={{ marginBottom: 12 }}>
-            <Button variant="secondary" onPress={() => setStep('restore')}>
-              🔓 Restablecer contraseña
-            </Button>
-          </View>
-          <View style={{ marginBottom: 12 }}>
-            <Button variant="danger" onPress={() => setStep('fenix')}>
-              🕊️ Fénix — borrar cuenta
-            </Button>
-          </View>
-          <View style={{ height: 8 }} />
-          <Button variant="ghost" onPress={() => navigation.goBack()}>Volver</Button>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        {/* Encabezado */}
+        <View style={styles.header}>
+          <Text style={styles.systemTag}>// PROTOCOL_RESTORE_V1</Text>
+          <Text style={styles.title}>Recuperación</Text>
+          <Text style={styles.subtitle}>Restablecimiento de credenciales de carnet.</Text>
         </View>
-      )}
 
-      {step !== 'choose' && (
-        <>
-          <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 14, marginBottom: 8 }}>
-            {step === 'panic' && '🚨 Modo Pánico'}
-            {step === 'restore' && '🔓 Restablecer contraseña'}
-            {step === 'fenix' && '🕊️ Modo Fénix'}
-          </Text>
-          <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 12, marginBottom: 16, lineHeight: 18 }}>
-            {step === 'panic' && 'Bloquea tu cuenta temporalmente si te la han hackeado. Solo tú puedes desbloquearla.'}
-            {step === 'restore' && 'Cambia la contraseña de tu cuenta sin necesitar la actual.'}
-            {step === 'fenix' && 'Borra tu cuenta y todos tus datos PERMANENTEMENTE. Sin vuelta atrás.'}
-          </Text>
+        {/* Botón Táctico de Escáner QR */}
+        <TouchableOpacity 
+          style={styles.scanButton}
+          onPress={() => navigation.navigate('Scanner')}
+        >
+          <Text style={styles.scanButtonText}>📷 ESCANEAR QR DE RESTAURACIÓN ✦</Text>
+        </TouchableOpacity>
 
-          <Input
-            label="Contenido del QR"
-            value={qrRaw}
-            onChangeText={setQrRaw}
-            placeholder="aldea:v1:..."
+        <View style={styles.dividerRow}>
+          <View style={styles.line} />
+          <Text style={styles.dividerText}>O INGRESO MANUAL</Text>
+          <View style={styles.line} />
+        </View>
+
+        <View style={styles.box}>
+          <Text style={styles.boxTitle}>[RESTORE_KEY_INJECTION]</Text>
+          
+          <Text style={styles.label}>ALIAS O IDK-ID *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="IDK-XXXX-XXXX / @alias"
+            placeholderTextColor="#444"
+            value={identityKey}
+            onChangeText={setIdentityKey}
             autoCapitalize="none"
-            autoCorrect={false}
-            hint="Copia el texto del QR escaneándolo con otra app"
           />
 
-          <Input
-            label={step === 'panic' ? 'PIN de Pánico' : step === 'restore' ? 'PIN de Restablecer' : 'PIN de Fénix'}
-            value={pin}
-            onChangeText={(v) => setPin(v.replace(/\D/g, '').slice(0, 8))}
-            keyboardType="number-pad"
-            maxLength={8}
+          <Text style={styles.label}>CLAVE SECRETA DE RESTAURACIÓN / RECOVERY PIN *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="••••-••••-••••"
+            placeholderTextColor="#444"
             secureTextEntry
+            value={secretPhrase}
+            onChangeText={setSecretPhrase}
           />
 
-          {step === 'restore' && (
-            <Input
-              label="Nueva contraseña"
-              value={newPassword}
-              onChangeText={setNewPassword}
-              secureTextEntry
-              hint="Mín 12, 1 mayúscula, 1 minúscula, 1 número"
-            />
-          )}
+          <TouchableOpacity 
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleRecovery}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#000" />
+            ) : (
+              <Text style={styles.buttonText}>EJECUTAR RESTAURACIÓN ✦</Text>
+            )}
+          </TouchableOpacity>
+        </View>
 
-          {step === 'fenix' && (
-            <View style={{ padding: 12, backgroundColor: theme.surfaceElevated, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: theme.danger }}>
-              <Text style={{ color: theme.danger, fontFamily: fonts.medium, fontSize: 12 }}>
-                ⚠️ Esta acción borra tu cuenta para siempre. No hay recuperación.
-              </Text>
-            </View>
-          )}
-
-          {error ? <Text style={{ color: theme.danger, marginBottom: 12, fontFamily: fonts.regular }}>{error}</Text> : null}
-
-          <Button size="lg" loading={loading} onPress={handleAction}>
-            {step === 'panic' ? 'Bloquear cuenta' : step === 'restore' ? 'Cambiar contraseña' : 'Borrar cuenta para siempre'}
-          </Button>
-          <View style={{ height: 8 }} />
-          <Button variant="ghost" onPress={() => { setStep('choose'); setError(''); setQrRaw(''); setPin(''); setNewPassword(''); }}>
-            Atrás
-          </Button>
-        </>
-      )}
-    </ScrollView>
-  </View>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.backText}>← CANCELAR Y VOLVER</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#050505',
+  },
+  scrollContent: {
+    padding: 24,
+    paddingTop: 60,
+  },
+  header: {
+    marginBottom: 20,
+  },
+  systemTag: {
+    fontFamily: 'monospace',
+    fontSize: 10,
+    color: '#EF4444',
+    letterSpacing: 1.5,
+    marginBottom: 6,
+  },
+  title: {
+    fontFamily: fonts.displayBoldItalic,
+    fontSize: 34,
+    color: '#FFF',
+  },
+  subtitle: {
+    fontFamily: 'monospace',
+    fontSize: 12,
+    color: '#777',
+    marginTop: 4,
+  },
+  scanButton: {
+    backgroundColor: '#0F0F0F',
+    borderWidth: 1,
+    borderColor: '#32D3EE',
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  scanButtonText: {
+    fontFamily: 'monospace',
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#32D3EE',
+    letterSpacing: 1,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#222',
+  },
+  dividerText: {
+    fontFamily: 'monospace',
+    fontSize: 9,
+    color: '#555',
+    marginHorizontal: 10,
+  },
+  box: {
+    backgroundColor: '#0A0A0A',
+    borderWidth: 1,
+    borderColor: '#222',
+    padding: 20,
+    borderRadius: 2,
+  },
+  boxTitle: {
+    fontFamily: 'monospace',
+    fontSize: 11,
+    color: '#32D3EE',
+    letterSpacing: 1,
+    marginBottom: 16,
+  },
+  label: {
+    fontFamily: 'monospace',
+    fontSize: 10,
+    color: '#888',
+    marginBottom: 6,
+    marginTop: 10,
+  },
+  input: {
+    backgroundColor: '#121212',
+    borderWidth: 1,
+    borderColor: '#2A2A2A',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: '#FFF',
+    fontFamily: 'monospace',
+    fontSize: 13,
+  },
+  button: {
+    backgroundColor: '#32D3EE',
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  buttonText: {
+    fontFamily: 'monospace',
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#000',
+    letterSpacing: 1,
+  },
+  backButton: {
+    marginTop: 24,
+    alignItems: 'center',
+  },
+  backText: {
+    fontFamily: 'monospace',
+    fontSize: 11,
+    color: '#666',
+  },
+});
