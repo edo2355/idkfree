@@ -1,3 +1,6 @@
+import { useCallback } from 'react';
+import { getAssetUrl } from '../utils/assetUrl';
+import { useFocusEffect } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Share, Alert } from 'react-native';
 import ViewShot, { captureRef } from 'react-native-view-shot';
@@ -182,15 +185,19 @@ export function CardScreen() {
   const [exporting, setExporting] = useState<'png' | 'pdf' | null>(null);
   const cardRef = useRef<ViewShot>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.card.get();
-        setCard(res.card);
-      } catch (e) { console.log('card error', e); }
-      setLoading(false);
-    })();
-  }, []);
+  const fetchCard = async () => {
+    try {
+      const res = await api.card.get();
+      setCard(res.card);
+    } catch (e) { console.log('card error', e); }
+    setLoading(false);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchCard();
+    }, [])
+  );
 
   if (loading || !card) {
     return (
@@ -318,7 +325,7 @@ export function CardScreen() {
               {/* Foto */}
               <View style={{ width: 110, height: 130, backgroundColor: theme.surfaceElevated, borderWidth: 1, borderColor: theme.border, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }}>
                 {hasPhoto ? (
-                  <Image source={{ uri: card.avatar_url }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                  <Image source={{ uri: card.avatar_url ? getAssetUrl(card.avatar_url) : '' }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
                 ) : (
                   <Text style={{ fontSize: 48, color: theme.text, fontFamily: fonts.displayBoldItalic }}>{initial}</Text>
                 )}

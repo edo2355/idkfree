@@ -11,6 +11,7 @@ import { Button } from '../components/Button';
 import { ApiError } from '../../shared/api/client';
 import { ConfigScreen } from './ConfigScreen';
 import { ScreenBackground } from '../components/ScreenBackground';
+import { CarnetTicketsBackground } from '../components/CarnetTicketsBackground';
 
 const MONO = 'monospace';
 
@@ -76,6 +77,7 @@ export function LoginScreen() {
       style={{ flex: 1, backgroundColor: theme.bg }}
     >
       <ScreenBackground variant="neural" opacity={0.07} />
+      <CarnetTicketsBackground />
 
       <ScrollView contentContainerStyle={styles.container}>
         {/* Botón servidor arriba derecha */}
