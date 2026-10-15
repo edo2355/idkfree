@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import { idkAlert as Alert } from '../components/IDKAlert';
 import { fonts } from '../theme/fonts';
+import { IDKButton } from '../components/IDKButton';
 import { api } from '../api/client';
 import { ApiError } from '../../shared/api/client';
 
@@ -44,14 +45,14 @@ export function RecoveryScreen({ navigation, route }: any) {
     }
   }, [params.cardId, params.secret, params.action]);
 
-  async function handleExecute() {
+  async function handleExecute(): Promise<boolean> {
     if (!cardId || !secret || !action || !pin) {
       Alert.alert('DATOS INCOMPLETOS', 'Faltan cardId, secret, acción o PIN.');
-      return;
+      return false;
     }
     if (action === 'restore' && !newPassword) {
       Alert.alert('FALTA CONTRASEÑA', 'Debes ingresar la nueva contraseña.');
-      return;
+      return false;
     }
 
     setLoading(true);
@@ -69,11 +70,14 @@ export function RecoveryScreen({ navigation, route }: any) {
         Alert.alert('[X] CUENTA BORRADA', 'Tu cuenta ha sido destruida.',
           [{ text: 'OK', onPress: () => navigation.navigate('Login') }]);
       }
+      setLoading(false);
+      return true;
     } catch (e: any) {
       const msg = e instanceof ApiError ? e.message : (e?.message ?? 'Error desconocido');
       Alert.alert('ERROR DE RECUPERACIÓN', msg);
+      setLoading(false);
+      return false;
     }
-    setLoading(false);
   }
 
   return (
@@ -164,17 +168,9 @@ export function RecoveryScreen({ navigation, route }: any) {
             </>
           )}
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleExecute}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#000" />
-            ) : (
-              <Text style={styles.buttonText}>EJECUTAR PROTOCOLO</Text>
-            )}
-          </TouchableOpacity>
+          <IDKButton size="lg" onPress={handleExecute}>
+            EJECUTAR PROTOCOLO
+          </IDKButton>
         </View>
 
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>

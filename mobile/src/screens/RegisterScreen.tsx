@@ -7,6 +7,7 @@ import { idkAlert as Alert } from '../components/IDKAlert';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { fonts } from '../theme/fonts';
+import { IDKButton } from '../components/IDKButton';
 
 export function RegisterScreen({ navigation }: any) {
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -20,10 +21,10 @@ export function RegisterScreen({ navigation }: any) {
   const [pinFenix, setPinFenix] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async () => {
+  const handleRegister = async (): Promise<boolean> => {
     if (!alias || !email || !password) {
       Alert.alert('SISTEMA', 'Campos obligatorios incompletos (alias, email, contraseña).');
-      return;
+      return false;
     }
 
     setLoading(true);
@@ -48,11 +49,14 @@ export function RegisterScreen({ navigation }: any) {
           { id: res.userId, alias: res.alias, name: res.name ?? null, email: res.email ?? null, avatar_url: null },
           res.accessToken
         );
+        return true;
       } else {
         Alert.alert('SISTEMA', 'Respuesta inesperada del servidor.');
+        return false;
       }
     } catch (err: any) {
       Alert.alert('ERROR DE REGISTRO', err?.message || 'Error al conectar con la red.');
+      return false;
     } finally {
       setLoading(false);
     }
@@ -166,17 +170,9 @@ export function RegisterScreen({ navigation }: any) {
         </View>
 
         {/* Botón de Acción Táctico */}
-        <TouchableOpacity 
-          style={[styles.button, loading && styles.buttonDisabled]} 
-          onPress={handleRegister}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#000" />
-          ) : (
-            <Text style={styles.buttonText}>GENERAR CARNET TÁCTICO ◆</Text>
-          )}
-        </TouchableOpacity>
+                <IDKButton size="lg" onPress={handleRegister}>
+          GENERAR CARNET TÁCTICO
+        </IDKButton>
 
         <TouchableOpacity 
           style={styles.linkButton} 

@@ -8,6 +8,7 @@ import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
+import { IDKButton } from '../components/IDKButton';
 import { ApiError } from '../../shared/api/client';
 import { ConfigScreen } from './ConfigScreen';
 import { ScreenBackground } from '../components/ScreenBackground';
@@ -58,14 +59,16 @@ export function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
 
-  async function handleLogin() {
+  async function handleLogin(): Promise<boolean> {
     setError('');
     setLoading(true);
     try {
       const res = await api.auth.login(email, password);
       setAuth({ id: res.userId, alias: res.alias }, res.accessToken);
+      return true;
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Error de conexión');
+      return false;
     } finally { setLoading(false); }
   }
 
@@ -165,7 +168,7 @@ export function LoginScreen() {
 
         {/* Botón */}
         <View style={{ marginTop: 20 }}>
-          <Button size="lg" loading={loading} onPress={handleLogin}>Entrar</Button>
+          <IDKButton size="lg" onPress={handleLogin}>Entrar</IDKButton>
         </View>
 
         {/* Links técnicos */}
