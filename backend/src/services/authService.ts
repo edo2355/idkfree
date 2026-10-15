@@ -99,8 +99,9 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
         recovery_secret_hash,
         pin_panic_hash, pin_recovery_hash, pin_destroy_hash,
         secret_panic, secret_restore, secret_fenix,
-        secret_pin_1_hash, secret_pin_2_hash, secret_pin_3_hash)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+        secret_pin_1_hash, secret_pin_2_hash, secret_pin_3_hash,
+        backup_panic, backup_restore, backup_fenix)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
       [
         uuid(),
         user.id,
@@ -115,6 +116,9 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
         secretPin1Hash,
         secretPin2Hash,
         secretPin3Hash,
+        card.backupPanic,
+        card.backupRestore,
+        card.backupFenix,
       ]
     );
 

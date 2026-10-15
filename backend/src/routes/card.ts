@@ -14,7 +14,7 @@ export async function cardRoutes(app: FastifyInstance) {
     const userId = (req as any).userId;
 
     const row = db.prepare(
-      'SELECT card_id, secret_panic, secret_restore, secret_fenix, created_at FROM card_keys WHERE user_id = ? LIMIT 1'
+      'SELECT card_id, secret_panic, secret_restore, secret_fenix, backup_panic, backup_restore, backup_fenix, created_at FROM card_keys WHERE user_id = ? LIMIT 1'
     ).get(userId) as any;
 
     const user = db.prepare(
@@ -42,6 +42,12 @@ export async function cardRoutes(app: FastifyInstance) {
           panic: row.secret_panic ? `aldea:v1:${row.card_id}:panic:${row.secret_panic}` : null,
           restore: row.secret_restore ? `aldea:v1:${row.card_id}:restore:${row.secret_restore}` : null,
           fenix: row.secret_fenix ? `aldea:v1:${row.card_id}:fenix:${row.secret_fenix}` : null,
+        },
+        // Códigos impresos de respaldo (alternativa al PIN mental si se olvida)
+        backupCodes: {
+          panic: row.backup_panic ?? null,
+          restore: row.backup_restore ?? null,
+          fenix: row.backup_fenix ?? null,
         },
         // PINs enmascarados — la versión completa solo se devuelve en register
         pinsMasked: {

@@ -5,6 +5,9 @@ export interface GeneratedCard {
   secretPanic: string;
   secretRestore: string;
   secretFenix: string;
+  backupPanic: string;
+  backupRestore: string;
+  backupFenix: string;
 }
 
 export function generateCard(): GeneratedCard {
@@ -14,7 +17,22 @@ export function generateCard(): GeneratedCard {
     secretPanic: base32Encode(randomBytes(20)),
     secretRestore: base32Encode(randomBytes(20)),
     secretFenix: base32Encode(randomBytes(20)),
+    backupPanic: generateBackupCode(),
+    backupRestore: generateBackupCode(),
+    backupFenix: generateBackupCode(),
   };
+}
+
+// Código impreso de respaldo, legible a mano: XXXX-XXXX-XXXX
+// Sin caracteres ambiguos (0/O, 1/I/L)
+export function generateBackupCode(): string {
+  const ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+  const pick = () => {
+    const b = randomBytes(2).readUInt16BE(0) % ALPHABET.length;
+    return ALPHABET[b];
+  };
+  const block = () => pick() + pick() + pick() + pick();
+  return `${block()}-${block()}-${block()}`;
 }
 
 export function generatePin(): string {

@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { panicRecover, restoreRecover, fenixRecover } from '../services/recoveryService.js';
+import { panicRecover, restoreRecover, fenixRecover, overridePendingDeletion, getRecoveryAudit } from '../services/recoveryService.js';
+import { requireAuth } from '../middleware/auth.js';
 
 const baseSchema = z.object({
   cardId: z.string().uuid(),
@@ -58,6 +59,35 @@ export async function recoveryRoutes(app: FastifyInstance) {
         return reply.code(401).send({ error: 'Carnet, QR o PIN incorrectos' });
       }
       app.log.error(err);
+      return reply.code(500).send({ error: 'Error interno' });
+    }
+  });
+
+  // POST /api/recovery/override — dueño revierte acción hecha con código impreso
+  app.post('/recovery/override', { preHandler: [requireAuth] }, async (req, reply) => {
+    const { cardId, pin } = req.body as { cardId?: string; pin?: string };
+    if (!cardId || !pin) {
+      return reply.code(400).send({ error: 'cardId y pin requeridos' });
+    }
+    try {
+      const ip = (req.headers['x-forwarded-for'] as string) ?? req.ip;
+      const result = await overridePendingDeletion(cardId, pin, ip);
+      return reply.send(result);
+    } catch (err: any) {
+      const code = err.message === 'INVALID_MENTAL_PIN' ? 401
+        : err.message === 'INVALID_CARD' ? 404
+        : 500;
+      return reply.code(code).send({ error: err.message });
+    }
+  });
+
+  // GET /api/recovery/audit/:cardId — historial de intentos del carnet
+  app.get('/recovery/audit/:cardId', { preHandler: [requireAuth] }, async (req, reply) => {
+    const { cardId } = req.params as { cardId: string };
+    try {
+      const audit = await getRecoveryAudit(cardId, 50);
+      return reply.send({ audit });
+    } catch (err: any) {
       return reply.code(500).send({ error: 'Error interno' });
     }
   });

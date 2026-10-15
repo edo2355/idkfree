@@ -118,7 +118,8 @@ function HexCluster({ size, color }: any) {
 }
 
 // QR con marco técnico
-function QRSection({ theme, index, title, payload, code }: any) {
+function QRSection({ theme, index, title, payload, code, backup }: any) {
+  const [showBackup, setShowBackup] = useState(false);
   if (!payload) {
     return (
       <View style={{ marginBottom: 20 }}>
@@ -172,6 +173,39 @@ function QRSection({ theme, index, title, payload, code }: any) {
           </View>
         </View>
       </View>
+
+      {/* Código impreso de respaldo */}
+      {backup ? (
+        <TouchableOpacity
+          onPress={() => setShowBackup((v) => !v)}
+          activeOpacity={0.7}
+          style={{
+            marginTop: 10,
+            borderWidth: 1,
+            borderStyle: 'dashed',
+            borderColor: showBackup ? theme.accent : theme.border,
+            backgroundColor: theme.surface,
+            paddingHorizontal: 10,
+            paddingVertical: 8,
+          }}
+        >
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <TechLabel color={theme.textSubtle} size={8}>IMPRESO · BACKUP</TechLabel>
+            <Text style={{ color: theme.textSubtle, fontFamily: MONO, fontSize: 8 }}>
+              {showBackup ? '[ OCULTAR ]' : '[ TOCAR PARA VER ]'}
+            </Text>
+          </View>
+          {showBackup ? (
+            <Text style={{ color: theme.text, fontFamily: MONO, fontSize: 13, letterSpacing: 2, marginTop: 6, textAlign: 'center', fontWeight: '700' }}>
+              {backup}
+            </Text>
+          ) : (
+            <Text style={{ color: theme.textSubtle, fontFamily: MONO, fontSize: 13, letterSpacing: 2, marginTop: 6, textAlign: 'center' }}>
+              ••••-••••-••••
+            </Text>
+          )}
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }
@@ -487,6 +521,7 @@ export function CardScreen() {
             index="[01]"
             title="PÁNICO"
             payload={card.qrPayloads.panic}
+            backup={card.backupCodes?.panic}
             code={`#${hexFrom(card.alias + '1', 4)}`}
           />
           <QRSection
@@ -494,6 +529,7 @@ export function CardScreen() {
             index="[02]"
             title="RESTABLECER"
             payload={card.qrPayloads.restore}
+            backup={card.backupCodes?.restore}
             code={`#${hexFrom(card.alias + '2', 4)}`}
           />
           <QRSection
@@ -501,6 +537,7 @@ export function CardScreen() {
             index="[03]"
             title="FÉNIX"
             payload={card.qrPayloads.fenix}
+            backup={card.backupCodes?.fenix}
             code={`#${hexFrom(card.alias + '3', 4)}`}
           />
 
