@@ -6,11 +6,13 @@ import { query } from '../db/pool.js';
 export async function authRoutes(app: FastifyInstance) {
   app.post('/auth/register', async (req, reply) => {
     const parsed = registerSchema.safeParse(req.body);
-    if (!parsed.success) return reply.code(400).send({ error: 'Datos inválidos', details: parsed.error.flatten() });
+    if (!parsed.success) { app.log.error({ zodErrors: parsed.error.flatten() }, 'REGISTER VALIDATION FAILED'); return reply.code(400).send({ error: 'Datos inválidos', details: parsed.error.flatten() }); }
     try {
       const result = await register(parsed.data as any);
+      const accessToken = app.jwt.sign({ sub: result.userId, alias: result.alias }, { expiresIn: '15m' });
       return reply.code(201).send({
         ...result,
+        accessToken,
         warning: 'Guarda los 3 QRs y los 3 PINs del carnet AHORA. Los 3 PINs secretos no se muestran — solo tú los sabes.',
       });
     } catch (err: any) {

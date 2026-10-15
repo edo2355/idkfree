@@ -36,18 +36,26 @@ export function RegisterScreen({ navigation }: any) {
 
     setLoading(true);
     try {
-      const res = await api.auth.register({
+      const payload: any = {
         alias,
         email,
-        name,
         password,
-        pin_panic: pinPanic || '0000',
-        pin_restore: pinRestore || '0000',
-        pin_fenix: pinFenix || '0000',
-      });
+        secretPins: [
+          pinPanic || '0000',
+          pinRestore || '0000',
+          pinFenix || '0000',
+        ],
+      };
+      // name solo si no está vacío (el schema es min(1).optional())
+      if (name && name.trim().length > 0) payload.name = name.trim();
 
-      if (res?.token && res?.user) {
-        setAuth(res.user, res.token);
+      const res = await api.auth.register(payload);
+
+      if (res?.accessToken && res?.userId) {
+        setAuth(
+          { id: res.userId, alias: res.alias, name: res.name ?? null, email: res.email ?? null, avatar_url: null },
+          res.accessToken
+        );
       } else {
         Alert.alert('SISTEMA', 'Respuesta inesperada del servidor.');
       }
