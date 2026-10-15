@@ -1,41 +1,58 @@
 // ============================================================
-// DossierPhotoFilter.tsx — Filtro estilo Mugshot / Dossier Policial
+// DossierPhotoFilter.tsx — Filtro Cinemático Cyber-Dossier / Noir
 // ============================================================
 import React from 'react';
-import { View, Image, StyleSheet, ViewStyle } from 'react-native';
+import { View, Image, StyleSheet, Text, ViewStyle } from 'react-native';
 
 interface Props {
   source: { uri: string } | number;
   style?: ViewStyle;
-  variant?: 'mugshot' | 'cyber' | 'classified';
+  variant?: 'noir' | 'surveillance' | 'classified';
+  showCoordinates?: boolean;
 }
 
-export function DossierPhotoFilter({ source, style, variant = 'mugshot' }: Props) {
+export function DossierPhotoFilter({ 
+  source, 
+  style, 
+  variant = 'noir',
+  showCoordinates = false 
+}: Props) {
   return (
     <View style={[styles.container, style]}>
-      {/* Imagen base */}
+      {/* Imagen base con escala de grises simulada y contraste */}
       <Image 
         source={source} 
         style={styles.image} 
         resizeMode="cover" 
       />
 
-      {/* Capa de tinte según la variante (Cyber azul/verde o Monocromo archival) */}
+      {/* Capa de tinte y alto contraste estilo película B&W / vigilancia */}
       <View style={[
         styles.overlay, 
-        variant === 'cyber' && styles.cyberOverlay,
+        variant === 'noir' && styles.noirOverlay,
+        variant === 'surveillance' && styles.surveillanceOverlay,
         variant === 'classified' && styles.classifiedOverlay,
-        variant === 'mugshot' && styles.mugshotOverlay
       ]} pointerEvents="none" />
 
-      {/* Líneas de escaneo (Scanlines estilo terminal/dossier antiguo) */}
-      <View style={styles.scanlines} pointerEvents="none" />
+      {/* Retícula geométrica y líneas de escaneo */}
+      <View style={styles.gridOverlay} pointerEvents="none">
+        <View style={styles.horizontalLine} />
+        <View style={styles.verticalLine} />
+      </View>
 
-      {/* Esquinas tácticas */}
-      <View style={[styles.corner, styles.topLeft]} pointerEvents="none" />
-      <View style={[styles.corner, styles.topRight]} pointerEvents="none" />
-      <View style={[styles.corner, styles.bottomLeft]} pointerEvents="none" />
-      <View style={[styles.corner, styles.bottomRight]} pointerEvents="none" />
+      {/* Coordenadas / Datos tácticos opcionales */}
+      {showCoordinates && (
+        <View style={styles.coordinatesContainer} pointerEvents="none">
+          <Text style={styles.coordText}>23°00'21.8" S</Text>
+          <Text style={styles.coordText}>43°12'33.6" W</Text>
+        </View>
+      )}
+
+      {/* Cruces de precisión y marcas en esquinas */}
+      <View style={[styles.crosshair, styles.topL]} pointerEvents="none"><Text style={styles.crossText}>+</Text></View>
+      <View style={[styles.crosshair, styles.topR]} pointerEvents="none"><Text style={styles.crossText}>+</Text></View>
+      <View style={[styles.crosshair, styles.botL]} pointerEvents="none"><Text style={styles.crossText}>+</Text></View>
+      <View style={[styles.crosshair, styles.botR]} pointerEvents="none"><Text style={styles.crossText}>+</Text></View>
     </View>
   );
 }
@@ -44,42 +61,74 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     overflow: 'hidden',
-    backgroundColor: '#000',
+    backgroundColor: '#050505',
     borderWidth: 1,
-    borderColor: '#444',
+    borderColor: '#333',
   },
   image: {
     width: '100%',
     height: '100%',
-    opacity: 0.9,
+    opacity: 0.85,
+    tintColor: '#E0E0E0', // Ayuda a unificar tonos monocromos en Android/iOS
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
   },
-  mugshotOverlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Alto contraste B&W
+  noirOverlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
   },
-  cyberOverlay: {
-    backgroundColor: 'rgba(0, 45, 75, 0.4)', // Tinte ciberpunk Blade Runner
+  surveillanceOverlay: {
+    backgroundColor: 'rgba(10, 25, 35, 0.5)', // Tinte azul militar nocturno
   },
   classifiedOverlay: {
-    backgroundColor: 'rgba(60, 45, 25, 0.35)', // Tinte expediente desclasificado
+    backgroundColor: 'rgba(35, 25, 15, 0.45)', // Tinte papel antiguo / sepia oscuro
   },
-  scanlines: {
+  gridOverlay: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.2,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.15,
   },
-  corner: {
+  horizontalLine: {
+    width: '100%',
+    height: 1,
+    backgroundColor: '#FFF',
+  },
+  verticalLine: {
+    width: 1,
+    height: '100%',
+    backgroundColor: '#FFF',
     position: 'absolute',
-    width: 8,
-    height: 8,
-    borderColor: '#FFF',
+  },
+  coordinatesContainer: {
+    position: 'absolute',
+    top: 4,
+    right: 6,
+    zIndex: 2,
+  },
+  coordText: {
+    fontFamily: 'monospace',
+    fontSize: 7,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'right',
+    letterSpacing: 0.5,
+  },
+  crosshair: {
+    position: 'absolute',
+    width: 12,
+    height: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 3,
   },
-  topLeft: { top: 2, left: 2, borderTopWidth: 2, borderLeftWidth: 2 },
-  topRight: { top: 2, right: 2, borderTopWidth: 2, borderRightWidth: 2 },
-  bottomLeft: { bottom: 2, left: 2, borderBottomWidth: 2, borderLeftWidth: 2 },
-  bottomRight: { bottom: 2, right: 2, borderBottomWidth: 2, borderRightWidth: 2 },
+  crossText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: '300',
+    opacity: 0.8,
+  },
+  topL: { top: -1, left: 1 },
+  topR: { top: -1, right: 1 },
+  botL: { bottom: -3, left: 1 },
+  botR: { bottom: -3, right: 1 },
 });

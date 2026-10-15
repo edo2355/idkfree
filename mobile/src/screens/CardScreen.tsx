@@ -333,7 +333,7 @@ export function CardScreen() {
               {/* Foto */}
               <View style={{ width: 110, height: 130, backgroundColor: theme.surfaceElevated, borderWidth: 1, borderColor: theme.border, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }}>
                 {hasPhoto ? (
-                  <DossierPhotoFilter source={{ uri: avatarUri ?? '' }} style={{ width: '100%', height: '100%' }} variant="mugshot" />
+                  <DossierPhotoFilter source={{ uri: avatarUri ?? '' }} style={{ width: '100%', height: '100%' }} variant="noir" />
                 ) : (
                   <Text style={{ fontSize: 48, color: theme.text, fontFamily: fonts.displayBoldItalic }}>{initial}</Text>
                 )}

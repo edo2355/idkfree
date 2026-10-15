@@ -19,10 +19,3 @@ export async function resolveAssetUrl(relative: string | null | undefined): Prom
   const root = baseUrl.replace(/\/api\/?$/, '');
   return root + relative;
 }
-
-export function getAssetUrl(path: string): string {
-  if (!path) return '';
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  // Si tenemos una función base existente, la usamos, o construimos sobre localhost:3000
-  return `http://10.40.55.64:3000${path.startsWith('/') ? '' : '/'}${path}`;
-}
