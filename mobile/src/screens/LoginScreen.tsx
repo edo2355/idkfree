@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Text, Image, ScrollView, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View, Modal, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Svg, { Line, Rect, Circle, Path } from 'react-native-svg';
@@ -58,6 +58,7 @@ export function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const pendingAuthRef = useRef<{ userId: string; alias: string; token: string } | null>(null);
   const [showConfig, setShowConfig] = useState(false);
 
   async function handleLogin(): Promise<boolean> {
@@ -65,12 +66,21 @@ export function LoginScreen() {
     setLoading(true);
     try {
       const res = await api.auth.login(email, password);
-      setAuth({ id: res.userId, alias: res.alias }, res.accessToken);
+      // Guardamos para aplicar solo cuando el botón llegue al 100%
+      pendingAuthRef.current = { userId: res.userId, alias: res.alias, token: res.accessToken };
       return true;
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Error de conexión');
       return false;
     } finally { setLoading(false); }
+  }
+
+  function handleLoginComplete(success: boolean) {
+    if (success && pendingAuthRef.current) {
+      const { userId, alias, token } = pendingAuthRef.current;
+      pendingAuthRef.current = null;
+      setAuth({ id: userId, alias }, token);
+    }
   }
 
   const timestamp = new Date().toISOString().slice(0, 16).replace('T', ' · ');
@@ -169,7 +179,7 @@ export function LoginScreen() {
 
         {/* Botón */}
         <View style={{ marginTop: 20 }}>
-          <IDKButton size="lg" onPress={handleLogin}>Entrar</IDKButton>
+          <IDKButton size="lg" onPress={handleLogin} onComplete={handleLoginComplete}>Entrar</IDKButton>
         </View>
 
         {/* Links técnicos */}
