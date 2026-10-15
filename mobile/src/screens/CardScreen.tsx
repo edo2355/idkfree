@@ -1,5 +1,6 @@
+import { DossierPhotoFilter } from '../components/DossierPhotoFilter';
 import { useCallback } from 'react';
-import { getAssetUrl } from '../utils/assetUrl';
+import { resolveAssetUrl } from '../utils/assetUrl';
 import { useFocusEffect } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Share, Alert } from 'react-native';
@@ -182,6 +183,7 @@ export function CardScreen() {
   const user = useAuthStore((s) => s.user);
   const [card, setCard] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [exporting, setExporting] = useState<'png' | 'pdf' | null>(null);
   const cardRef = useRef<ViewShot>(null);
 
@@ -189,6 +191,12 @@ export function CardScreen() {
     try {
       const res = await api.card.get();
       setCard(res.card);
+      if (res.card?.avatar_url) {
+        const resolved = await resolveAssetUrl(res.card.avatar_url);
+        setAvatarUri(resolved);
+      } else {
+        setAvatarUri(null);
+      }
     } catch (e) { console.log('card error', e); }
     setLoading(false);
   };
@@ -207,7 +215,7 @@ export function CardScreen() {
     );
   }
 
-  const hasPhoto = !!card.avatar_url;
+  const hasPhoto = !!avatarUri;
   const initial = (card.name ?? card.alias).charAt(0).toUpperCase();
   const timestamp = new Date().toISOString().slice(0, 16).replace('T', ' · ');
   const shortHex = hexFrom(card.cardIdShort ?? card.alias, 4);
@@ -325,7 +333,7 @@ export function CardScreen() {
               {/* Foto */}
               <View style={{ width: 110, height: 130, backgroundColor: theme.surfaceElevated, borderWidth: 1, borderColor: theme.border, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }}>
                 {hasPhoto ? (
-                  <Image source={{ uri: card.avatar_url ? getAssetUrl(card.avatar_url) : '' }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                  <DossierPhotoFilter source={{ uri: avatarUri ?? '' }} style={{ width: '100%', height: '100%' }} variant="mugshot" />
                 ) : (
                   <Text style={{ fontSize: 48, color: theme.text, fontFamily: fonts.displayBoldItalic }}>{initial}</Text>
                 )}
