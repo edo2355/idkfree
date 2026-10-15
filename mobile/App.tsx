@@ -8,6 +8,7 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 import { SplashScreen } from './src/screens/SplashScreen';
 import { fontAssets } from './src/theme/fonts';
 import { darkTheme } from './src/theme/dark';
+import { IDKAlertProvider } from './src/components/IDKAlert';
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -38,10 +39,12 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <StatusBar style="light" />
-        <RootNavigator />
-      </NavigationContainer>
+      <IDKAlertProvider>
+        <NavigationContainer>
+          <StatusBar style="light" />
+          <RootNavigator />
+        </NavigationContainer>
+      </IDKAlertProvider>
     </SafeAreaProvider>
   );
 }

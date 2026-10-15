@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { idkAlert as Alert } from '../components/IDKAlert';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme, useThemeStore } from '../stores/themeStore';
 import { useAuthStore } from '../stores/authStore';

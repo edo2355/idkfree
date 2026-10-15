@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import { Alert } from 'react-native';
+import {  } from 'react-native';
+import { idkAlert as Alert } from './IDKAlert';
 import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';

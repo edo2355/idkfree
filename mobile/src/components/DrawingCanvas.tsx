@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, PanResponder, Dimensions, ActivityIndicator, Alert, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, PanResponder, Dimensions, ActivityIndicator, ImageBackground } from 'react-native';
+import { idkAlert as Alert } from './IDKAlert';
 import Svg, { Path } from 'react-native-svg';
 import { captureRef } from 'react-native-view-shot';
 import { useTheme } from '../stores/themeStore';

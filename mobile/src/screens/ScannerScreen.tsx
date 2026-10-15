@@ -3,7 +3,8 @@
 // Parsea aldea:v1:<card_id>:<action>:<secret> y navega
 // ============================================================
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { idkAlert as Alert } from '../components/IDKAlert';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { fonts } from '../theme/fonts';
 

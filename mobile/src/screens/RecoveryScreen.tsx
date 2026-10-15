@@ -3,7 +3,8 @@
 // Acepta params del Scanner (cardId, action, secret)
 // ============================================================
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { idkAlert as Alert } from '../components/IDKAlert';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { ApiError } from '../../shared/api/client';

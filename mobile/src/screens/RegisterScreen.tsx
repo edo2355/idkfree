@@ -2,16 +2,8 @@
 // RegisterScreen.tsx — Registro Táctico corregido
 // ============================================================
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator,  } from 'react-native';
+import { idkAlert as Alert } from '../components/IDKAlert';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { fonts } from '../theme/fonts';

@@ -3,10 +3,8 @@
 // Full native options: timer, grid, mirror, quality, res
 // ============================================================
 import { useState, useRef, useEffect } from 'react';
-import {
-  View, Text, TouchableOpacity, TextInput, ActivityIndicator,
-  Image, Alert, Modal, Switch, ScrollView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Image, Modal, Switch, ScrollView,  } from 'react-native';
+import { idkAlert as Alert } from '../components/IDKAlert';
 import { useNavigation } from '@react-navigation/native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
