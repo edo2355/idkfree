@@ -1,11 +1,10 @@
 // ============================================================
-// IDKButton.tsx — Botón con feedback visual (verde/rojo)
-// Al tocar → carga → verde si OK / rojo si falla → vuelve
+// IDKButton.tsx — Botón con barra de carga animada
+// Al tocar → barra llena de izq a der → verde si OK / rojo si falla
 // ============================================================
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  TouchableOpacity, Text, ActivityIndicator, ViewStyle, Animated,
-  View, StyleSheet,
+  TouchableOpacity, Text, ViewStyle, Animated, StyleSheet, Easing,
 } from 'react-native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
@@ -13,19 +12,15 @@ import { fonts } from '../theme/fonts';
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
 interface Props {
-  // Handler: devuelve true/void (éxito) o false/throws (fallo)
   onPress: () => Promise<boolean | void> | boolean | void;
-  // Si no se pasa onPress, o se quiere solo una acción simple, usar onValidated
   children: string;
-  // Estilos base
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   style?: ViewStyle;
-  // Personalización del feedback
-  successDuration?: number; // default 800ms
-  errorDuration?: number;   // default 1200ms
-  // Colores custom (opcionales)
+  loadingDuration?: number; // cuánto tarda la barra en llenarse durante loading (default 700ms)
+  successDuration?: number;
+  errorDuration?: number;
   successColor?: string;
   errorColor?: string;
 }
@@ -40,15 +35,15 @@ export function IDKButton({
   size = 'md',
   disabled,
   style,
-  successDuration = 800,
+  loadingDuration = 700,
+  successDuration = 900,
   errorDuration = 1200,
   successColor = SUCCESS_DEFAULT,
   errorColor = ERROR_DEFAULT,
 }: Props) {
   const theme = useTheme();
   const [status, setStatus] = useState<Status>('idle');
-  const scale = useRef(new Animated.Value(1)).current;
-  const flashAnim = useRef(new Animated.Value(0)).current; // 0..1 → control de overlay
+  const progress = useRef(new Animated.Value(0)).current; // 0..1 ancho barra
 
   const sizes = {
     sm: { paddingVertical: 8, paddingHorizontal: 12, fontSize: 12 },
@@ -58,26 +53,18 @@ export function IDKButton({
   const s = sizes[size];
   const isDisabled = disabled || status === 'loading';
 
-  // Reset visual tras éxito/error
+  // Reset tras éxito/error → barra se contrae y vuelve a idle
   useEffect(() => {
-    if (status === 'success') {
+    if (status === 'success' || status === 'error') {
+      const duration = status === 'success' ? successDuration : errorDuration;
       const t = setTimeout(() => {
-        Animated.timing(flashAnim, {
+        Animated.timing(progress, {
           toValue: 0,
-          duration: 250,
+          duration: 280,
+          easing: Easing.out(Easing.quad),
           useNativeDriver: false,
         }).start(() => setStatus('idle'));
-      }, successDuration);
-      return () => clearTimeout(t);
-    }
-    if (status === 'error') {
-      const t = setTimeout(() => {
-        Animated.timing(flashAnim, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: false,
-        }).start(() => setStatus('idle'));
-      }, errorDuration);
+      }, duration);
       return () => clearTimeout(t);
     }
   }, [status]);
@@ -85,81 +72,116 @@ export function IDKButton({
   async function handlePress() {
     if (isDisabled) return;
 
-    // Feedback táctil: pequeño "pop"
-    Animated.sequence([
-      Animated.timing(scale, { toValue: 0.96, duration: 70, useNativeDriver: true }),
-      Animated.timing(scale, { toValue: 1, duration: 120, useNativeDriver: true }),
-    ]).start();
-
     setStatus('loading');
+    progress.setValue(0);
+
+    // Barra que llena de 0 → 0.7 durante el loading (indeterminado hasta ~70%)
+    Animated.timing(progress, {
+      toValue: 0.7,
+      duration: loadingDuration,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: false,
+    }).start();
 
     let ok = false;
     try {
       const result = await onPress();
-      // Éxito si NO devuelve false explícito
       ok = result !== false;
     } catch (e) {
       ok = false;
     }
 
-    if (ok) {
-      setStatus('success');
-      Animated.timing(flashAnim, { toValue: 1, duration: 200, useNativeDriver: false }).start();
-    } else {
-      setStatus('error');
-      Animated.timing(flashAnim, { toValue: 1, duration: 200, useNativeDriver: false }).start();
-    }
+    // La barra salta a 1 y se colorea
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 220,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: false,
+    }).start();
+
+    // Color final
+    setStatus(ok ? 'success' : 'error');
   }
 
-  // Colores por estado
-  const borderColor = status === 'success' ? successColor
-    : status === 'error' ? errorColor
-    : variant === 'danger' ? theme.danger
-    : variant === 'primary' ? '#FFFFFF'
-    : theme.border;
+  // Colores según estado
+  const fillColor =
+    status === 'success' ? successColor :
+    status === 'error' ? errorColor :
+    variant === 'danger' ? theme.danger :
+    variant === 'primary' ? '#FFFFFF' :
+    theme.accent ?? '#FFFFFF';
 
-  const bgColor = status === 'success' ? 'rgba(34,197,94,0.15)'
-    : status === 'error' ? 'rgba(239,68,68,0.15)'
-    : variant === 'primary' ? '#FFFFFF'
-    : variant === 'danger' ? 'rgba(239,68,68,0.1)'
-    : 'transparent';
+  const textColor =
+    status === 'success' ? successColor :
+    status === 'error' ? errorColor :
+    variant === 'primary' ? '#050505' :
+    variant === 'danger' ? theme.danger :
+    theme.text;
 
-  const textColor = status === 'success' ? successColor
-    : status === 'error' ? errorColor
-    : variant === 'primary' ? '#050505'
-    : variant === 'danger' ? theme.danger
-    : theme.text;
+  // Ancho de la barra: 0..100%
+  const barWidth = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
 
-  const indicatorColor = variant === 'primary' && status === 'loading' ? '#050505' : theme.text;
+  // Opacidad del texto (mantiene legible encima de la barra)
+  const textOpacity = progress.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 0.55, 0],
+  });
 
   return (
-    <Animated.View style={[{ transform: [{ scale }] }, style]}>
-      <TouchableOpacity
-        onPress={handlePress}
-        disabled={isDisabled}
-        activeOpacity={0.85}
+    <TouchableOpacity
+      onPress={handlePress}
+      disabled={isDisabled}
+      activeOpacity={0.85}
+      style={[
+        styles.button,
+        {
+          borderColor: variant === 'primary' ? 'transparent' : theme.border,
+          backgroundColor: variant === 'primary' ? '#FFFFFF' : 'transparent',
+          paddingVertical: s.paddingVertical,
+          paddingHorizontal: s.paddingHorizontal,
+          opacity: isDisabled && status === 'idle' ? 0.5 : 1,
+        },
+        style,
+      ]}
+    >
+      {/* Barra de carga (capa inferior) */}
+      <Animated.View
         style={[
-          styles.button,
+          StyleSheet.absoluteFill,
           {
-            backgroundColor: bgColor,
-            borderColor,
-            paddingVertical: s.paddingVertical,
-            paddingHorizontal: s.paddingHorizontal,
-            opacity: isDisabled && status !== 'loading' ? 0.5 : 1,
+            backgroundColor: fillColor,
+            width: barWidth,
+            opacity: status === 'loading' || status === 'success' || status === 'error' ? 1 : 0,
           },
         ]}
+        pointerEvents="none"
+      />
+
+      {/* Texto (capa superior) */}
+      <Animated.Text
+        style={[
+          styles.text,
+          {
+            color: status === 'loading' || status === 'success' || status === 'error'
+              ? '#050505'
+              : textColor,
+            fontSize: s.fontSize,
+            opacity:
+              status === 'success' || status === 'error'
+                ? 1
+                : textOpacity,
+          },
+        ]}
+        numberOfLines={1}
       >
-        {status === 'loading' ? (
-          <ActivityIndicator color={indicatorColor} size="small" />
-        ) : (
-          <Text style={[styles.text, { color: textColor, fontSize: s.fontSize }]}>
-            {status === 'success' ? '✓ ' + children.toUpperCase() : null}
-            {status === 'error' ? '✗ ' + children.toUpperCase() : null}
-            {status === 'idle' ? children : null}
-          </Text>
-        )}
-      </TouchableOpacity>
-    </Animated.View>
+        {status === 'success' ? '✓ ' + children :
+         status === 'error' ? '✗ ' + children :
+         children}
+      </Animated.Text>
+    </TouchableOpacity>
   );
 }
 
@@ -168,7 +190,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 44,
+    minHeight: 48,
+    overflow: 'hidden',
+    position: 'relative',
   },
   text: {
     fontFamily: 'monospace',
