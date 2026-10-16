@@ -20,6 +20,7 @@ import { AboutScreen } from '../screens/AboutScreen';
 import { PrivacyScreen } from '../screens/PrivacyScreen';
 import { TermsScreen } from '../screens/TermsScreen';
 import { MyDataScreen } from '../screens/MyDataScreen';
+import { KycScreen } from '../screens/KycScreen';
 import { CreateScreen } from '../screens/CreateScreen';
 import { ReelsScreen } from '../screens/ReelsScreen';
 
@@ -38,6 +39,7 @@ function ProfileStackNav() {
       <ProfileStack.Screen name='Privacy' component={PrivacyScreen} />
       <ProfileStack.Screen name='Terms' component={TermsScreen} />
       <ProfileStack.Screen name='MyData' component={MyDataScreen} />
+      <ProfileStack.Screen name='Kyc' component={KycScreen} />
     </ProfileStack.Navigator>
   );
 }
