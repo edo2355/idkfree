@@ -218,11 +218,51 @@ export function SettingsScreen() {
           <Row label="Contacto" value="hello@idkfree.app" />
         </Group>
 
-        {/* ============ CUENTA PELIGROSA ============ */}
-        <View style={{ marginTop: 32, paddingTop: 20, borderTopWidth: 1, borderTopColor: theme.danger }}>
-          <Text style={{ color: theme.danger, fontFamily: MONO, fontSize: 10, letterSpacing: 2, marginBottom: 12 }}>
-            ⚠ CUENTA PELIGROSA
-          </Text>
+        {/* ============ KYC · VERIFICACIÓN ============ */}
+        <View style={{ marginTop: 32 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <Text style={{ color: theme.textMuted, fontFamily: MONO, fontSize: 10, letterSpacing: 2 }}>
+              [ 07 ] VERIFICACIÓN
+            </Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+          </View>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Kyc')}
+            activeOpacity={0.7}
+            style={{
+              padding: 16,
+              borderRadius: 8,
+              backgroundColor: 'rgba(234, 179, 8, 0.08)',
+              borderWidth: 1,
+              borderColor: '#EAB308',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+            }}
+          >
+            <Text style={{ fontSize: 20, color: '#EAB308' }}>[ ! ]</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#EAB308', fontFamily: MONO, fontSize: 12, fontWeight: '700', letterSpacing: 1.5 }}>
+                CUENTA SIN VERIFICAR
+              </Text>
+              <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 11, marginTop: 4, lineHeight: 15 }}>
+                Verifica tu identidad para desbloquear funciones avanzadas.
+              </Text>
+            </View>
+            <Text style={{ color: '#EAB308', fontFamily: MONO, fontSize: 18 }}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ============ SESIÓN ============ */}
+        <View style={{ marginTop: 32 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <Text style={{ color: theme.textMuted, fontFamily: MONO, fontSize: 10, letterSpacing: 2 }}>
+              [ 08 ] SESIÓN
+            </Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+          </View>
+
           <TouchableOpacity
             onPress={handleLogout}
             activeOpacity={0.7}
@@ -232,14 +272,24 @@ export function SettingsScreen() {
               alignItems: 'center',
               backgroundColor: 'transparent',
               borderWidth: 1,
-              borderColor: theme.danger,
-              marginBottom: 10,
+              borderColor: theme.border,
             }}
           >
-            <Text style={{ color: theme.danger, fontFamily: fonts.medium, fontSize: 14 }}>
+            <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 14 }}>
               Cerrar sesión
             </Text>
           </TouchableOpacity>
+        </View>
+
+        {/* ============ ZONA DE PELIGRO ============ */}
+        <View style={{ marginTop: 32, paddingTop: 20, borderTopWidth: 1, borderTopColor: 'rgba(239,68,68,0.3)' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <Text style={{ color: theme.danger, fontFamily: MONO, fontSize: 10, letterSpacing: 2 }}>
+              [ ! ] ZONA DE PELIGRO
+            </Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(239,68,68,0.3)' }} />
+          </View>
+
           <TouchableOpacity
             onPress={() => navigation.navigate('MyData')}
             activeOpacity={0.7}
@@ -247,14 +297,18 @@ export function SettingsScreen() {
               paddingVertical: 14,
               borderRadius: 8,
               alignItems: 'center',
-              backgroundColor: theme.danger,
+              backgroundColor: 'transparent',
+              borderWidth: 1,
+              borderColor: theme.danger,
             }}
           >
-            <Text style={{ color: '#FFF', fontFamily: fonts.medium, fontSize: 14 }}>
+            <Text style={{ color: theme.danger, fontFamily: fonts.medium, fontSize: 14 }}>
               Eliminar mi cuenta
             </Text>
           </TouchableOpacity>
         </View>
+
+        
 
         {/* Footer */}
         <View style={{ marginTop: 40, alignItems: 'center' }}>
