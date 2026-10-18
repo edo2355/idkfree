@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Text, Image, ScrollView, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View, Modal, useWindowDimensions } from 'react-native';
+import { Text, Image, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View, Modal, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Svg, { Line, Rect, Circle, Path } from 'react-native-svg';
 import { useTheme } from '../stores/themeStore';
@@ -61,6 +61,23 @@ export function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const pendingAuthRef = useRef<{ userId: string; alias: string; token: string } | null>(null);
   const [showConfig, setShowConfig] = useState(false);
+  const tapCountRef = useRef(0);
+  const tapTimerRef = useRef<any>(null);
+
+  function handleHeaderTap() {
+    tapCountRef.current += 1;
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+
+    if (tapCountRef.current >= 5) {
+      tapCountRef.current = 0;
+      setShowConfig(true);
+      return;
+    }
+
+    tapTimerRef.current = setTimeout(() => {
+      tapCountRef.current = 0;
+    }, 1500);
+  }
 
   async function handleLogin(): Promise<boolean> {
     setError('');
@@ -94,58 +111,51 @@ export function LoginScreen() {
       <ScreenBackground variant="neural" opacity={0.07} />
       <CarnetTicketsBackground />
 
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Botón servidor arriba derecha */}
-        <TouchableOpacity
-          onPress={() => setShowConfig(true)}
-          style={styles.serverBtn}
-          activeOpacity={0.6}
-        >
-          <TechLabel color={theme.textSubtle} size={9} spacing={2}>SERVIDOR</TechLabel>
-        </TouchableOpacity>
-
-        {/* Header técnico */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <ServerStatusDot size={6} />
-            <TechLabel color={theme.textMuted} size={8}>IDKFREE.OS</TechLabel>
+      <View style={{ flex: 1, padding: 20, paddingTop: 36 }}>
+        {/* Header técnico — 5 taps abre config oculta */}
+        <TouchableOpacity onPress={handleHeaderTap} activeOpacity={1}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <ServerStatusDot size={6} />
+              <TechLabel color={theme.textMuted} size={8}>IDKFREE.OS</TechLabel>
+            </View>
+            <TechLabel color={theme.textSubtle} size={8}>v2.0.0 · 2026</TechLabel>
           </View>
-          <TechLabel color={theme.textSubtle} size={8}>v2.0.0 · 2026</TechLabel>
-        </View>
+        </TouchableOpacity>
 
         {/* Connection HUD */}
         <ConnectionHUD />
 
         {/* Barcode superior */}
-        <View style={{ alignItems: 'center', marginBottom: 24 }}>
-          <BarcodeSVG width={280} height={10} color={theme.text} seed="idkfree-boot" />
+        <View style={{ alignItems: 'center', marginBottom: 12 }}>
+          <BarcodeSVG width={240} height={8} color={theme.text} seed="idkfree-boot" />
         </View>
 
         {/* Logo IDKFREE monoespaciado grande */}
-        <View style={{ alignItems: 'center', marginBottom: 12 }}>
+        <View style={{ alignItems: 'center', marginBottom: 8 }}>
           <Text style={{
             color: theme.text,
             fontFamily: MONO,
-            fontSize: 40,
+            fontSize: 32,
             fontWeight: '700',
-            letterSpacing: 8,
+            letterSpacing: 6,
             textAlign: 'center',
           }}>
             IDKFREE
           </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 }}>
-            <View style={{ width: 40, height: 1, backgroundColor: theme.border }} />
-            <TechLabel color={theme.textMuted} size={9} spacing={2}>AUTH.CMD</TechLabel>
-            <View style={{ width: 40, height: 1, backgroundColor: theme.border }} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 }}>
+            <View style={{ width: 30, height: 1, backgroundColor: theme.border }} />
+            <TechLabel color={theme.textMuted} size={8} spacing={2}>AUTH.CMD</TechLabel>
+            <View style={{ width: 30, height: 1, backgroundColor: theme.border }} />
           </View>
         </View>
 
         {/* Subtítulo */}
         <Text style={{
-          fontSize: 15,
+          fontSize: 13,
           color: theme.textMuted,
           textAlign: 'center',
-          marginBottom: 32,
+          marginBottom: 14,
           fontFamily: fonts.regular,
           letterSpacing: 0.3,
         }}>
@@ -182,12 +192,12 @@ export function LoginScreen() {
         ) : null}
 
         {/* Botón */}
-        <View style={{ marginTop: 20 }}>
+        <View style={{ marginTop: 12 }}>
           <IDKButton size="lg" onPress={handleLogin} onComplete={handleLoginComplete}>Entrar</IDKButton>
         </View>
 
         {/* Links técnicos */}
-        <View style={{ marginTop: 24, gap: 12 }}>
+        <View style={{ marginTop: 12, gap: 8 }}>
           <TouchableOpacity
             onPress={() => navigation.navigate('Register')}
             activeOpacity={0.7}
@@ -216,18 +226,18 @@ export function LoginScreen() {
         </View>
 
         {/* Divider antes de firma */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 40, marginBottom: 20 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 16, marginBottom: 8 }}>
           <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
           <TechLabel color={theme.textSubtle} size={8} spacing={3}>[ CREADO POR ]</TechLabel>
           <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
         </View>
 
         {/* Firma Edo Amate */}
-        <View style={{ alignItems: 'center', marginBottom: 20 }}>
-          <View style={{ width: SW * 0.68, height: 105, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ alignItems: 'center', marginBottom: 8 }}>
+          <View style={{ width: SW * 0.35, height: 55, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
             <Image
               source={require('../../assets/logo-edo-white.png')}
-              style={{ width: SW * 0.68, height: SW * 0.68, opacity: 0.9 }}
+              style={{ width: SW * 0.35, height: SW * 0.35, opacity: 0.9 }}
               resizeMode="cover"
             />
           </View>
@@ -242,23 +252,8 @@ export function LoginScreen() {
           </View>
         </View>
 
-        {/* Barcode inferior */}
-        <View style={{ alignItems: 'center', marginTop: 16 }}>
-          <BarcodeSVG width={280} height={8} color={theme.text} seed="idkfree-tail" />
-        </View>
 
-        <Text style={{
-          color: theme.textSubtle,
-          fontFamily: MONO,
-          fontSize: 8,
-          letterSpacing: 4,
-          textAlign: 'center',
-          marginTop: 14,
-        }}>
-          "MÁS QUE UNA PREGUNTA"
-        </Text>
-
-      </ScrollView>
+      </View>
 
       <Modal visible={showConfig} transparent animationType="fade" onRequestClose={() => setShowConfig(false)}>
         <ConfigScreen onClose={() => setShowConfig(false)} />

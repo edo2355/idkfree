@@ -2,7 +2,7 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../middleware/auth.js';
 import { requireAlive } from '../middleware/requireAlive.js';
-import db from '../db/pool.js';
+import { query } from '../db/pool.js';
 
 function maskPin(pin: string): string {
   if (!pin) return '••••';
@@ -13,13 +13,17 @@ export async function cardRoutes(app: FastifyInstance) {
   app.get('/me/card', { preHandler: [requireAuth, requireAlive] }, async (req, reply) => {
     const userId = (req as any).userId;
 
-    const row = db.prepare(
-      'SELECT card_id, secret_panic, secret_restore, secret_fenix, backup_panic, backup_restore, backup_fenix, created_at FROM card_keys WHERE user_id = ? LIMIT 1'
-    ).get(userId) as any;
+    const cardRes = await query<any>(
+      'SELECT card_id, secret_panic, secret_restore, secret_fenix, backup_panic, backup_restore, backup_fenix, created_at FROM card_keys WHERE user_id = $1 LIMIT 1',
+      [userId]
+    );
+    const row = cardRes.rows[0];
 
-    const user = db.prepare(
-      'SELECT id, alias, name, avatar_url, created_at FROM users WHERE id = ? LIMIT 1'
-    ).get(userId) as any;
+    const userRes = await query<any>(
+      'SELECT id, alias, name, avatar_url, created_at FROM users WHERE id = $1 LIMIT 1',
+      [userId]
+    );
+    const user = userRes.rows[0];
 
     if (!row || !user) {
       return reply.status(404).send({ error: 'Carnet no encontrado' });
