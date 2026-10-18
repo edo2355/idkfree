@@ -56,10 +56,10 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
   validatePin(pins.destroy);
   for (const sp of input.secretPins) validatePin(sp);
 
-  // Verificar unicidad entre los 6 PINs
-  const all = [pins.panic, pins.recovery, pins.destroy, ...input.secretPins];
-  if (new Set(all).size !== 6) {
-    throw new Error('Los 6 PINs deben ser diferentes entre sí');
+  // Verificar que los 3 PINs del usuario sean diferentes entre sí
+  // (los 3 impresos se generan aparte y no tienen que ver con estos)
+  if (new Set(input.secretPins).size !== 3) {
+    throw new Error('Los 3 PINs deben ser diferentes entre sí');
   }
 
   const passwordHash = await hashPassword(input.password);
