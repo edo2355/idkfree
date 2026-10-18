@@ -8,6 +8,7 @@ import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
 import { ACCENTS, type AccentName } from '../theme/accents';
 import { ScreenBackground } from '../components/ScreenBackground';
+import { ConnectionHUD } from '../components/ConnectionHUD';
 
 const MONO = 'monospace';
 
@@ -208,6 +209,13 @@ export function SettingsScreen() {
         <Group title="CONEXIÓN" code="[05]">
           <Row label="Servidor" value="127.0.0.1:3000" />
           <Row label="Estado" value="● ONLINE" />
+        </Group>
+
+        {/* ============ GRUPO 09 · DIAGNÓSTICO ============ */}
+        <Group title="DIAGNÓSTICO" code="[09]">
+          <View style={{ padding: 12 }}>
+            <ConnectionHUD />
+          </View>
         </Group>
 
         {/* ============ GRUPO 06 · ACERCA DE ============ */}

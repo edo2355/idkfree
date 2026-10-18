@@ -71,7 +71,7 @@ export function ConfigScreen({ onClose }: Props) {
     const healthUrl = baseUrl.replace(/\/api$/, '/health');
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000);
+      const timeout = setTimeout(() => controller.abort(), 60000);
       const res = await fetch(healthUrl, { signal: controller.signal });
       clearTimeout(timeout);
 
@@ -85,7 +85,7 @@ export function ConfigScreen({ onClose }: Props) {
         return false;
       }
     } catch (e: any) {
-      const msg = e?.name === 'AbortError' ? 'Timeout (8s)' : 'No se pudo conectar';
+      const msg = e?.name === 'AbortError' ? 'Timeout (60s) - servidor dormido?' : 'No se pudo conectar';
       setMessage({ ok: false, text: `✗ ${msg}` });
       return false;
     }

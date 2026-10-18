@@ -55,7 +55,21 @@ await app.register(recoveryRoutes, { prefix: '/api' });
 await app.register(messageRoutes, { prefix: '/api' });
 await app.register(uploadRoutes, { prefix: '/api' });
 
-app.get('/health', async () => ({ status: 'ok', version: '2.0', time: new Date().toISOString() }));
+// Capturar tiempo de arranque para calcular uptime
+const _startedAt = Date.now();
+
+app.get('/health', async () => {
+  const uptimeMs = Date.now() - _startedAt;
+  return {
+    status: 'ok',
+    version: '2.0.0',
+    time: new Date().toISOString(),
+    db_engine: process.env.DB_ENGINE ?? 'sqlite',
+    uptime_s: Math.floor(uptimeMs / 1000),
+    node_version: process.version,
+    env: process.env.NODE_ENV ?? 'development',
+  };
+});
 
 try {
   // ============================================================
