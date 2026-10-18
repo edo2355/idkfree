@@ -23,6 +23,12 @@ import { MyDataScreen } from '../screens/MyDataScreen';
 import { KycScreen } from '../screens/KycScreen';
 import { CreateScreen } from '../screens/CreateScreen';
 import { ReelsScreen } from '../screens/ReelsScreen';
+import { ChatScreen } from '../screens/ChatScreen';
+import { ChatsScreen } from '../screens/ChatsScreen';
+import { HashtagScreen } from '../screens/HashtagScreen';
+import { NotificationsScreen } from '../screens/NotificationsScreen';
+import { UserProfileScreen } from '../screens/UserProfileScreen';
+import { VibesScreen } from '../screens/VibesScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createNativeStackNavigator();
@@ -40,6 +46,12 @@ function ProfileStackNav() {
       <ProfileStack.Screen name='Terms' component={TermsScreen} />
       <ProfileStack.Screen name='MyData' component={MyDataScreen} />
       <ProfileStack.Screen name='Kyc' component={KycScreen} />
+      <ProfileStack.Screen name='Chat' component={ChatScreen} />
+      <ProfileStack.Screen name='Chats' component={ChatsScreen} />
+      <ProfileStack.Screen name='Hashtag' component={HashtagScreen} />
+      <ProfileStack.Screen name='Notifications' component={NotificationsScreen} />
+      <ProfileStack.Screen name='UserProfile' component={UserProfileScreen} />
+      <ProfileStack.Screen name='Vibes' component={VibesScreen} />
     </ProfileStack.Navigator>
   );
 }
