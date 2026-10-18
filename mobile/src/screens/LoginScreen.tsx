@@ -106,7 +106,7 @@ export function LoginScreen() {
         {/* Header técnico */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <ServerStatusDot size={6} />
+            <ServerStatusDot size={6} showLabel={true} />
             <TechLabel color={theme.textMuted} size={8}>IDKFREE.OS</TechLabel>
           </View>
           <TechLabel color={theme.textSubtle} size={8}>v2.0.0 · 2026</TechLabel>

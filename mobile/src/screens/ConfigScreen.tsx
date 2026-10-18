@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { darkTheme } from '../theme/dark';
@@ -20,6 +20,32 @@ export function ConfigScreen({ onClose }: Props) {
   const [customUrl, setCustomUrl] = useState('');
   const [testing, setTesting] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [savedUrl, setSavedUrl] = useState<string | null>(null);
+
+  // Al montar: precargar la URL guardada y detectar si era local o remota
+  useEffect(() => {
+    (async () => {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      if (!stored) return;
+      setSavedUrl(stored);
+
+      const isLocal =
+        stored.startsWith('http://') &&
+        !stored.includes('https://') &&
+        (stored.includes('127.0.0.1') ||
+          stored.includes('localhost') ||
+          /^http:\/\/(10\.|192\.168\.|172\.)/.test(stored));
+
+      if (isLocal) {
+        setMode('local');
+        const m = stored.match(/^http:\/\/([^\/]+)/);
+        if (m) setIp(m[1].replace(/:3000$/, ''));
+      } else {
+        setMode('hosting');
+        setCustomUrl(stored.replace(/\/api$/, ''));
+      }
+    })();
+  }, []);
 
   function buildUrl(): string | null {
     if (mode === 'local') {
@@ -75,6 +101,16 @@ export function ConfigScreen({ onClose }: Props) {
         <Text style={styles.subtitle}>
           Elige cómo conectar la app con el backend
         </Text>
+
+        {savedUrl && (
+          <View style={styles.activeBadge}>
+            <View style={styles.activeDot} />
+            <Text style={styles.activeBadgeText}>
+              ACTIVO · {savedUrl.includes('https://') ? 'REMOTE' : 'LOCAL'} ·{' '}
+              {savedUrl.replace(/^https?:\/\//, '').replace(/\/api$/, '')}
+            </Text>
+          </View>
+        )}
 
         {/* Tabs de modo */}
         <View style={styles.tabs}>
@@ -246,5 +282,30 @@ const styles = StyleSheet.create({
     color: darkTheme.textMuted,
     fontFamily: fonts.medium,
     fontSize: 13,
+  },
+  activeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(34,197,94,0.1)',
+    borderWidth: 1,
+    borderColor: '#22C55E',
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginBottom: 16,
+  },
+  activeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#22C55E',
+  },
+  activeBadgeText: {
+    fontFamily: 'monospace',
+    fontSize: 9,
+    color: '#22C55E',
+    letterSpacing: 1,
+    flex: 1,
   },
 });

@@ -8,7 +8,7 @@
 // Sin red total  → 🔴 rojo fijo
 // ============================================================
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Animated, Easing } from 'react-native';
+import { View, Text, Animated, Easing } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type State = 'local-ok' | 'remote-ok' | 'remote-reconnecting' | 'slow' | 'searching' | 'offline';
@@ -20,6 +20,7 @@ interface Props {
   size?: number;
   pollMs?: number;
   thresholds?: { ok: number; slow: number };
+  showLabel?: boolean;
 }
 
 function isLocalUrl(url: string): boolean {
@@ -37,6 +38,7 @@ export function ServerStatusDot({
   size = 6,
   pollMs = 8000,
   thresholds = { ok: 500, slow: 2000 },
+  showLabel = false,
 }: Props) {
   const [state, setState] = useState<State>('searching');
   const [url, setUrl] = useState<string>(DEFAULT_BASE);
@@ -143,7 +145,7 @@ export function ServerStatusDot({
     state === 'slow' ? '#EAB308' :
     '#EF4444';
 
-  return (
+  const dot = (
     <Animated.View
       style={{
         width: size,
@@ -158,5 +160,25 @@ export function ServerStatusDot({
         elevation: 4,
       }}
     />
+  );
+
+  if (!showLabel) return dot;
+
+  const hostname = url.replace(/^https?:\/\//, '').replace(/\/api\/?$/, '');
+  const labelText =
+    state === 'local-ok' ? `LOCAL · ${hostname}` :
+    state === 'remote-ok' ? `REMOTE · ${hostname}` :
+    state === 'remote-reconnecting' ? `RECONECTANDO · ${hostname}` :
+    state === 'slow' ? `LENTO · ${hostname}` :
+    state === 'searching' ? 'BUSCANDO SEÑAL...' :
+    'SIN CONEXIÓN';
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      {dot}
+      <Text style={{ fontFamily: 'monospace', fontSize: 8, letterSpacing: 1.2, color }}>
+        {labelText}
+      </Text>
+    </View>
   );
 }
