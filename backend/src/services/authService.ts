@@ -42,10 +42,12 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
   }
 
   // PINs del carnet — usar los del usuario o generar
+  // Prioridad: input.pins.* > input.secretPins[i] > random
+  // La app envía los PINs del usuario como secretPins[0/1/2]
   const pins = {
-    panic: input.pins?.panic ?? generatePin(),
-    recovery: input.pins?.recovery ?? generatePin(),
-    destroy: input.pins?.destroy ?? generatePin(),
+    panic: input.pins?.panic ?? input.secretPins[0] ?? generatePin(),
+    recovery: input.pins?.recovery ?? input.secretPins[1] ?? generatePin(),
+    destroy: input.pins?.destroy ?? input.secretPins[2] ?? generatePin(),
   };
 
   // Validar formato

@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import rateLimit from '@fastify/rate-limit';
 import jwt from '@fastify/jwt';
 import { env } from './config/env.js';
 import { authRoutes } from './routes/auth.js';
@@ -27,6 +28,11 @@ import { pool } from './db/pool.js';
 const app = Fastify({ logger: true });
 
 await app.register(cors, { origin: true, credentials: true });
+await app.register(rateLimit, {
+  max: 100,
+  timeWindow: '1 minute',
+  errorResponseBuilder: () => ({ error: 'Demasiadas peticiones. Intenta de nuevo en 1 minuto.' }),
+});
 await app.register(jwt, { secret: env.jwtSecret });
 await app.register(multipart, { limits: { fileSize: 25 * 1024 * 1024 } });
 await app.register(fastifyStatic, { root: join(process.cwd(), 'uploads'), prefix: '/uploads/' });
@@ -52,7 +58,35 @@ await app.register(uploadRoutes, { prefix: '/api' });
 app.get('/health', async () => ({ status: 'ok', version: '2.0', time: new Date().toISOString() }));
 
 try {
-  await app.listen({ port: env.port, host: '0.0.0.0' });
+  // ============================================================
+// CRON: Ejecutar borrado de cuentas FÉNIX pendientes (>24h)
+// ============================================================
+async function cleanupFenix() {
+  try {
+    const { query } = await import('./db/pool.js');
+    const res = await query(
+      `DELETE FROM users WHERE id IN (
+        SELECT user_id FROM card_keys
+        WHERE pending_deletion_at IS NOT NULL
+          AND pending_deletion_at < datetime('now')
+      )`
+    );
+    if ((res as any).changes > 0) {
+      console.log(`[FENIX] ${(res as any).changes} cuenta(s) borrada(s) por vencimiento`);
+    }
+  } catch (e) {
+    console.error('[FENIX] error en cron de limpieza:', e);
+  }
+}
+
+// Primera ejecución: 5 min después del arranque
+// Recurrente: cada 1 hora
+setTimeout(() => {
+  cleanupFenix();
+  setInterval(cleanupFenix, 3600_000);
+}, 5 * 60_000);
+
+await app.listen({ port: env.port, host: '0.0.0.0' });
   console.log(`OK Aldea v2.0 escuchando en el puerto ${env.port}`);
 } catch (err) { app.log.error(err); process.exit(1); }
 
