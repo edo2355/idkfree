@@ -1,0 +1,131 @@
+.post-card {
+  background-color: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0; /* En móvil no tiene padding horizontal, es edge-to-edge */
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 12px; /* Un poco de padding para que el texto no toque el borde en web */
+}
+
+.post-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: var(--surface-elevated);
+}
+
+.post-info {
+  margin-left: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.post-author-name {
+  color: var(--text);
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.post-author-alias {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.post-more-btn {
+  padding: 6px;
+  color: var(--text-muted);
+}
+
+.post-body {
+  color: var(--text);
+  line-height: 22px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  padding: 0 12px;
+}
+
+.post-body span.hashtag,
+.post-body span.mention {
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.post-media {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.post-media-video {
+  width: 100%;
+  height: 320px;
+  background-color: #000;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 4px;
+  padding: 0 12px;
+}
+
+.post-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.post-action-btn:hover {
+  opacity: 0.7;
+}
+
+.post-action-count {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.post-action-count.liked {
+  color: var(--danger);
+}
+
+/* Animación del corazón flotante */
+.floating-heart {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  opacity: 0;
+  pointer-events: none;
+  color: var(--accent);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+}
+
+.floating-heart.animate {
+  transform: translate(-50%, -50%) scale(1.2);
+  opacity: 1;
+}
+
+.floating-heart.fade-out {
+  opacity: 0;
+  transition: opacity 0.7s ease 0.2s;
+}

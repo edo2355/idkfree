@@ -135,6 +135,18 @@ export const api = {
       return request<{ posts: any[] }>(`/feed?${q}`);
     },
 
+    like(postId: string) {
+      return request<{ ok: boolean }>(`/posts/${postId}/like`, {
+        method: 'POST',
+      });
+    },
+
+    unlike(postId: string) {
+      return request<{ ok: boolean }>(`/posts/${postId}/like`, {
+        method: 'DELETE',
+      });
+    },
+
     userPosts(userId: string) {
       return request<{ posts: any[] }>(`/users/${userId}/posts`);
     },

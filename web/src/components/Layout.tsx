@@ -18,23 +18,27 @@ export function Layout({ children }: Props) {
         zIndex: 10,
         background: 'var(--bg)',
         borderBottom: '1px solid var(--border)',
-        padding: '14px 20px',
+        padding: '12px 20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
       }}>
-        <div style={{ width: 80 }} />
-        <Link to="/" style={{
-          fontFamily: 'var(--font-display)',
-          fontStyle: 'italic',
-          fontSize: 24,
-          fontWeight: 900,
-          letterSpacing: 0.5,
-          color: 'var(--text)',
-          textDecoration: 'none',
-        }}>
-          IDKFREE
+        {/* Logo y Firma */}
+        <Link to="/" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textDecoration: 'none' }}>
+          <img src="/logo-edo-white.png" alt="IDKFREE" style={{ height: 28, objectFit: 'contain' }} />
+          <span style={{
+            fontFamily: 'var(--font-display)',
+            fontStyle: 'italic',
+            fontSize: 10,
+            color: 'var(--text-muted)',
+            marginTop: 2,
+            letterSpacing: 0.5
+          }}>
+            from / edo amate
+          </span>
         </Link>
+
+        {/* Acciones de usuario */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           {user && (
             <>

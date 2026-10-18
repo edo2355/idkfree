@@ -1,19 +1,63 @@
+
+@font-face {
+  font-family: 'Eurostile';
+  src: url('/fonts/EurostileExtendedBlack.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Monument';
+  src: url('/fonts/MonumentExtended-Ultrabold.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Voga';
+  src: url('/fonts/CDType - Voga Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'DarkFuture';
+  src: url('/fonts/Dark Future Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
 :root {
+
+  /* Fondos (Exactos de la app móvil) */
   --bg: #050505;
   --surface: #0F0F0F;
   --surface-elevated: #1A1A1A;
-  --border: #222222;
-  --border-strong: #333333;
+
+  /* Texto */
   --text: #FFFFFF;
-  --text-muted: #888888;
-  --text-subtle: #555555;
-  --accent: #A855F7;
-  --accent-alt: #22D3EE;
+  --text-muted: #A3A3A3;
+  --text-subtle: #5F5F5F;
+
+  /* Acentos */
+  --accent: #0891B2; /* Cian oscuro */
+  --accent-hover: #22D3EE; /* Cian brillante */
+  --accent-alt: #3B82F6; /* Azul brillante */
+
+  /* Semánticos */
   --danger: #EF4444;
+  --success: #22C55E;
+  --warning: #F59E0B;
+
+  /* Bordes */
+  --border: #262626;
+  --border-strong: #404040;
+
+  /* Radios */
   --radius: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
 
+  /* Fuentes */
+  --font-logo: 'Eurostile', 'Monument', sans-serif;
+  --font-edo: 'Voga', 'DarkFuture', serif;
   --font-display: 'Playfair Display', Georgia, serif;
   --font-ui: 'Space Grotesk', system-ui, -apple-system, sans-serif;
 }

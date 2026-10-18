@@ -1,0 +1,192 @@
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* HUD Superior */
+.login-hud-top {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  z-index: 10;
+  font-family: var(--font-ui);
+}
+
+/* Watermarks (Palabras de fondo) */
+.watermark {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.04); /* Súper tenue */
+  font-family: var(--font-ui);
+  font-weight: 900;
+  pointer-events: none;
+  z-index: 1;
+  text-transform: uppercase;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+/* Las regamos por toda la pantalla */
+.wm-1 { top: 15%; left: -2%; transform: rotate(-45deg); font-size: 26px; }
+.wm-2 { top: 10%; right: -5%; transform: rotate(15deg); font-size: 32px; }
+.wm-3 { bottom: 25%; left: -5%; transform: rotate(-60deg); font-size: 20px; }
+.wm-4 { bottom: 10%; right: -2%; transform: rotate(20deg); font-size: 22px; }
+.wm-5 { top: 45%; right: -5%; transform: rotate(-15deg); font-size: 18px; }
+
+/* Formulario */
+.login-form {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 10;
+}
+
+/* Barra de estado LIVE */
+.login-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  margin-bottom: 24px;
+  background: rgba(15, 15, 15, 0.8);
+  font-family: monospace;
+  font-size: 12px;
+}
+.status-left { display: flex; align-items: center; gap: 8px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #22C55E; box-shadow: 0 0 8px #22C55E; }
+.status-text { color: var(--text-muted); text-transform: uppercase; }
+.status-divider { color: var(--text-subtle); }
+.status-time { color: #22C55E; }
+
+/* Barra de código */
+.login-barcode {
+  width: 100%;
+  height: 16px;
+  margin-bottom: 24px;
+  background: repeating-linear-gradient(90deg, var(--text) 0, var(--text) 2px, transparent 2px, transparent 4px, var(--text) 4px, var(--text) 5px, transparent 5px, transparent 8px, var(--text) 8px, var(--text) 12px, transparent 12px, transparent 15px);
+  opacity: 0.9;
+}
+
+/* Título */
+.login-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.login-title {
+  font-family: var(--font-logo);
+  font-size: 44px; /* Un poco más pequeño porque Eurostile es muy ancha */
+  font-weight: 500;
+  letter-spacing: 8px;
+  color: var(--text);
+  margin: 0;
+  text-transform: uppercase;
+}
+.terminal-icon {
+  border: 3px solid var(--border-strong);
+  border-radius: 12px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.login-auth-cmd {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 4px;
+}
+.login-auth-cmd::before, .login-auth-cmd::after {
+  content: ''; height: 1px; width: 50px; background: var(--border-strong);
+}
+
+.login-subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 16px;
+  margin-bottom: 32px;
+}
+
+.login-input-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+/* Enlaces inferiores */
+.login-footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 32px;
+}
+.login-link-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+}
+.login-link-row::after {
+  content: ''; flex: 1; height: 1px; background: var(--border-strong);
+}
+.login-link-row .code {
+  font-size: 10px; color: var(--text-muted); letter-spacing: 2px;
+}
+
+/* Firma y Logo */
+.login-created-by {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding-top: 24px;
+}
+.login-created-by::before, .login-created-by::after {
+  content: ''; height: 1px; width: 50px; background: var(--border);
+}
+
+.login-logo-bottom {
+  height: 320px; /* ¡Tamaño GIGANTE! */
+  width: auto;
+  margin-top: -10px; /* Lo subimos un poquito */
+  object-fit: contain;
+}
