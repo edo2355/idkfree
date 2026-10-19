@@ -26,11 +26,7 @@ jobs:
       - name: Build APK
         run: |
           cd mobile/android
-          ./gradlew assembleRelease \
-          -Pandroid.injected.signing.store.file=$(pwd)/app/keystore.jks \
-          -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
-          -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
-          -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
+          ./gradlew app:assembleRelease -Pandroid.injected.signing.store.file=$(pwd)/app/keystore.jks -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - uses: actions/upload-artifact@v4
         with:
