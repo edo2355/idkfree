@@ -34,13 +34,6 @@
       "expo-dev-client",
       "expo-video",
       "expo-camera",
-      [
-        "@config-plugins/react-native-webrtc",
-        {
-          "cameraPermission": "Allow IDKFREE to access your camera",
-          "microphonePermission": "Allow IDKFREE to access your microphone"
-        }
-      ],
       "@livekit/react-native-expo-plugin",
       [
         "expo-build-properties",
