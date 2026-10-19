@@ -12,14 +12,16 @@ export function LiveStreamScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const roomName = route.params?.roomName || `live-${Date.now()}`;
+  const isHost = route.params?.isHost ?? true;
   
   const [token, setToken] = useState<string | null>(null);
+  const [isCameraReady, setIsCameraReady] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     async function getToken() {
       try {
-        const res = await api.livekit.getToken(roomName, true);
+        const res = await api.livekit.getToken(roomName, isHost);
         setToken(res.token);
       } catch (err: any) {
         setError(err.message || 'Error al conectar al servidor de video');
@@ -57,22 +59,23 @@ export function LiveStreamScreen() {
         audio={true}
         video={true}
         onDisconnected={() => navigation.goBack()}
+        onConnected={() => setTimeout(() => setIsCameraReady(true), 1500)}
         style={{ flex: 1 }}
       >
-        <StreamUI roomName={roomName} onClose={() => navigation.goBack()} />
+        <StreamUI roomName={roomName} onClose={() => navigation.goBack()} isCameraReady={isCameraReady} />
       </LiveKitRoom>
     </View>
   );
 }
 
-function StreamUI({ roomName, onClose }: { roomName: string, onClose: () => void }) {
+function StreamUI({ roomName, onClose, isCameraReady }: { roomName: string, onClose: () => void, isCameraReady: boolean }) {
   const theme = useTheme();
   const tracks = useTracks([Track.Source.Camera]);
   const localCamera = tracks.find(t => t.participant.isLocal);
 
   return (
     <View style={{ flex: 1 }}>
-      {localCamera ? (
+      {localCamera && isCameraReady ? (
         <VideoTrack trackRef={localCamera} style={StyleSheet.absoluteFill} />
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
