@@ -300,7 +300,11 @@ export function createApi(config: ApiConfig) {
       feed: () => request<any>('/stories/feed'),
       delete: (id: string) => request<any>(`/stories/${id}`, { method: 'DELETE' }),
     },
-    bookmarks: {
+    livekit: {
+    getToken: (roomName: string, isHost: boolean) => 
+      request<any>(`/livekit/token?roomName=${roomName}&isHost=${isHost}`),
+  },
+  bookmarks: {
       list: () => Promise.resolve({ posts: [] }),
       add: (_postId: string) =>
         Promise.reject(new Error('Bookmarks no implementado')),
