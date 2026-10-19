@@ -84,3 +84,55 @@
   height: 100%;
   object-fit: cover;
 }
+
+/* Badge de cuenta */
+.account-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: var(--accent);
+  color: white;
+  margin-left: 10px;
+}
+
+/* Botones de enlaces */
+.profile-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.profile-link-btn {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.profile-link-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Botón editar perfil */
+.edit-profile-btn {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 8px 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+.edit-profile-btn:hover {
+  background: var(--surface);
+}

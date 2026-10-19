@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useAuthStore } from '../stores/authStore';
+import { useParams, Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { PostCard } from '../components/PostCard';
 import { Layout } from '../components/Layout';
+
 import './Profile.css';
 
 type Tab = 'posts' | 'reels' | 'streams';
 
 export function Profile() {
   const { alias } = useParams();
+  const currentUser = useAuthStore(s => s.user);
   const [profile, setProfile] = useState<any>(null);
   const [posts, setPosts] = useState<any[]>([]);
   const [tab, setTab] = useState<Tab>('posts');
@@ -36,9 +39,15 @@ export function Profile() {
 
   const u = profile.user;
   const stats = profile.stats;
+  const isMe = currentUser?.alias === u.alias;
 
   const mediaPosts = posts.filter((p: any) => p.image_url || p.video_url);
   const textPosts = posts.filter((p: any) => !p.image_url && !p.video_url);
+  
+  let parsedLinks: {title: string, url: string}[] = [];
+  if (u.links) {
+    try { parsedLinks = JSON.parse(u.links); } catch {}
+  }
 
   return (
     <Layout>
@@ -52,13 +61,44 @@ export function Profile() {
           <div className="profile-info">
             <div className="profile-username">
               {u.name || u.alias} <span style={{ color: 'var(--text-muted)' }}>@{u.alias}</span>
+              
+              {/* Badge de Creador / Empresa */}
+              {u.account_type && u.account_type !== 'personal' && (
+                <span className={`account-badge ${u.account_type}`}>
+                  {u.account_type === 'business' ? 'Empresa' : 'Creador'}
+                </span>
+              )}
             </div>
+
+            {/* Categoría */}
+            {u.category && (
+              <p style={{ color: 'var(--accent)', fontSize: 14, marginBottom: 10, fontWeight: 500 }}>
+                {u.category}
+              </p>
+            )}
+
             <div className="profile-stats">
-              <span><strong>{posts.length}</strong> publicaciones</span>
+              <span><strong>{posts.length}</strong> posts</span>
               <span><strong>{stats?.followers ?? 0}</strong> seguidores</span>
               <span><strong>{stats?.following ?? 0}</strong> siguiendo</span>
             </div>
             <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>{u.bio || 'Sin biografía todavía.'}</p>
+            
+            {/* Enlaces */}
+            {parsedLinks.length > 0 && (
+              <div className="profile-links">
+                {parsedLinks.map((link, i) => (
+                  <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="profile-link-btn">
+                    {link.title}
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {/* Botón Editar (Solo si es mi perfil) */}
+            {isMe && (
+              <Link to="/edit-profile" className="edit-profile-btn">Editar Perfil</Link>
+            )}
           </div>
         </div>
 
@@ -68,7 +108,6 @@ export function Profile() {
           <div className={`profile-tab ${tab === 'streams' ? 'active' : ''}`} onClick={() => setTab('streams')}>Streams</div>
         </div>
 
-        {/* Contenido de las Pestañas */}
         {tab === 'posts' && (
           <div>
             {mediaPosts.length > 0 && (

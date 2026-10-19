@@ -17,6 +17,7 @@ import { Chat } from './pages/Chat';
 import { Search } from './pages/Search';
 import { Create } from './pages/Create';
 import { Reels } from './pages/Reels';
+import { EditProfile } from './pages/EditProfile';
 
 export default function App() {
   const { isLoading, token } = useAuth();
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="/chats" element={<ProtectedRoute><Layout><Chats /></Layout></ProtectedRoute>} />
         <Route path="/chat/:userId" element={<ProtectedRoute><Layout><Chat /></Layout></ProtectedRoute>} />
         <Route path="/u/:alias" element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>} />
+        <Route path="/edit-profile" element={<ProtectedRoute><Layout><EditProfile /></Layout></ProtectedRoute>} />
       </Route>
       
       <Route path="/404" element={<NotFound />} />

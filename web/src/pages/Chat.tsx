@@ -15,7 +15,7 @@ export function Chat() {
   const loadMessages = async () => {
     if (!userId) return;
     try {
-      const res = await api.messages.conversation(userId, 100);
+      const res = await api.messages.conversation(userId);
       setMessages(res.messages || []);
     } catch (err) {
       console.error(err);
