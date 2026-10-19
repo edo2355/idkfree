@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { PostCard } from '../components/PostCard';
 import { NotesRow } from '../components/NotesRow';
+import { Layout } from '../components/Layout';
 import './Feed.css';
 
 export function Feed() {
@@ -23,16 +24,22 @@ export function Feed() {
     loadFeed();
   }, []);
 
-  if (loading) return <div className="feed-loading">Cargando feed...</div>;
-  if (error) return <div className="feed-error">{error}</div>;
-  if (posts.length === 0) return <div className="feed-empty">No hay publicaciones aún.</div>;
-
   return (
-    <div className="feed-container">
-      <NotesRow />
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
-    </div>
+    <Layout>
+      <div className="feed-container" style={{ maxWidth: '600px', margin: '0 auto', width: '100%', borderLeft: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}>
+        <NotesRow />
+        {loading ? (
+          <div className="feed-loading">Cargando feed...</div>
+        ) : error ? (
+          <div className="feed-error">{error}</div>
+        ) : posts.length === 0 ? (
+          <div className="feed-empty">No hay publicaciones aún.</div>
+        ) : (
+          posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))
+        )}
+      </div>
+    </Layout>
   );
 }
