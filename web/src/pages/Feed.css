@@ -1,20 +1,149 @@
-.feed-container {
-  max-width: 600px;
+.feed-wrapper {
+  display: flex;
+  justify-content: center;
+  max-width: 1050px;
   margin: 0 auto;
   width: 100%;
+  gap: 20px;
+}
+
+.feed-main {
+  flex: 1;
+  max-width: 600px;
   border-left: 1px solid var(--border);
   border-right: 1px solid var(--border);
   min-height: 100vh;
-  padding-bottom: 80px; /* Espacio para el menú inferior */
 }
 
+.feed-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(5, 5, 5, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.feed-header h1 {
+  font-size: 20px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Compositor */
+.feed-composer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.composer-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.feed-composer input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+}
+
+.feed-composer input::placeholder {
+  color: var(--text-muted);
+}
+
+.feed-composer button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Estados de carga y error */
 .feed-loading, .feed-error, .feed-empty {
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 20px;
   color: var(--text-muted);
-  font-size: 15px;
 }
 
-.feed-error {
-  color: var(--danger);
+.feed-error button {
+  margin-top: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Barra lateral derecha */
+.feed-sidebar {
+  width: 300px;
+  padding: 20px 0;
+}
+
+.widget {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.widget h3 {
+  font-size: 16px;
+  font-family: var(--font-ui);
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.widget p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .feed-sidebar {
+    display: none;
+  }
+  .feed-main {
+    max-width: 100%;
+    border: none;
+  }
 }
