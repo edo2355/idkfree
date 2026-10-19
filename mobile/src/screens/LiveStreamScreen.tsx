@@ -60,7 +60,6 @@ export function LiveStreamScreen() {
         video={true}
         onDisconnected={() => navigation.goBack()}
         onConnected={() => setTimeout(() => setIsCameraReady(true), 1500)}
-        style={{ flex: 1 }}
       >
         <StreamUI roomName={roomName} onClose={() => navigation.goBack()} isCameraReady={isCameraReady} />
       </LiveKitRoom>
@@ -76,7 +75,7 @@ function StreamUI({ roomName, onClose, isCameraReady }: { roomName: string, onCl
   return (
     <View style={{ flex: 1 }}>
       {localCamera && isCameraReady ? (
-        <VideoTrack trackRef={localCamera} style={StyleSheet.absoluteFill} />
+        <VideoTrack trackRef={localCamera} style={StyleSheet.absoluteFillObject} />
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Text style={{ color: '#FFF' }}>Iniciando cámara...</Text>

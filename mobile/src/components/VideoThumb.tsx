@@ -12,6 +12,7 @@ export function VideoThumb({ uri, style }: { uri: string, style: any }) {
       if (!uri) return;
       try {
         const realUrl = await resolveAssetUrl(uri);
+        if (!realUrl) return;
         // Genera la miniatura en el segundo 1 del video
         const { uri: thumbUri } = await VideoThumbnails.getThumbnailAsync(realUrl, {
           time: 1000,

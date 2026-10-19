@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator, Linking } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme, useThemeStore } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
@@ -11,7 +11,6 @@ import { ProfileTabs, type ProfileTab } from '../components/ProfileTabs';
 import { StatsHero } from '../components/StatsHero';
 import { Skeleton } from '../components/Skeleton';
 import { ScreenBackground } from '../components/ScreenBackground';
-import { VideoThumb } from '../components/VideoThumb';
 
 export function ProfileScreen() {
   const theme = useTheme();
@@ -59,28 +58,8 @@ export function ProfileScreen() {
   if (loading || !profile) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <ScreenBackground variant="topo" />
-        <View style={{ paddingTop: 60, paddingHorizontal: 20, paddingBottom: 8 }}>
-          <Skeleton width={100} height={24} />
-        </View>
-        <View style={{ alignItems: 'center', marginTop: 12 }}>
-          <Skeleton width={96} height={96} borderRadius={48} />
-          <Skeleton width={120} height={18} style={{ marginTop: 12 }} />
-          <Skeleton width={80} height={14} style={{ marginTop: 6 }} />
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, gap: 32 }}>
-          <Skeleton width={60} height={40} borderRadius={8} />
-          <Skeleton width={60} height={40} borderRadius={8} />
-          <Skeleton width={60} height={40} borderRadius={8} />
-        </View>
-        <View style={{ paddingHorizontal: 32, marginTop: 20 }}>
-          <Skeleton width="100%" height={44} borderRadius={8} />
-        </View>
-        <View style={{ flexDirection: 'row', gap: 2, marginTop: 24, paddingHorizontal: 2 }}>
-          <View style={{ flex: 1 }}><Skeleton width="100%" height={100} borderRadius={2} /></View>
-          <View style={{ flex: 1 }}><Skeleton width="100%" height={100} borderRadius={2} /></View>
-          <View style={{ flex: 1 }}><Skeleton width="100%" height={100} borderRadius={2} /></View>
-        </View>
+        <ScreenBackground variant="topo" />
+        <View style={{ paddingTop: 60, paddingHorizontal: 20 }}><Skeleton width={100} height={24} /></View>
       </View>
     );
   }
@@ -89,123 +68,91 @@ export function ProfileScreen() {
   const stats = profile.stats;
   const photoPosts = posts.filter((p: any) => p.image_url || p.video_url);
   const textPosts = posts.filter((p: any) => !p.image_url && !p.video_url);
-  const reels = posts.filter((p: any) => p.video_url);
-  const streams: any[] = []; // Placeholder para cuando implementemos los En Vivos
+
+  let parsedLinks: {title: string, url: string}[] = [];
+  if (u.links) {
+    try { parsedLinks = JSON.parse(u.links); } catch {}
+  }
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ paddingBottom: 60 }}>
-      {/* Header */}
       <View style={{ paddingTop: 60, paddingHorizontal: 20, paddingBottom: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text style={{ fontSize: 24, color: theme.text, fontFamily: fonts.displayBoldItalic, letterSpacing: 0.5 }}>
-          Perfil
-        </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Settings')} activeOpacity={0.6}>
-          <Text style={{ color: theme.textMuted, fontFamily: fonts.medium, fontSize: 13 }}>Ajustes</Text>
-        </TouchableOpacity>
+        <Text style={{ fontSize: 24, color: theme.text, fontFamily: fonts.displayBoldItalic }}>Perfil</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Settings')}><Text style={{ color: theme.textMuted, fontFamily: fonts.medium, fontSize: 13 }}>Ajustes</Text></TouchableOpacity>
       </View>
 
-      {/* Avatar + info */}
       <View style={{ alignItems: 'center', marginTop: 12 }}>
         {avatarUri ? (
           <Image source={{ uri: avatarUri }} style={{ width: 96, height: 96, borderRadius: 48 }} />
         ) : (
           <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: theme.surfaceElevated, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ color: theme.text, fontSize: 36, fontFamily: fonts.displayBoldItalic }}>
-              {(u.name ?? u.alias).charAt(0).toUpperCase()}
-            </Text>
+            <Text style={{ color: theme.text, fontSize: 36, fontFamily: fonts.displayBoldItalic }}>{(u.name ?? u.alias).charAt(0).toUpperCase()}</Text>
           </View>
         )}
-        <Text style={{ color: theme.text, fontSize: 22, marginTop: 12, fontFamily: fonts.medium }}>
-          {u.name ?? u.alias}
-        </Text>
-        <Text style={{ color: theme.textMuted, fontSize: 14, fontFamily: fonts.regular }}>
-          @{u.alias}
-        </Text>
-        {u.bio ? (
-          <Text style={{ color: theme.text, fontSize: 14, marginTop: 10, textAlign: 'center', paddingHorizontal: 32, fontFamily: fonts.regular, lineHeight: 20 }}>
-            {u.bio}
-          </Text>
+        
+        {/* Nombre y Badge */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, gap: 8 }}>
+          <Text style={{ color: theme.text, fontSize: 22, fontFamily: fonts.medium }}>{u.name ?? u.alias}</Text>
+          {u.account_type && u.account_type !== 'personal' && (
+            <View style={{ backgroundColor: theme.accent, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+              <Text style={{ color: 'white', fontSize: 10, fontFamily: fonts.medium, textTransform: 'uppercase' }}>{u.account_type === 'business' ? 'Empresa' : 'Creador'}</Text>
+            </View>
+          )}
+        </View>
+
+        <Text style={{ color: theme.textMuted, fontSize: 14, fontFamily: fonts.regular }}>@{u.alias}</Text>
+        
+        {/* Categoría */}
+        {u.category ? (
+          <Text style={{ color: theme.accent, fontSize: 12, fontFamily: fonts.medium, marginTop: 4 }}>{u.category}</Text>
         ) : null}
+
+        {u.bio ? (
+          <Text style={{ color: theme.text, fontSize: 14, marginTop: 10, textAlign: 'center', paddingHorizontal: 32, fontFamily: fonts.regular }}>{u.bio}</Text>
+        ) : null}
+
+        {/* Enlaces */}
+        {parsedLinks.length > 0 && (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginTop: 12, paddingHorizontal: 20 }}>
+            {parsedLinks.map((link, i) => (
+              <TouchableOpacity 
+                key={i} 
+                onPress={() => Linking.openURL(link.url)}
+                style={{ backgroundColor: theme.surfaceElevated, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: theme.border }}
+              >
+                <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 12 }}>{link.title}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
 
-      {/* Stats Hero OSHIMA */}
-      <StatsHero
-        stats={stats}
-        joinedAt={u.created_at ? String(u.created_at).slice(0, 10).replace(/-/g, '.') : undefined}
-      />
+      <StatsHero stats={stats} joinedAt={u.created_at ? String(u.created_at).slice(0, 10).replace(/-/g, '.') : undefined} />
 
-      {/* Botón editar */}
       <View style={{ paddingHorizontal: 32, marginTop: 20, marginBottom: 16 }}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('EditProfile')}
-          activeOpacity={0.7}
-          style={{ paddingVertical: 12, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
-        >
+        <TouchableOpacity onPress={() => navigation.navigate('EditProfile')} style={{ paddingVertical: 12, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
           <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 14 }}>Editar perfil</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Tabs */}
       <ProfileTabs active={tab} onChange={setTab} />
 
-      {/* Contenido */}
       <View style={{ padding: 2 }}>
         {tab === 'posts' ? (
           <PostGrid posts={photoPosts.length > 0 ? photoPosts : posts} />
         ) : tab === 'notas' ? (
           <View style={{ padding: 16 }}>
-            {textPosts.length === 0 && vibes.length === 0 ? (
-              <Text style={{ color: theme.textMuted, textAlign: 'center', paddingVertical: 40, fontFamily: fonts.regular }}>
-                Sin notas todavía
-              </Text>
-            ) : (
-              <>
-                {textPosts.map((p) => (
-                  <View key={p.id} style={{ backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 12, padding: 14, marginBottom: 10 }}>
-                    <Text style={{ color: theme.text, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }}>
-                      {p.body}
-                    </Text>
-                  </View>
-                ))}
-                {vibes.map((v) => (
-                  <View key={v.id} style={{ backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 12, padding: 14, marginBottom: 10 }}>
-                    <Text style={{ color: theme.text, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }}>
-                      {v.message}
-                    </Text>
-                  </View>
-                ))}
-              </>
-            )}
-          </View>
-        ) : (
-          <View style={{ padding: 16 }}>
-            {legacyVibes.length === 0 ? (
-              <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-                <Text style={{ fontSize: 40, marginBottom: 10 }}>[LEGACY]️</Text>
-                <Text style={{ color: theme.textMuted, textAlign: 'center', fontFamily: fonts.regular, fontSize: 13 }}>
-                  Sin contenido legacy
-                </Text>
+            {textPosts.map((p) => (
+              <View key={p.id} style={{ backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 12, padding: 14, marginBottom: 10 }}>
+                <Text style={{ color: theme.text, fontFamily: fonts.regular, fontSize: 14 }}>{p.body}</Text>
               </View>
-            ) : (
-              legacyVibes.map((v) => (
-                <View key={v.id} style={{ backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 12, padding: 14, marginBottom: 10 }}>
-                  <Text style={{ color: theme.text, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }}>
-                    {v.message}
-                  </Text>
-                </View>
-              ))
-            )}
+            ))}
           </View>
-        )}
+        ) : null}
       </View>
 
-      {/* Logout */}
       <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
-        <TouchableOpacity
-          onPress={() => clearAuth()}
-          activeOpacity={0.7}
-          style={{ paddingVertical: 14, borderRadius: 8, alignItems: 'center', backgroundColor: theme.danger }}
-        >
+        <TouchableOpacity onPress={() => clearAuth()} style={{ paddingVertical: 14, borderRadius: 8, alignItems: 'center', backgroundColor: theme.danger }}>
           <Text style={{ color: '#FFFFFF', fontFamily: fonts.medium, fontSize: 14 }}>Cerrar sesión</Text>
         </TouchableOpacity>
       </View>

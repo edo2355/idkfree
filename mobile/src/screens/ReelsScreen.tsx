@@ -25,7 +25,7 @@ function ReelItem({ item, theme }: { item: any; theme: any }) {
   async function toggleLike() {
     const nextLiked = !liked;
     setLiked(nextLiked);
-    setLikesCount(prev => nextLiked ? prev + 1 : prev - 1);
+    setLikesCount((prev: number) => nextLiked ? prev + 1 : prev - 1);
     try {
       if (nextLiked) await api.posts.like(item.id);
       else await api.posts.unlike(item.id);
