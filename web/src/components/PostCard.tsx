@@ -130,7 +130,14 @@ export function PostCard({ post, onComment, onShare }: PostCardProps) {
       {post.video_url ? (
         <video src={post.video_url} className="post-media-video" controls muted loop />
       ) : post.image_url ? (
-        <img src={resolveAssetUrl(post.image_url)} alt="Post media" className="post-media" />
+        <img 
+          src={resolveAssetUrl(post.image_url)} 
+          alt="Post media" 
+          className="post-media" 
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=IDKFREE&background=1A1A1A&color=A3A3A3&size=400&font-size=0.3';
+          }} 
+        />
       ) : null}
 
       {/* Actions */}
