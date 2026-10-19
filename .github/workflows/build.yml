@@ -23,18 +23,18 @@ jobs:
       - name: Decode Keystore
         run: echo "${{ secrets.ANDROID_KEYSTORE }}" | tr -d ' \n\r' | base64 --decode > mobile/android/app/keystore.jks
 
-      - name: Build APK
-        env:
-          KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      - name: Setup Gradle Properties
         run: |
           cd mobile/android
-          ./gradlew app:assembleRelease \
-            -Pandroid.injected.signing.store.file=$(pwd)/app/keystore.jks \
-            -Pandroid.injected.signing.store.password='$KEYSTORE_PASS' \
-            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password='$KEY_PASS'
+          echo "android.injected.signing.store.file=$(pwd)/app/keystore.jks" >> gradle.properties
+          echo "android.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> gradle.properties
+          echo "android.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }}" >> gradle.properties
+          echo "android.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}" >> gradle.properties
+
+      - name: Build APK
+        run: |
+          cd mobile/android
+          ./gradlew assembleRelease
 
       - uses: actions/upload-artifact@v4
         with:
