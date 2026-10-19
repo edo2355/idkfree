@@ -21,7 +21,7 @@ jobs:
           java-version: '17'
 
       - name: Decode Keystore
-        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > mobile/android/app/keystore.jks
+        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | tr -d ' \n\r' | base64 --decode > mobile/android/app/keystore.jks
 
       - name: Build APK
         run: |
