@@ -9,6 +9,9 @@ import { Feed } from './pages/Feed';
 import { Chats } from './pages/Chats';
 import { Chat } from './pages/Chat';
 import { Profile } from './pages/Profile';
+import { Search } from './pages/Search';
+import { Create } from './pages/Create';
+import { Reels } from './pages/Reels';
 import { NotFound } from './pages/NotFound';
 import { SplashScreen } from './pages/SplashScreen';
 
@@ -45,7 +48,10 @@ export default function App() {
       />
       
       {/* Ruta exclusiva para el Feed si ya estás logueado */}
-      <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+            <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+      <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
+      <Route path="/create" element={<ProtectedRoute><Create /></ProtectedRoute>} />
+      <Route path="/reels" element={<ProtectedRoute><Reels /></ProtectedRoute>} />
 
       <Route
         path="/u/:alias"

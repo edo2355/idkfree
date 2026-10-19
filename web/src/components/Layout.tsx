@@ -1,76 +1,46 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
+import { Sidebar } from './Sidebar';
 
 interface Props {
   children: ReactNode;
 }
 
 export function Layout({ children }: Props) {
-  const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.clearAuth);
+  const navigate = useNavigate();
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-      <header style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        background: 'var(--bg)',
-        borderBottom: '1px solid var(--border)',
-        padding: '12px 20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
-        {/* Logo y Firma */}
-        <Link to="/" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textDecoration: 'none' }}>
-          <img src="/logo-edo-white.png" alt="IDKFREE" style={{ height: 28, objectFit: 'contain' }} />
-          <span style={{
-            fontFamily: 'var(--font-display)',
-            fontStyle: 'italic',
-            fontSize: 10,
-            color: 'var(--text-muted)',
-            marginTop: 2,
-            letterSpacing: 0.5
-          }}>
-            from / edo amate
-          </span>
-        </Link>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+      {/* Barra Lateral */}
+      <Sidebar />
 
-        {/* Acciones de usuario */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          {user && (
-            <>
-              <Link to={`/u/${user.alias}`} style={{
-                width: 32,
-                height: 32,
-                borderRadius: 16,
-                background: 'var(--surface-elevated)',
-                border: '1px solid var(--border)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--text)',
-                fontFamily: 'var(--font-ui)',
-                fontWeight: 500,
-                fontSize: 14,
-                textDecoration: 'none',
-              }}>
-                {user.alias?.charAt(0).toUpperCase() ?? '?'}
-              </Link>
-              <button onClick={logout} style={{
-                color: 'var(--text-muted)',
-                fontSize: 13,
-                fontFamily: 'var(--font-ui)',
-              }}>
-                Salir
-              </button>
-            </>
-          )}
-        </div>
-      </header>
-      <main>{children}</main>
+      {/* Contenido Principal */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Header superior simple (para el botón de salir) */}
+        <header style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          padding: '16px 20px',
+          borderBottom: '1px solid var(--border)',
+        }}>
+          <button onClick={() => { logout(); navigate('/'); }} style={{
+            background: 'transparent',
+            color: 'var(--text-muted)',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 14
+          }}>
+            Salir
+          </button>
+        </header>
+
+        {/* Área de la página */}
+        <main style={{ flex: 1 }}>
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
