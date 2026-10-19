@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator, FlatList } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme, useThemeStore } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
@@ -11,6 +11,7 @@ import { ProfileTabs, type ProfileTab } from '../components/ProfileTabs';
 import { StatsHero } from '../components/StatsHero';
 import { Skeleton } from '../components/Skeleton';
 import { ScreenBackground } from '../components/ScreenBackground';
+import { VideoThumb } from '../components/VideoThumb';
 
 export function ProfileScreen() {
   const theme = useTheme();
@@ -88,6 +89,8 @@ export function ProfileScreen() {
   const stats = profile.stats;
   const photoPosts = posts.filter((p: any) => p.image_url || p.video_url);
   const textPosts = posts.filter((p: any) => !p.image_url && !p.video_url);
+  const reels = posts.filter((p: any) => p.video_url);
+  const streams: any[] = []; // Placeholder para cuando implementemos los En Vivos
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ paddingBottom: 60 }}>

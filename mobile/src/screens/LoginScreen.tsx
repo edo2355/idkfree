@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Text, Image, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View, Modal, useWindowDimensions } from 'react-native';
+import { Text, Image, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View, Modal, useWindowDimensions, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Svg, { Line, Rect, Circle, Path } from 'react-native-svg';
 import { useTheme } from '../stores/themeStore';
@@ -52,7 +52,8 @@ function TechLabel({ children, color, size = 9, spacing = 1.5 }: any) {
 // ---------- Pantalla ----------
 export function LoginScreen() {
   const theme = useTheme();
-  const { width: SW } = useWindowDimensions();
+  const { width: SW, height: SCREEN_H } = useWindowDimensions();
+  const isSmallScreen = SCREEN_H < 700; // Detecta pantallas pequeñas como el J2
   const navigation = useNavigation<any>();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [email, setEmail] = useState('');
@@ -111,7 +112,10 @@ export function LoginScreen() {
       <ScreenBackground variant="neural" opacity={0.07} />
       <CarnetTicketsBackground />
 
-      <View style={{ flex: 1, padding: 20, paddingTop: 36 }}>
+      <ScrollView 
+        contentContainerStyle={{ flexGrow: 1, padding: 20, paddingTop: isSmallScreen ? 10 : 36, paddingBottom: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header técnico — 5 taps abre config oculta */}
         <TouchableOpacity onPress={handleHeaderTap} activeOpacity={1}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -124,11 +128,14 @@ export function LoginScreen() {
         </TouchableOpacity>
 
         {/* Connection HUD */}
-        <ConnectionHUD />
+        <ConnectionHUD 
+          key={showConfig ? 'config-open' : 'config-closed'} 
+          onOpenConfig={() => setShowConfig(true)} 
+        />
 
         {/* Barcode superior */}
         <View style={{ alignItems: 'center', marginBottom: 12 }}>
-          <BarcodeSVG width={240} height={8} color={theme.text} seed="idkfree-boot" />
+          <BarcodeSVG width={isSmallScreen ? 180 : 240} height={isSmallScreen ? 6 : 8} color={theme.text} seed="idkfree-boot" />
         </View>
 
         {/* Logo IDKFREE monoespaciado grande */}
@@ -136,9 +143,9 @@ export function LoginScreen() {
           <Text style={{
             color: theme.text,
             fontFamily: MONO,
-            fontSize: 32,
+            fontSize: isSmallScreen ? 24 : 32,
             fontWeight: '700',
-            letterSpacing: 6,
+            letterSpacing: isSmallScreen ? 4 : 6,
             textAlign: 'center',
           }}>
             IDKFREE
@@ -234,10 +241,10 @@ export function LoginScreen() {
 
         {/* Firma Edo Amate */}
         <View style={{ alignItems: 'center', marginBottom: 8 }}>
-          <View style={{ width: SW * 0.35, height: 55, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ width: SW * (isSmallScreen ? 0.25 : 0.35), height: isSmallScreen ? 40 : 55, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
             <Image
               source={require('../../assets/logo-edo-white.png')}
-              style={{ width: SW * 0.35, height: SW * 0.35, opacity: 0.9 }}
+              style={{ width: SW * (isSmallScreen ? 0.25 : 0.35), height: SW * (isSmallScreen ? 0.25 : 0.35), opacity: 0.9 }}
               resizeMode="cover"
             />
           </View>
@@ -253,7 +260,7 @@ export function LoginScreen() {
         </View>
 
 
-      </View>
+      </ScrollView>
 
       <Modal visible={showConfig} transparent animationType="fade" onRequestClose={() => setShowConfig(false)}>
         <ConfigScreen onClose={() => setShowConfig(false)} />

@@ -19,7 +19,7 @@ export async function createVibe(
   const id = uuid();
   await query(
     `INSERT INTO vibes (id, user_id, mood, message, expires_at)
-     VALUES ($1, $2, $3, $4, datetime('now', '+48 hours'))`,
+     VALUES ($1, $2, $3, $4, datetime('now', '+24 hours'))`,
     [id, userId, data.mood, data.message ?? null]
   );
   return { id };

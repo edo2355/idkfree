@@ -1,0 +1,38 @@
+name: Build APK
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: cd mobile && npm ci
+
+      - name: Prebuild Android
+        run: cd mobile && npx expo prebuild --platform android
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Decode Keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > mobile/android/app/keystore.jks
+
+      - name: Build APK
+        run: |
+          cd mobile/android
+          ./gradlew assembleRelease \
+          -Pandroid.injected.signing.store.file=$(pwd)/app/keystore.jks \
+          -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
+          -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
+          -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: mobile/android/app/build/outputs/apk/release/app-release.apk

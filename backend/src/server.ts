@@ -19,6 +19,7 @@ import { legacyRoutes } from './routes/legacy.js';
 import { cardRoutes } from './routes/card.js';
 import { recoveryRoutes } from './routes/recovery.js';
 import { messageRoutes } from './routes/messages.js';
+import { livekitRoutes } from './routes/livekit.js';
 import { uploadRoutes } from './routes/uploads.js';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
@@ -52,7 +53,8 @@ await app.register(vibeRoutes, { prefix: '/api' });
 await app.register(legacyRoutes, { prefix: '/api' });
 await app.register(cardRoutes, { prefix: '/api' });
 await app.register(recoveryRoutes, { prefix: '/api' });
-await app.register(messageRoutes, { prefix: '/api' });
+await app.register(livekitRoutes, { prefix: '/api' });
+  app.register(messageRoutes, { prefix: '/api' });
 await app.register(uploadRoutes, { prefix: '/api' });
 
 // Capturar tiempo de arranque para calcular uptime

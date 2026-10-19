@@ -3,10 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
-import { useAuthStore } from '../stores/authStore';
-import { NotificationIcon } from './icons/NotificationIcon';
 import { CommentIcon } from './icons/CommentIcon';
-import { Avatar } from './Avatar';
 
 interface Props {
   showBack?: boolean;
@@ -17,7 +14,6 @@ export function HeaderBar({ showBack = false, title }: Props) {
   const theme = useTheme();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
-  const user = useAuthStore((s) => s.user);
 
   return (
     <View
@@ -62,13 +58,10 @@ export function HeaderBar({ showBack = false, title }: Props) {
         </Text>
       </View>
 
+      {/* Solo dejamos el icono de chats a la derecha */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
         <TouchableOpacity onPress={() => navigation.navigate('Chats')} activeOpacity={0.6}>
-          <CommentIcon size={22} color={theme.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')} activeOpacity={0.6}>
-          <Avatar name={user?.name ?? user?.alias} url={(user as any)?.avatar_url} size={32} />
+          <CommentIcon size={24} color={theme.text} />
         </TouchableOpacity>
       </View>
     </View>

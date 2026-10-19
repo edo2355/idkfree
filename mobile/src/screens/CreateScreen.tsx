@@ -11,6 +11,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
+import { CustomGalleryModal } from '../components/CustomGalleryModal';
 
 type Mode = 'camera' | 'preview' | 'note';
 type ShotType = 'photo' | 'video';
@@ -39,6 +40,7 @@ export function CreateScreen() {
   const [videoQuality, setVideoQuality] = useState<VidQuality>('1080p');
   const [autofocus, setAutofocus] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
   const [mode, setMode] = useState<Mode>('camera');
   const [capturedUri, setCapturedUri] = useState<string | null>(null);
@@ -134,19 +136,12 @@ export function CreateScreen() {
     if (cameraRef.current && isRecording) cameraRef.current.stopRecording();
   }
 
-  async function pickFromGallery() {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: shotType === 'photo' ? ImagePicker.MediaTypeOptions.Images : ['videos'],
-      quality: 1,
-      allowsEditing: shotType === 'photo',
-    });
-    if (result.canceled) return;
-    const asset = result.assets[0];
-    setCapturedUri(asset.uri);
+  async function pickFromGallery(uri: string, isVideo: boolean) {
+    setGalleryOpen(false);
+    setShotType(isVideo ? 'video' : 'photo');
+    setCapturedUri(uri);
     setMode('preview');
-    await uploadMedia(asset.uri, shotType === 'video');
+    await uploadMedia(uri, isVideo);
   }
 
   async function publishPost() {
@@ -434,7 +429,7 @@ export function CreateScreen() {
       {/* Bottom controls */}
       <View style={{ position: 'absolute', bottom: 40, left: 0, right: 0, alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 40 }}>
-          <TouchableOpacity onPress={pickFromGallery} style={{ width: 48, height: 48, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center' }}>
+          <TouchableOpacity onPress={() => setGalleryOpen(true)} style={{ width: 48, height: 48, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ fontSize: 22 }}>[IMG]</Text>
           </TouchableOpacity>
 
@@ -464,6 +459,11 @@ export function CreateScreen() {
       </View>
 
       {settingsPanel}
+      <CustomGalleryModal 
+        visible={galleryOpen} 
+        onClose={() => setGalleryOpen(false)} 
+        onSelect={pickFromGallery} 
+      />
     </View>
   );
 }

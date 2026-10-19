@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 
-export type ProfileTab = 'posts' | 'notas' | 'legacy';
+export type ProfileTab = 'posts' | 'reels' | 'streams' | 'notas' | 'legacy';
 
 interface Props {
   active: ProfileTab;
@@ -14,8 +14,11 @@ export function ProfileTabs({ active, onChange, showLegacy = true }: Props) {
   const theme = useTheme();
   const tabs: { key: ProfileTab; label: string }[] = [
     { key: 'posts', label: 'POSTS' },
+    { key: 'reels', label: 'REELS' },
+    { key: 'streams', label: 'STREAMS' },
     { key: 'notas', label: 'NOTAS' },
   ];
+  
   if (showLegacy) tabs.push({ key: 'legacy', label: 'LEGACY' });
 
   return (
@@ -36,8 +39,8 @@ export function ProfileTabs({ active, onChange, showLegacy = true }: Props) {
           <Text style={{
             color: active === t.key ? theme.text : theme.textMuted,
             fontFamily: fonts.medium,
-            fontSize: 11,
-            letterSpacing: 1.5,
+            fontSize: 10,
+            letterSpacing: 1,
           }}>
             {t.label}
           </Text>

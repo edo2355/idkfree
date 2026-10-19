@@ -80,20 +80,62 @@ export function NotesRow() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 10, gap: 12 }}
         >
+          {/* Botón de Crear */}
+          <TouchableOpacity
+            onPress={() => setComposerOpen(true)}
+            activeOpacity={0.7}
+            style={{ alignItems: 'center', width: 64 }}
+          >
+            <View style={{ width: 56, height: 56, borderRadius: 28, padding: 2, borderWidth: 1, borderColor: theme.accent, borderStyle: 'dashed' }}>
+              <View style={{ flex: 1, borderRadius: 25, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.surfaceElevated }}>
+                <Text style={{ fontSize: 24, color: theme.accent, marginTop: -2 }}>+</Text>
+              </View>
+            </View>
+            <Text style={{ color: theme.accent, fontFamily: fonts.medium, fontSize: 10, marginTop: 4 }}>
+              Añadir
+            </Text>
+          </TouchableOpacity>
+
           {/* Notas de otros */}
           {vibes.filter((v) => v.author_id !== me?.id).slice(0, 15).map((v) => (
             <TouchableOpacity
               key={v.id}
               activeOpacity={0.7}
-              style={{ alignItems: 'center', width: 64 }}
+              style={{ alignItems: 'center', width: 72, marginRight: 8 }}
             >
-              <View style={{ width: 56, height: 56, borderRadius: 28, padding: 2, borderWidth: 1, borderColor: theme.border }}>
-                <View style={{ flex: 1, borderRadius: 25, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.surface }}>
-                  <Text style={{ fontSize: 22 }}>{MOODS.find((m) => m.key === v.mood)?.emoji ?? '[•]'}</Text>
-                </View>
+              {/* El Globo (Bocadillo) */}
+              <View style={{
+                backgroundColor: theme.surfaceElevated,
+                borderRadius: 16,
+                borderBottomLeftRadius: 4, // Hace la forma de globo
+                borderWidth: 1,
+                borderColor: theme.border,
+                paddingHorizontal: 10,
+                paddingVertical: 8,
+                minHeight: 56,
+                width: '100%',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+                <Text style={{ fontSize: 16, marginBottom: 2 }}>
+                  {MOODS.find((m) => m.key === v.mood)?.emoji ?? '[•]'}
+                </Text>
+                {v.message ? (
+                  <Text style={{ color: theme.text, fontFamily: fonts.regular, fontSize: 10, textAlign: 'center' }} numberOfLines={2}>
+                    {v.message}
+                  </Text>
+                ) : null}
               </View>
+              
+              {/* La colita del globo */}
+              <View style={{ flexDirection: 'row', alignSelf: 'flex-start', marginLeft: 12, marginTop: -1 }}>
+                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: theme.border }} />
+                <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: theme.border, marginLeft: -2, marginTop: 4 }} />
+              </View>
+
+              {/* Nombre de usuario */}
               <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 10, marginTop: 4 }} numberOfLines={1}>
-                {v.author_alias}
+                @{v.author_alias}
               </Text>
             </TouchableOpacity>
           ))}

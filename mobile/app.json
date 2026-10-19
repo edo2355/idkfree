@@ -22,7 +22,11 @@
         "backgroundColor": "#050505"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "enableProguardInReleaseBuilds": true,
+      "enableShrinkResources": true,
+      "usesCleartextTraffic": true,
+      "minSdkVersion": 24
     },
     "plugins": [
       "expo-secure-store",
@@ -45,17 +49,21 @@
         "expo-media-library",
         {
           "photosPermission": "IDKFREE necesita acceso a tus fotos para guardar el carnet.",
-          "savePhotosPermission": "IDKFREE guarda el carnet en tu galería.",
+          "savePhotosPermission": "IDKFREE guarda el carnet en tu galer\u00eda.",
           "isAccessMediaLocationEnabled": false
         }
       ],
-      "expo-video"
+      "expo-video",
+      "@config-plugins/react-native-webrtc",
+      "@livekit/react-native-expo-plugin"
     ],
     "extra": {
       "apiUrl": "https://idkfree.onrender.com/api",
       "eas": {
         "projectId": "a5993b12-c5b9-43c3-b222-8d60f5e206f4"
       }
-    }
+    },
+    "jsEngine": "hermes",
+    "scheme": "idkfree"
   }
 }

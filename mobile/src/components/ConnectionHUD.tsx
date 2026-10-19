@@ -25,6 +25,7 @@ interface HealthData {
 interface Props {
   defaultExpanded?: boolean;
   pollMs?: number;
+  onOpenConfig?: () => void;
 }
 
 function isLocalUrl(url: string): boolean {
@@ -40,6 +41,7 @@ function isLocalUrl(url: string): boolean {
 export function ConnectionHUD({
   defaultExpanded = false,
   pollMs = 8000,
+  onOpenConfig,
 }: Props) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [health, setHealth] = useState<Health>('reconnecting');
@@ -118,13 +120,17 @@ export function ConnectionHUD({
     <View style={styles.wrapper}>
       <TouchableOpacity
         onPress={toggleExpand}
+        onLongPress={onOpenConfig}
+        delayLongPress={400}
         activeOpacity={0.7}
         style={styles.collapsed}
       >
         <View style={[styles.dot, { backgroundColor: color }]} />
-        <Text style={[styles.statusText, { color }]}>
-          {statusLabel}
-        </Text>
+        <TouchableOpacity onPress={ping} activeOpacity={0.6}>
+          <Text style={[styles.statusText, { color }]}>
+            {statusLabel}
+          </Text>
+        </TouchableOpacity>
         <Text style={styles.sep}>·</Text>
         <Text style={styles.modeText}>{mode}</Text>
         <Text style={styles.sep}>·</Text>
@@ -156,6 +162,11 @@ export function ConnectionHUD({
             <Row label="FAIL COUNT" value={String(failCount)} color="#EF4444" />
           )}
           <View style={styles.divider} />
+          {onOpenConfig && (
+            <TouchableOpacity onPress={onOpenConfig} style={{ paddingVertical: 8, alignItems: 'center' }}>
+              <Text style={{ color: '#A3A3A3', fontFamily: 'monospace', fontSize: 10, letterSpacing: 1 }}>[ CAMBIAR SERVIDOR ⚙ ]</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
     </View>
