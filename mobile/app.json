@@ -2,15 +2,19 @@
   "expo": {
     "name": "IDKFREE",
     "slug": "idkfree",
-    "version": "2.0.0",
+    "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "automatic",
     "icon": "./assets/icon.png",
+    "scheme": "idkfree",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#050505"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.idkfree.mobile"
@@ -21,49 +25,36 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#050505"
       },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "enableProguardInReleaseBuilds": true,
-      "enableShrinkResources": true,
-      "usesCleartextTraffic": true,
       "minSdkVersion": 24
     },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
     "plugins": [
-      "expo-secure-store",
-      "expo-font",
+      "expo-dev-client",
+      "expo-video",
+      "expo-camera",
+      [
+        "@config-plugins/react-native-webrtc",
+        {
+          "cameraPermission": "Allow IDKFREE to access your camera",
+          "microphonePermission": "Allow IDKFREE to access your microphone"
+        }
+      ],
+      "@livekit/react-native-expo-plugin",
       [
         "expo-build-properties",
         {
           "android": {
-            "usesCleartextTraffic": true,
-            "enableProguardInReleaseBuilds": true,
-            "enableShrinkResourcesInReleaseBuilds": true,
-            "buildArchs": [
-              "armeabi-v7a",
-              "arm64-v8a"
-            ]
+            "extraProguardRules": "-keep class livekit.org.jni_zero.** { *; }\n-keep class org.webrtc.** { *; }\n-keep class com.livekit.** { *; }\n-keep class io.livekit.** { *; }\n-dontwarn org.jni_zero.JniZeroJni"
           }
         }
-      ],
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "IDKFREE necesita acceso a tus fotos para guardar el carnet.",
-          "savePhotosPermission": "IDKFREE guarda el carnet en tu galer\u00eda.",
-          "isAccessMediaLocationEnabled": false
-        }
-      ],
-      "expo-video",
-      "@config-plugins/react-native-webrtc",
-      "@livekit/react-native-expo-plugin"
+      ]
     ],
     "extra": {
-      "apiUrl": "https://idkfree.onrender.com/api",
       "eas": {
         "projectId": "a5993b12-c5b9-43c3-b222-8d60f5e206f4"
       }
-    },
-    "jsEngine": "hermes",
-    "scheme": "idkfree"
+    }
   }
 }
