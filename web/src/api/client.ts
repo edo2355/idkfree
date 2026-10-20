@@ -75,6 +75,14 @@ export const api = {
     userVibes: (alias: string) => request<any>(`/users/${alias}/vibes`),
     legacy: (p?: { limit?: number }) => request<any>(`/vibes/legacy?limit=${p?.limit || 50}`),
   },
+  search: {
+    users: (q: string) => request<any>(`/search/users?q=${encodeURIComponent(q)}`),
+    posts: (q: string) => request<any>(`/search/posts?q=${encodeURIComponent(q)}`),
+  },
+  follows: {
+    follow: (id: string) => request<any>(`/users/${id}/follow`, { method: 'POST' }),
+    unfollow: (id: string) => request<any>(`/users/${id}/follow`, { method: 'DELETE' }),
+  },
   messages: {
     conversations: () => request<any>('/messages'),
     conversation: (alias: string) => request<any>(`/messages/${encodeURIComponent(alias)}`),

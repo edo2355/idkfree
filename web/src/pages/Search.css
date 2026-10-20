@@ -1,0 +1,130 @@
+.search-container {
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.search-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(5, 5, 5, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.search-header h1 {
+  font-size: 20px;
+  font-family: var(--font-ui);
+  margin-bottom: 16px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 0 16px;
+}
+
+.search-icon {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-right: 8px;
+}
+
+.search-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 15px;
+  padding: 12px 0;
+  outline: none;
+}
+
+.search-bar input::placeholder {
+  color: var(--text-subtle);
+}
+
+.search-results {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-status {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+
+.user-card:hover {
+  background: var(--surface);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  flex: 1;
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface-elevated);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.user-alias {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.follow-btn {
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.follow-btn.following {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.follow-btn:hover {
+  opacity: 0.8;
+}
