@@ -56,3 +56,4 @@ ios/
 coverage/
 *.db
 *.bak
+_trash/
