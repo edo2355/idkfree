@@ -37,6 +37,11 @@ jobs:
         working-directory: ./mobile/android
         run: sed -i 's/gradle-9.4.1-bin.zip/gradle-8.10.2-bin.zip/g' gradle/wrapper/gradle-wrapper.properties
 
+      
+      - name: Clean Gradle
+        working-directory: ./mobile/android
+        run: ./gradlew clean
+
       - name: Build APK
         working-directory: ./mobile/android
         run: ./gradlew assembleDebug

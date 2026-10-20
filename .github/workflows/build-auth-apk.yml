@@ -37,6 +37,11 @@ jobs:
         working-directory: ./idkfree-auth/android
         run: sed -i 's/gradle-9.4.1-bin.zip/gradle-8.10.2-bin.zip/g' gradle/wrapper/gradle-wrapper.properties
 
+      
+      - name: Clean Gradle
+        working-directory: ./idkfree-auth/android
+        run: ./gradlew clean
+
       - name: Build APK
         working-directory: ./idkfree-auth/android
         run: ./gradlew assembleDebug
