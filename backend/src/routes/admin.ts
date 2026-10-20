@@ -7,7 +7,7 @@ export async function adminRoutes(app: FastifyInstance) {
   async function checkAdmin(req: any, reply: any) {
     const res = await query('SELECT role FROM users WHERE id = $1', [req.userId]);
     const role = res.rows[0]?.role;
-    if (role !== 'admin' && role !== 'support') {
+    if (role !== 'admin' && role !== 'support' && role !== 'owner') {
       return reply.code(403).send({ error: 'Acceso denegado. Solo personal autorizado.' });
     }
   }
