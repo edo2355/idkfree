@@ -1,0 +1,39 @@
+name: Build IDKFREE Auth APK
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'idkfree-auth/**'
+      - '.github/workflows/build-auth-apk.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          
+      - name: Install Dependencies
+        working-directory: ./idkfree-auth
+        run: npm install
+        
+      - name: Build APK
+        working-directory: ./idkfree-auth/android
+        run: ./gradlew assembleDebug
+        
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: idkfree-auth-apk
+          path: idkfree-auth/android/app/build/outputs/apk/debug/app-debug.apk
