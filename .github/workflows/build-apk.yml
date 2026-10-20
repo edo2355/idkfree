@@ -32,6 +32,11 @@ jobs:
         working-directory: ./mobile
         run: npx expo prebuild --clean -p android
         
+      
+      - name: Force Gradle 8.10.2
+        working-directory: ./mobile/android
+        run: sed -i 's/gradle-9.4.1-bin.zip/gradle-8.10.2-bin.zip/g' gradle/wrapper/gradle-wrapper.properties
+
       - name: Build APK
         working-directory: ./mobile/android
         run: ./gradlew assembleDebug

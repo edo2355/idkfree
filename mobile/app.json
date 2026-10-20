@@ -17,7 +17,12 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.idkfree.mobile"
+      "bundleIdentifier": "app.idkfree.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "IDKFREE necesita acceso a tu c\u00e1mara para transmitir en vivo y tomar fotos.",
+        "NSMicrophoneUsageDescription": "IDKFREE necesita acceso a tu micr\u00f3fono para las transmisiones en vivo.",
+        "NSPhotoLibraryUsageDescription": "IDKFREE necesita acceso a tus fotos para que puedas subir contenido."
+      }
     },
     "android": {
       "package": "app.idkfree.mobile",
@@ -43,7 +48,7 @@
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "2.3.0"
+            "kotlinVersion": "2.1.20"
           }
         }
       ]
