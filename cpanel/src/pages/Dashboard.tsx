@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 
 export default function Dashboard() {
-  const [stats, setStats] = useState({ users: 0, streams: 0, messages: 0 });
+  const [stats, setStats] = useState({ users: 0, posts: 0, messages: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
       try {
         const token = localStorage.getItem('@idk_cpanel_token');
-        const res = await fetch('https://idkfree-api-edo.fly.dev/api/admin/stats', {
+        const res = await fetch('http://localhost:3001/api/admin/stats', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -16,7 +16,7 @@ export default function Dashboard() {
           const data = await res.json();
           setStats({
             users: data.total_users || 0,
-            streams: data.total_posts || 0,
+            posts: data.total_posts || 0,
             messages: data.total_messages || 0
           });
         }
@@ -44,12 +44,12 @@ export default function Dashboard() {
         <div style={{ flex: 1, background: '#181b21', padding: '20px', borderRadius: '10px', border: '1px solid #2a2e39' }}>
           <p style={{ color: '#a0a5b1', margin: 0, fontSize: '14px' }}>Posts Totales</p>
           <h2 style={{ margin: '10px 0 0 0', fontSize: '32px', color: '#00f2fe' }}>
-            {loading ? '...' : stats.streams}
+            {loading ? '...' : stats.posts}
           </h2>
         </div>
 
         <div style={{ flex: 1, background: '#181b21', padding: '20px', borderRadius: '10px', border: '1px solid #2a2e39' }}>
-          <p style={{ color: '#a0a5b1', margin: 0, fontSize: '14px' }}>Mensajes Hoy</p>
+          <p style={{ color: '#a0a5b1', margin: 0, fontSize: '14px' }}>Mensajes Totales</p>
           <h2 style={{ margin: '10px 0 0 0', fontSize: '32px', color: '#00f2fe' }}>
             {loading ? '...' : stats.messages}
           </h2>
