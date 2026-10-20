@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "2.2.10"
+          }
+        }
+      ]
+    ],
+    "android": {
+      "package": "com.edo_amate.idkfreeauth"
+    }
+  }
+}
