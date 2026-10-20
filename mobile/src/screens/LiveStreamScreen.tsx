@@ -6,6 +6,7 @@ import { Track } from 'livekit-client';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
+import { ErrorLogger } from '../utils/errorLogger';
 
 export function LiveStreamScreen() {
   const theme = useTheme();
@@ -25,7 +26,8 @@ export function LiveStreamScreen() {
         const res = await api.livekit.getToken(roomName, isHost);
         setToken(res.token);
       } catch (err: any) {
-        setError(err.message || 'Error al conectar al servidor de video');
+        setError(err.message || 'Error de token');
+        ErrorLogger.log('TOKEN ERROR: ' + err.message);
       }
     }
     getToken();

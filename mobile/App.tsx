@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { DebugOverlay } from './src/components/DebugOverlay';
 import { SplashScreen } from './src/screens/SplashScreen';
 import { fontAssets } from './src/theme/fonts';
 import { darkTheme } from './src/theme/dark';
@@ -47,6 +48,7 @@ export default function App() {
         <NavigationContainer>
           <StatusBar style="light" />
           <RootNavigator />
+          <DebugOverlay />
         </NavigationContainer>
       </IDKAlertProvider>
     </SafeAreaProvider>
