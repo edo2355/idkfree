@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, MessageSquare, LogOut, Shield } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquare, LogOut, Shield, AlertTriangle, Activity, Globe } from 'lucide-react';
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -8,6 +8,9 @@ export default function AdminLayout() {
     { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { path: '/users', name: 'Usuarios', icon: <Users size={20} /> },
     { path: '/support', name: 'Soporte Humano', icon: <MessageSquare size={20} /> },
+    { path: '/reports', name: 'Moderación', icon: <AlertTriangle size={20} /> },
+    { path: '/audit', name: 'Auditoría', icon: <Activity size={20} /> },
+    { path: '/telemetry', name: 'Telemetría Global', icon: <Globe size={20} /> },
   ];
 
   return (
