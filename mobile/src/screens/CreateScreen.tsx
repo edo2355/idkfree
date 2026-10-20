@@ -412,6 +412,11 @@ export function CreateScreen() {
         <TouchableOpacity onPress={() => setMode('note')}>
           <Text style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace', fontSize: 12, letterSpacing: 2, paddingBottom: 4 }}>NOTA</Text>
         </TouchableOpacity>
+        
+        {/* NUEVO BOTÓN EN VIVO */}
+        <TouchableOpacity onPress={() => navigation.navigate('StartStream')}>
+          <Text style={{ color: '#EF4444', fontFamily: 'monospace', fontSize: 12, letterSpacing: 2, fontWeight: 'bold', paddingBottom: 4 }}>EN VIVO</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Recording indicator */}
