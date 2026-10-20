@@ -1,0 +1,95 @@
+
+.create-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  color: var(--text);
+}
+
+.create-container h1 {
+  font-family: var(--font-ui);
+  font-size: 24px;
+  margin-bottom: 30px;
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.create-preview-area {
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+.upload-icon {
+  font-size: 40px;
+}
+
+.preview-media {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.remove-file-btn {
+  background: transparent;
+  color: var(--danger);
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+}
+
+.create-textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 16px;
+  border-radius: 12px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  min-height: 120px;
+  resize: vertical;
+}
+
+.create-submit-btn {
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.create-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.create-submit-btn:hover:not(:disabled) {
+  opacity: 0.8;
+}

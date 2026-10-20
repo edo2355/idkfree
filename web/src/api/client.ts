@@ -91,6 +91,20 @@ export const api = {
   livekit: {
     getToken: (roomName: string, isHost: boolean) => request<any>(`/livekit/token?roomName=${roomName}&isHost=${isHost}`),
   },
+  uploads: {
+    upload: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = localStorage.getItem('aldea_token');
+      const res = await fetch(`${API_URL}/uploads`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Error al subir archivo');
+      return res.json();
+    }
+  },
   streams: {
     start: (title: string, description?: string) => request<any>('/streams/start', { method: 'POST', body: JSON.stringify({ title, description }) }),
     active: () => request<any>('/streams/active'),
