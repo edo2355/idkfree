@@ -21,7 +21,7 @@ export function StartStreamScreen() {
       
       // 2. Navegamos a la pantalla de la cámara con el ID de la sala
       navigation.navigate('LiveStream', { 
-        roomName: res.stream.id, 
+        roomName: res.id || res.stream?.id, 
         isHost: true 
       });
     } catch (err: any) {
