@@ -4,7 +4,7 @@ import { mobileStorage } from '../utils/storage';
 
 const STORAGE_KEY = '@idkfree_backend_url';
 const PORT = '3000';
-const DEFAULT_IP = 'https://idkfree.onrender.com';
+const DEFAULT_IP = 'https://idkfree-api-edo.fly.dev';
 
 // Lee del app.json > expo.extra.apiUrl (build-time)
 // Fallback: AsyncStorage (config manual desde la app)

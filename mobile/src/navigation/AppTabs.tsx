@@ -23,6 +23,7 @@ import { MyDataScreen } from '../screens/MyDataScreen';
 import { KycScreen } from '../screens/KycScreen';
 import { CreateScreen } from '../screens/CreateScreen';
 import { ReelsScreen } from '../screens/ReelsScreen';
+import { LiveStreamsScreen } from '../screens/LiveStreamsScreen';
 import { ChatScreen } from '../screens/ChatScreen';
 import { ChatsScreen } from '../screens/ChatsScreen';
 import { HashtagScreen } from '../screens/HashtagScreen';
@@ -124,6 +125,11 @@ export function AppTabs() {
         name='Reels'
         component={ReelsScreen}
         options={{ tabBarIcon: ({ color, focused }) => <ReelsIcon size={24} color={color} filled={focused} /> }}
+      />
+      <Tab.Screen
+        name='Live'
+        component={LiveStreamsScreen}
+        options={{ tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>📡</Text> }}
       />
       <Tab.Screen
         name='Profile'

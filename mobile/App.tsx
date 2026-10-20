@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { registerGlobals } from '@livekit/react-native';
 import { View, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -9,6 +10,9 @@ import { SplashScreen } from './src/screens/SplashScreen';
 import { fontAssets } from './src/theme/fonts';
 import { darkTheme } from './src/theme/dark';
 import { IDKAlertProvider } from './src/components/IDKAlert';
+
+// Inicializar WebRTC para LiveKit
+registerGlobals();
 
 export default function App() {
   const [ready, setReady] = useState(false);

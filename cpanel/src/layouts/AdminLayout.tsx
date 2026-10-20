@@ -40,7 +40,10 @@ export default function AdminLayout() {
         </nav>
 
         <div style={{ padding: '20px', borderTop: '1px solid #2a2e39' }}>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'transparent', border: 'none', color: '#ff4d4f', cursor: 'pointer', fontSize: '16px' }}>
+          <button 
+            onClick={() => { localStorage.removeItem('@idk_cpanel_token'); window.location.href = '/login'; }}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'transparent', border: 'none', color: '#ff4d4f', cursor: 'pointer', fontSize: '16px' }}
+          >
             <LogOut size={20} /> Cerrar Sesión
           </button>
         </div>

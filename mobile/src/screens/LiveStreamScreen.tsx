@@ -16,6 +16,7 @@ export function LiveStreamScreen() {
   
   const [token, setToken] = useState<string | null>(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
