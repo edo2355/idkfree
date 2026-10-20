@@ -22,8 +22,9 @@ export async function getProfileByAlias(alias: string, viewerId?: string) {
     id: string; alias: string; name: string | null;
     bio: string | null; avatar_url: string | null;
     accent_color: string; created_at: string;
+    account_type: string; category: string | null; links: string | null;
   }>(
-    `SELECT id, alias, name, bio, avatar_url, accent_color, created_at
+    `SELECT id, alias, name, bio, avatar_url, accent_color, created_at, account_type, category, links
      FROM users
      WHERE alias = $1 AND deleted_at IS NULL`,
     [alias]
@@ -74,6 +75,9 @@ export async function updateProfile(
     bio?: string | null;
     avatar_url?: string | null;
     accent_color?: AccentColor;
+    account_type?: string;
+    category?: string | null;
+    links?: string | null;
   }
 ) {
   const fields: string[] = [];
@@ -84,6 +88,9 @@ export async function updateProfile(
   if (data.bio !== undefined) { fields.push(`bio = $${i++}`); values.push(data.bio); }
   if (data.avatar_url !== undefined) { fields.push(`avatar_url = $${i++}`); values.push(data.avatar_url); }
   if (data.accent_color !== undefined) { fields.push(`accent_color = $${i++}`); values.push(data.accent_color); }
+  if (data.account_type !== undefined) { fields.push(`account_type = $${i++}`); values.push(data.account_type); }
+  if (data.category !== undefined) { fields.push(`category = $${i++}`); values.push(data.category); }
+  if (data.links !== undefined) { fields.push(`links = $${i++}`); values.push(data.links); }
 
   if (fields.length === 0) return null;
 
@@ -92,10 +99,11 @@ export async function updateProfile(
     id: string; alias: string; name: string | null;
     bio: string | null; avatar_url: string | null;
     accent_color: string;
+    account_type: string; category: string | null; links: string | null;
   }>(
     `UPDATE users SET ${fields.join(', ')}
      WHERE id = $${i} AND deleted_at IS NULL
-     RETURNING id, alias, name, bio, avatar_url, accent_color`,
+     RETURNING id, alias, name, bio, avatar_url, accent_color, account_type, category, links`,
     values
   );
   return res.rows[0] ?? null;

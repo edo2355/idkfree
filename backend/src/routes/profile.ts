@@ -19,6 +19,9 @@ const updateProfileSchema = z.object({
   bio: z.string().max(300).nullable().optional(),
   avatar_url: z.string().max(500).nullable().optional(),
   accent_color: z.enum(VALID_ACCENTS).optional(),
+  account_type: z.enum(['personal', 'creator', 'business']).optional(),
+  category: z.string().max(50).nullable().optional(),
+  links: z.string().nullable().optional(),
 }).strict();
 
 const changePasswordSchema = z.object({
@@ -34,22 +37,16 @@ const changePasswordSchema = z.object({
 // ------------------------------------------------------------
 export async function profileRoutes(app: FastifyInstance) {
 
-  // GET /api/users/:alias — perfil público
   app.get('/users/:alias', async (req, reply) => {
     const { alias } = req.params as { alias: string };
-
-    // Viewer opcional: si mandan token, sabemos si le sigue
     let viewerId: string | undefined;
     const auth = req.headers.authorization;
     if (auth?.startsWith('Bearer ')) {
       try {
         const payload = await req.jwtVerify<{ sub: string; alias: string }>();
         viewerId = payload.sub;
-      } catch {
-        // token inválido no rompe la request, solo no hay viewer
-      }
+      } catch {}
     }
-
     try {
       const profile = await getProfileByAlias(alias, viewerId);
       if (!profile) return reply.code(404).send({ error: 'Usuario no encontrado' });
@@ -60,13 +57,11 @@ export async function profileRoutes(app: FastifyInstance) {
     }
   });
 
-  // PATCH /api/me/profile — editar perfil propio
   app.patch('/me/profile', { preHandler: [requireAuth] }, async (req, reply) => {
     const parsed = updateProfileSchema.safeParse(req.body);
     if (!parsed.success) {
       return reply.code(400).send({ error: 'Datos inválidos', details: parsed.error.flatten() });
     }
-
     try {
       const updated = await updateProfile(req.userId!, parsed.data);
       if (!updated) return reply.code(400).send({ error: 'Nada que actualizar' });
@@ -77,20 +72,13 @@ export async function profileRoutes(app: FastifyInstance) {
     }
   });
 
-  // POST /api/me/change-password
   app.post('/me/change-password', { preHandler: [requireAuth] }, async (req, reply) => {
     const parsed = changePasswordSchema.safeParse(req.body);
     if (!parsed.success) {
       return reply.code(400).send({ error: 'Datos inválidos', details: parsed.error.flatten() });
     }
-
     try {
-      const result = await changePassword(
-        req.userId!,
-        parsed.data.current_password,
-        parsed.data.new_password
-      );
-
+      const result = await changePassword(req.userId!, parsed.data.current_password, parsed.data.new_password);
       if (result === 'NOT_FOUND') return reply.code(404).send({ error: 'Usuario no encontrado' });
       if (result === 'INVALID_CURRENT') return reply.code(401).send({ error: 'Contraseña actual incorrecta' });
       return reply.send({ ok: true });
@@ -100,7 +88,6 @@ export async function profileRoutes(app: FastifyInstance) {
     }
   });
 
-  // GET /api/users/suggestions — usuarios que quizás conozcas
   app.get('/users/suggestions', { preHandler: [requireAuth] }, async (req, reply) => {
     const { limit } = req.query as any;
     try {

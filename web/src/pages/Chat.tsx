@@ -1,96 +1,88 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
+import { Layout } from '../components/Layout';
 import './Chat.css';
 
 export function Chat() {
-  const { userId } = useParams();
+  const { userId: alias } = useParams();
   const me = useAuthStore((s) => s.user);
   const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);
 
-  const loadMessages = async () => {
-    if (!userId) return;
+  async function loadMessages() {
+    if (!alias) return;
     try {
-      const res = await api.messages.conversation(userId);
+      const res = await api.messages.conversation(alias);
       setMessages(res.messages || []);
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
     loadMessages();
-    // Polling básico cada 3 segundos
-    const interval = setInterval(loadMessages, 3000);
+    const interval = setInterval(loadMessages, 3000); // Polling cada 3 seg
     return () => clearInterval(interval);
-  }, [userId]);
+  }, [alias]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
-    if (!text.trim() || !userId) return;
-
-    const msgText = text;
-    setText('');
+    if (!text.trim() || !alias) return;
     
-    // Optimistic UI
-    const tempMsg = { id: Date.now().toString(), sender_id: me?.id, body: msgText, created_at: new Date().toISOString() };
-    setMessages((prev) => [...prev, tempMsg]);
-
+    const msg = text;
+    setText('');
     try {
-      await api.messages.send(userId, msgText);
+      await api.messages.send(alias, msg);
       loadMessages();
     } catch (err) {
-      console.error('Error enviando mensaje', err);
+      alert('Error al enviar');
     }
   }
 
   return (
-    <div className="chat-window">
-      <header className="chat-window-header">
-        <Link to="/chats" className="chat-back-btn">←</Link>
-        <div className="chat-window-title">Chat</div>
-      </header>
-
-      <div className="chat-messages-area">
-        {loading ? (
-          <div className="chat-loading">Cargando mensajes...</div>
-        ) : messages.length === 0 ? (
-          <div className="chat-loading">Di hola 👋</div>
-        ) : (
-          messages.map((msg) => {
-            const isMe = msg.sender_id === me?.id || msg.sender_id === 'me';
-            return (
-              <div key={msg.id} className={`msg-bubble-wrapper ${isMe ? 'right' : 'left'}`}>
-                <div className={`msg-bubble ${isMe ? 'msg-me' : 'msg-them'}`}>
-                  {msg.body}
+    <Layout>
+      <div className="chat-window">
+        <div className="chat-window-header">
+          <Link to="/chats" className="back-btn">←</Link>
+          <span>@{alias}</span>
+        </div>
+        <div className="chat-messages">
+          {loading ? (
+             <div className="chat-status">Cargando...</div>
+          ) : (
+            messages.map((m) => {
+              const isMe = m.sender_id === me?.id;
+              return (
+                <div key={m.id} className={`msg-row ${isMe ? 'me' : 'them'}`}>
+                  <div className={`msg-bubble ${isMe ? 'bubble-me' : 'bubble-them'}`}>
+                    {m.body}
+                  </div>
                 </div>
-              </div>
-            );
-          })
-        )}
-        <div ref={messagesEndRef} />
+              );
+            })
+          )}
+          <div ref={endRef} />
+        </div>
+        <form onSubmit={handleSend} className="chat-input-area">
+          <input 
+            type="text" 
+            value={text} 
+            onChange={(e) => setText(e.target.value)} 
+            placeholder="Escribe un mensaje..."
+          />
+          <button type="submit">Enviar</button>
+        </form>
       </div>
-
-      <form onSubmit={handleSend} className="chat-input-area">
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Escribe un mensaje..."
-          className="chat-input"
-        />
-        <button type="submit" className="chat-send-btn">Enviar</button>
-      </form>
-    </div>
+    </Layout>
   );
 }

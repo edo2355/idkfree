@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
-import { ScreenBackground } from '../components/ScreenBackground';
+import { Layout } from '../components/Layout';
 import './Chats.css';
 
 export function Chats() {
@@ -15,7 +15,7 @@ export function Chats() {
         const res = await api.messages.conversations();
         setConversations(res.conversations || []);
       } catch (err) {
-        console.error('Error cargando chats', err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -24,37 +24,35 @@ export function Chats() {
   }, []);
 
   return (
-    <div className="chats-container">
-      <ScreenBackground variant="neural" opacity={0.05} />
-      
-      <header className="chats-header">
-        <h1>Mensajes</h1>
-      </header>
-
-      <div className="chats-list">
-        {loading ? (
-          <div className="chats-empty">Cargando conversaciones...</div>
-        ) : conversations.length === 0 ? (
-          <div className="chats-empty">Aún no tienes mensajes. ¡Ve a buscar amigos!</div>
-        ) : (
-          conversations.map((c) => (
-            <Link to={`/chat/${c.user_id}`} key={c.user_id} className="chat-item">
-              <img 
-                src={c.avatar ? resolveAssetUrl(c.avatar) : `https://ui-avatars.com/api/?name=${c.alias}&background=1A1A1A&color=0891B2`} 
-                alt={c.alias} 
-                className="chat-avatar" 
-              />
-              <div className="chat-info">
-                <div className="chat-name-row">
-                  <span className="chat-name">{c.name || c.alias}</span>
-                  <span className="chat-time">{new Date(c.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+    <Layout>
+      <div className="chats-container">
+        <div className="chats-header">
+          <h1>Mensajes</h1>
+        </div>
+        <div className="chats-list">
+          {loading ? (
+            <div className="chats-status">Cargando chats...</div>
+          ) : conversations.length === 0 ? (
+            <div className="chats-status">No tienes conversaciones aún.</div>
+          ) : (
+            conversations.map((c) => (
+              <Link to={`/chat/${c.other_alias}`} key={c.other_id} className="chat-row">
+                <img 
+                  src={c.other_avatar ? resolveAssetUrl(c.other_avatar) : `https://ui-avatars.com/api/?name=${c.other_alias}&background=1A1A1A&color=A855F7`} 
+                  alt={c.other_alias} 
+                  className="chat-avatar" 
+                />
+                <div className="chat-info">
+                  <div className="chat-name-row">
+                    <span className="chat-name">{c.other_name || c.other_alias}</span>
+                  </div>
+                  <span className="chat-last-msg">{c.last_message}</span>
                 </div>
-                <span className="chat-last-msg">{c.last_message}</span>
-              </div>
-            </Link>
-          ))
-        )}
+              </Link>
+            ))
+          )}
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }
