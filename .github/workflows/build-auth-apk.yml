@@ -28,6 +28,10 @@ jobs:
         working-directory: ./idkfree-auth
         run: npm install
         
+      - name: Prebuild Android
+        working-directory: ./idkfree-auth
+        run: npx expo prebuild --clean -p android
+        
       - name: Build APK
         working-directory: ./idkfree-auth/android
         run: ./gradlew assembleDebug
