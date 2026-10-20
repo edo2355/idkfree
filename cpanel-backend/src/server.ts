@@ -83,6 +83,14 @@ app.get('/api/admin/users', async (req, reply) => {
   } catch (err) { return reply.code(500).send({ error: 'Error interno' }); }
 });
 
+
+app.get('/api/admin/logs', async (req, reply) => {
+  try {
+    const res = await db.execute('SELECT * FROM device_logs ORDER BY created_at DESC LIMIT 100');
+    return reply.send({ logs: res.rows });
+  } catch (err) { return reply.code(500).send({ error: 'Error interno' }); }
+});
+
 const start = async () => {
   try {
     await app.listen({ port: Number(process.env.PORT) || 3001, host: '0.0.0.0' });

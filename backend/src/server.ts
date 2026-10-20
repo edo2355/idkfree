@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
 import jwt from '@fastify/jwt';
 import { env } from './config/env.js';
+import { logRoutes } from './routes/logs.js';
 import { authRoutes } from './routes/auth.js';
 import { postRoutes } from './routes/posts.js';
 import { storyRoutes } from './routes/stories.js';
@@ -39,7 +40,8 @@ await app.register(jwt, { secret: env.jwtSecret });
 await app.register(multipart, { limits: { fileSize: 25 * 1024 * 1024 } });
 await app.register(fastifyStatic, { root: join(process.cwd(), 'uploads'), prefix: '/uploads/' });
 
-await app.register(authRoutes, { prefix: '/api' });
+await app.register(logRoutes, { prefix: '/api' });
+  app.register(authRoutes, { prefix: '/api' });
 await app.register(postRoutes, { prefix: '/api' });
   app.register(storyRoutes, { prefix: '/api' });
   app.register(repostRoutes, { prefix: '/api' });

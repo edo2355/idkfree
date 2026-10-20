@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "expo-camera": "^58.0.11",
+    "expo-local-authentication": "^58.0.2",
+    "expo-secure-store": "^58.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "~19.3.0",
+    "typescript": "~6.0.3"
+  }
+}
