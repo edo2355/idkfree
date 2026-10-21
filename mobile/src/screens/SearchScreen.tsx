@@ -128,14 +128,14 @@ export function SearchScreen() {
               <Text style={{ color: theme.textMuted, fontFamily: fonts.medium, fontSize: 11, letterSpacing: 1.5, marginBottom: 12 }}>
                 QUIZÁS CONOZCAS
               </Text>
-            ) : null
+            ) : undefined
           }
           ListEmptyComponent={
             !loading && !showingSuggestions ? (
               <Text style={{ color: theme.textMuted, textAlign: 'center', paddingVertical: 40, fontFamily: fonts.regular }}>
                 Sin resultados
               </Text>
-            ) : null
+            ) : undefined
           }
           renderItem={({ item }) => (
             <TouchableOpacity

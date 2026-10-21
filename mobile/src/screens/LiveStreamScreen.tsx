@@ -78,7 +78,7 @@ function StreamUI({ roomName, onClose, isCameraReady }: { roomName: string, onCl
   return (
     <View style={{ flex: 1 }}>
       {localCamera && isCameraReady ? (
-        <VideoTrack trackRef={localCamera} style={StyleSheet.absoluteFillObject} />
+        <VideoTrack trackRef={localCamera} style={StyleSheet.absoluteFill} />
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Text style={{ color: '#FFF' }}>Iniciando cámara...</Text>

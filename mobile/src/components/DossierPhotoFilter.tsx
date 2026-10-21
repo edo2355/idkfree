@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     tintColor: '#E0E0E0', // Ayuda a unificar tonos monocromos en Android/iOS
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   noirOverlay: {
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(35, 25, 15, 0.45)', // Tinte papel antiguo / sepia oscuro
   },
   gridOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
     opacity: 0.15,

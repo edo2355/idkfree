@@ -73,7 +73,7 @@ export function DrawingCanvas({ postId, imageUrl, onClose, onSaved }: Props) {
     }
     setUploading(true);
     try {
-      const uri = await captureRef(captureViewRef, { format: 'png', quality: 0.8 });
+      const uri = await captureRef(captureViewRef as any, { format: 'png', quality: 0.8 });
       const up = await api.uploads.upload({
         uri,
         name: `drawing-${Date.now()}.png`,
@@ -106,7 +106,7 @@ export function DrawingCanvas({ postId, imageUrl, onClose, onSaved }: Props) {
 
       {/* Canvas capturable */}
       <View
-        ref={captureViewRef}
+        ref={captureViewRef as any}
         collapsable={false}
         style={{ flex: 1, backgroundColor: '#000' }}
         {...panResponder.panHandlers}

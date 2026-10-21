@@ -31,7 +31,7 @@ export function CustomGalleryModal({ visible, onClose, onSelect }: Props) {
         sortBy: ['creationTime'],
         first: 50,
       });
-      setLocalMedia(res.assets);
+      setLocalMedia(res.assets as any);
     }
     setLoading(false);
   }
@@ -68,11 +68,11 @@ export function CustomGalleryModal({ visible, onClose, onSelect }: Props) {
             numColumns={3}
             renderItem={({ item }) => (
               <TouchableOpacity
-                onPress={() => onSelect(item.uri, item.mediaType === 'video')}
+                onPress={() => onSelect((item as any).uri, (item as any).mediaType === 'video')}
                 style={{ width: '33.33%', aspectRatio: 1, padding: 1 }}
               >
-                <Image source={{ uri: item.uri }} style={{ flex: 1, backgroundColor: theme.surface }} />
-                {item.mediaType === 'video' && (
+                <Image source={{ uri: (item as any).uri }} style={{ flex: 1, backgroundColor: theme.surface }} />
+                {(item as any).mediaType === 'video' && (
                   <View style={{ position: 'absolute', bottom: 5, right: 5, backgroundColor: 'rgba(0,0,0,0.7)', padding: 4, borderRadius: 4 }}>
                     <Text style={{ color: '#FFF', fontSize: 10 }}>VIDEO</Text>
                   </View>

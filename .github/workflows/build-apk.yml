@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -26,7 +26,7 @@ jobs:
 
       - name: Install Dependencies
         working-directory: ./mobile
-        run: npm install
+        run: npm install --no-audit --no-fund --legacy-peer-deps --no-audit --no-fund --legacy-peer-deps
 
       - name: Prebuild Android
         working-directory: ./mobile

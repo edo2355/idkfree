@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   blocksRow: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     flexDirection: 'row',
     alignItems: 'stretch',
   },

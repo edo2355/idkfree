@@ -83,7 +83,7 @@ export function ScannerScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <CameraView
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
       />
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#050505' },
   permissionContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#050505', padding: 24 },
   permissionText: { fontFamily: 'monospace', color: '#888', textAlign: 'center', marginBottom: 20, fontSize: 13 },
-  overlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'space-between', padding: 30, alignItems: 'center' },
+  overlay: { ...StyleSheet.absoluteFill, justifyContent: 'space-between', padding: 30, alignItems: 'center' },
   header: { alignItems: 'center', marginTop: 40 },
   systemTag: { fontFamily: 'monospace', fontSize: 10, color: '#32D3EE', letterSpacing: 1.5, marginBottom: 4 },
   title: { fontFamily: fonts.displayBoldItalic, fontSize: 24, color: '#FFF' },

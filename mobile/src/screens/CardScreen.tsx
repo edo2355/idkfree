@@ -221,7 +221,7 @@ export function CardScreen() {
   const [exporting, setExporting] = useState<'png' | 'pdf' | null>(null);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [cardSize, setCardSize] = useState({ w: 0, h: 0 });
-  const cardRef = useRef<ViewShot>(null);
+  const cardRef = useRef<any>(null);
 
   useEffect(() => {
     (async () => {
