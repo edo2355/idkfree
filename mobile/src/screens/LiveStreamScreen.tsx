@@ -35,7 +35,13 @@ export function LiveStreamScreen() {
   }, [roomName]);
 
   if (error) {
-    return (
+    const connectOptions: ConnectOptions = {
+    rtcConfig: {
+      iceTransportPolicy: 'relay', // Fuerza el uso de TURN, ignorando P2P
+    },
+  };
+
+  return (
       <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
         <Text style={{ color: theme.danger, fontFamily: fonts.medium, textAlign: 'center' }}>{error}</Text>
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 20, padding: 10, backgroundColor: theme.surface }}>
@@ -46,7 +52,13 @@ export function LiveStreamScreen() {
   }
 
   if (!token) {
-    return (
+    const connectOptions: ConnectOptions = {
+    rtcConfig: {
+      iceTransportPolicy: 'relay', // Fuerza el uso de TURN, ignorando P2P
+    },
+  };
+
+  return (
       <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator color={theme.accent} size="large" />
         <Text style={{ color: '#FFF', fontFamily: fonts.medium, marginTop: 12 }}>Conectando al estudio...</Text>
@@ -54,12 +66,19 @@ export function LiveStreamScreen() {
     );
   }
 
+  const connectOptions: ConnectOptions = {
+    rtcConfig: {
+      iceTransportPolicy: 'relay', // Fuerza el uso de TURN, ignorando P2P
+    },
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: '#000' }}>
       <LiveKitRoom
         token={token}
         serverUrl="wss://idkfree-j8j98whs.livekit.cloud"
         connect={true}
+        options={connectOptions}
         audio={true}
         video={true}
         onDisconnected={() => navigation.goBack()}
@@ -75,6 +94,12 @@ function StreamUI({ roomName, onClose, isCameraReady }: { roomName: string, onCl
   const theme = useTheme();
   const tracks = useTracks([Track.Source.Camera]);
   const localCamera = tracks.find(t => t.participant.isLocal);
+
+  const connectOptions: ConnectOptions = {
+    rtcConfig: {
+      iceTransportPolicy: 'relay', // Fuerza el uso de TURN, ignorando P2P
+    },
+  };
 
   return (
     <View style={{ flex: 1 }}>
