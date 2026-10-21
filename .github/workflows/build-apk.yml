@@ -12,56 +12,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
-          
+
       - name: Install Dependencies
         working-directory: ./mobile
         run: npm install
-        
+
       - name: Prebuild Android
         working-directory: ./mobile
         run: npx expo prebuild --clean -p android
-        
-      
-      - name: Force Gradle 8.14.3 (Compatibilidad RN 0.88)
+
+      - name: Force Gradle 8.14.3
         working-directory: ./mobile/android
         run: |
-          python3 -c "
-import re
-path = 'gradle/wrapper/gradle-wrapper.properties'
-with open(path, 'r') as f:
-    content = f.read()
-# Reemplaza cualquier URL de distribución con la versión 8.14.3
-content = re.sub(r'distributionUrl=.*', 'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14.3-bin.zip', content)
-with open(path, 'w') as f:
-    f.write(content)
-print('✅ Gradle forzado a 8.14.3')
-"
+          echo "ANTES:"
           cat gradle/wrapper/gradle-wrapper.properties
-          sed -i 's|distributionUrl=.*|distributionUrl=https\://services.gradle.org/distributions/gradle-8.10.2-bin.zip|' gradle/wrapper/gradle-wrapper.properties
+          sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14.3-bin.zip|' gradle/wrapper/gradle-wrapper.properties
+          echo "DESPUÉS:"
           cat gradle/wrapper/gradle-wrapper.properties
 
-      
       - name: Clean Gradle
         working-directory: ./mobile/android
         run: ./gradlew clean
 
       - name: Build APK
         working-directory: ./mobile/android
-        run: ./gradlew assembleDebug
-        
+        run: ./gradlew assembleRelease
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: idkfree-apk
-          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          path: mobile/android/app/build/outputs/apk/release/app-release.apk
