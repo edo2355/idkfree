@@ -32,22 +32,24 @@ jobs:
         working-directory: ./mobile
         run: npx expo prebuild --clean -p android
 
-      - name: Force Gradle 8.14.3
-        working-directory: ./mobile/android
+      - name: Download and Setup Gradle 8.14.3 Manually
         run: |
-          echo "ANTES:"
-          cat gradle/wrapper/gradle-wrapper.properties
-          sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14.3-bin.zip|' gradle/wrapper/gradle-wrapper.properties
-          echo "DESPUÉS:"
-          cat gradle/wrapper/gradle-wrapper.properties
-
-      - name: Clean Gradle
-        working-directory: ./mobile/android
-        run: ./gradlew clean
+          echo "📥 Descargando Gradle 8.14.3..."
+          wget -q https://services.gradle.org/distributions/gradle-8.14.3-bin.zip
+          unzip -q gradle-8.14.3-bin.zip
+          echo "✅ Gradle 8.14.3 descargado."
+          export PATH=$PATH:$(pwd)/gradle-8.14.3/bin
 
       - name: Build APK
         working-directory: ./mobile/android
-        run: ./gradlew assembleRelease
+        run: |
+          export PATH=$PATH:$(pwd)/../../gradle-8.14.3/bin
+          echo "🔨 Compilando con Gradle 8.14.3..."
+          gradle assembleRelease \
+            -Pandroid.injected.signing.store.file=$(pwd)/app/keystore.jks \
+            -Pandroid.injected.signing.store.password="$KEYSTORE_PASS" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$KEY_PASS"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
