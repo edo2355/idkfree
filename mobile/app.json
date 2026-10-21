@@ -44,11 +44,16 @@
       "expo-video",
       "expo-camera",
       "@livekit/react-native-expo-plugin",
+      "expo-font",
+      "expo-secure-store",
+      "expo-sharing",
+      "expo-status-bar",
       [
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "2.2.20"
+            "gradleVersion": "8.14.3",
+            "kotlinVersion": "2.2.10"
           }
         }
       ]
