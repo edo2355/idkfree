@@ -17,6 +17,7 @@ export function LiveStreamScreen() {
   
   const [token, setToken] = useState<string | null>(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('Conectando al servidor de video...');
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState('');
 

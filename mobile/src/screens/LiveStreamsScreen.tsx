@@ -69,7 +69,7 @@ export function LiveStreamsScreen() {
                   <Text style={{ color: '#FFF', fontSize: 10, fontWeight: 'bold' }}>EN VIVO</Text>
                 </View>
                 <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 12 }} numberOfLines={1}>
-                  {item.hostName || item.hostId?.slice(0, 8) || 'Anónimo'}
+                  {item.host_name || item.hostName || item.host_alias || item.hostId?.slice(0, 8) || 'Creador'}
                 </Text>
               </View>
               <Text style={{ color: theme.textMuted, fontSize: 12 }} numberOfLines={1}>
