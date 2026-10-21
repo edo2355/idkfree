@@ -33,9 +33,20 @@ jobs:
         run: npx expo prebuild --clean -p android
         
       
-      - name: Force Gradle 8.10.2
+      - name: Force Gradle 8.14.3 (Compatibilidad RN 0.88)
         working-directory: ./mobile/android
         run: |
+          python3 -c "
+import re
+path = 'gradle/wrapper/gradle-wrapper.properties'
+with open(path, 'r') as f:
+    content = f.read()
+# Reemplaza cualquier URL de distribución con la versión 8.14.3
+content = re.sub(r'distributionUrl=.*', 'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14.3-bin.zip', content)
+with open(path, 'w') as f:
+    f.write(content)
+print('✅ Gradle forzado a 8.14.3')
+"
           cat gradle/wrapper/gradle-wrapper.properties
           sed -i 's|distributionUrl=.*|distributionUrl=https\://services.gradle.org/distributions/gradle-8.10.2-bin.zip|' gradle/wrapper/gradle-wrapper.properties
           cat gradle/wrapper/gradle-wrapper.properties
