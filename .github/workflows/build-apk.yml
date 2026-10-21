@@ -35,7 +35,10 @@ jobs:
       
       - name: Force Gradle 8.10.2
         working-directory: ./mobile/android
-        run: sed -i 's/gradle-9.4.1-bin.zip/gradle-8.10.2-bin.zip/g' gradle/wrapper/gradle-wrapper.properties
+        run: |
+          cat gradle/wrapper/gradle-wrapper.properties
+          sed -i 's|distributionUrl=.*|distributionUrl=https\://services.gradle.org/distributions/gradle-8.10.2-bin.zip|' gradle/wrapper/gradle-wrapper.properties
+          cat gradle/wrapper/gradle-wrapper.properties
 
       
       - name: Clean Gradle
