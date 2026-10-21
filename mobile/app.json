@@ -52,7 +52,8 @@
         {
           "android": {
             "gradleVersion": "8.14.3",
-            "kotlinVersion": "2.2.10"
+            "kotlinVersion": "2.2.10",
+            "extraProguardRules": "-keep class livekit.** { *; }\n-keep class com.livekit.** { *; }\n-keep class org.webrtc.** { *; }\n-keep class livekit.org.jni_zero.** { *; }\n-keep class org.jni_zero.** { *; }\n-dontwarn livekit.**\n-dontwarn com.livekit.**\n-dontwarn org.webrtc.**\n-dontwarn livekit.org.jni_zero.**\n-dontwarn org.jni_zero.**"
           }
         }
       ]
