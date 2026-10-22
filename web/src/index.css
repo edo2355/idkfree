@@ -1,17 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  --bg-base: #0a0a0a;
-  
-  /* Paleta ultra limpia */
-  --text-main: #f0f0f0;
+  --bg-base: #050505;
+  --text-main: #FFFFFF;
   --text-muted: #888888;
-  --accent-subtle: #E25A39; /* Naranja apagado, no neón */
   
-  /* Glassmorphism Limpio (Más oscuro y difuminado) */
+  /* Paleta Estricta */
+  --accent-blue: #00E5FF;    /* Para botones activos, enlaces y acentos */
+  --status-green: #4ADE80;   /* Para conexión, en vivo, éxito */
+  --danger-red: #FF4D4F;     /* Para errores */
+  
+  /* Glassmorphism */
   --glass-bg: rgba(20, 20, 20, 0.4);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-border-hover: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.2);
 }
 
 * {
@@ -29,30 +31,29 @@ body {
   overflow-x: hidden;
 }
 
-/* Fondo Mesh Gradient Suave + Ruido (Estilo las fotos) */
+/* Fondo Mesh Gradient Suave + Ruido */
 .clean-bg {
   position: relative;
   min-height: 100vh;
   background-color: #0a0a0a;
   background-image: 
-    radial-gradient(circle at 15% 50%, rgba(50, 60, 80, 0.4) 0%, transparent 50%),
-    radial-gradient(circle at 85% 30%, rgba(80, 50, 40, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 50% 80%, rgba(30, 40, 50, 0.3) 0%, transparent 50%);
+    radial-gradient(circle at 15% 50%, rgba(20, 30, 50, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(20, 40, 50, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(10, 20, 30, 0.3) 0%, transparent 50%);
   z-index: 1;
 }
 
-/* Textura de Ruido sutil */
 .clean-bg::before {
   content: "";
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none;
   z-index: -1;
-  opacity: 0.2;
+  opacity: 0.15;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* Paneles de Cristal Limpio */
+/* Glass Panels */
 .glass-panel {
   background: var(--glass-bg);
   backdrop-filter: blur(30px) saturate(150%);
@@ -63,13 +64,13 @@ body {
 
 .text-tactical {
   font-family: 'Space Mono', monospace;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-muted);
 }
 
-/* Inputs minimalistas (Solo línea inferior) */
+/* Inputs minimalistas */
 .input-minimal {
   width: 100%;
   background: transparent;
@@ -82,5 +83,26 @@ body {
   transition: border-color 0.3s;
 }
 .input-minimal:focus {
-  border-bottom-color: var(--glass-border-hover);
+  border-bottom-color: var(--accent-blue);
+}
+
+/* Botón táctico minimalista */
+.btn-tactical {
+  width: 100%;
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  color: #fff;
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.btn-tactical:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
 }
