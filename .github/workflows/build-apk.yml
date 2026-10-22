@@ -28,6 +28,11 @@ jobs:
         cd mobile
         npm install --legacy-peer-deps
 
+    - name: Generar carpeta Android (Expo Prebuild)
+      run: |
+        cd mobile
+        npx expo prebuild --platform android --no-install
+
     - name: Compilar APK (Gradle)
       run: |
         cd mobile/android
