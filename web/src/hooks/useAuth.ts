@@ -30,6 +30,9 @@ export function useAuth() {
         );
       } catch {
         clearAuth();
+      } finally {
+        // ESTO ES LA CLAVE: Pase lo que pase (éxito o error), quitamos la pantalla de carga.
+        setLoading(false); 
       }
     }
 
