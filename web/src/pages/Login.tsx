@@ -29,7 +29,15 @@ export function Login() {
         timeoutPromise
       ]);
 
-      setAuth(res.user, res.token);
+      // Mapeamos la respuesta del backend al formato que espera el store
+      const userData = {
+        id: res.userId,
+        alias: res.alias,
+        name: res.alias // Usamos el alias como nombre si no viene
+      };
+
+      // Guardamos la sesión con el token correcto
+      setAuth(userData, res.accessToken);
       navigate('/home');
     } catch (err: any) {
       setError(err.message || 'Credenciales inválidas');
