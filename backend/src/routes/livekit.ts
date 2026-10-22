@@ -26,7 +26,8 @@ export async function livekitRoutes(app: FastifyInstance) {
     at.addGrant({
       roomJoin: true,
       room: roomName,
-      canPublish: isHost === 'true', // Solo el host puede transmitir video
+      // Forzamos un chequeo robusto por si isHost llega como string o boolean
+      canPublish: String(isHost) === 'true', 
       canSubscribe: true,
     });
 

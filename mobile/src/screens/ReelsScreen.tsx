@@ -13,10 +13,10 @@ import { ShareIcon } from '../components/icons/ShareIcon';
 type Tab = 'reels' | 'streams';
 
 function ReelItem({ item, theme }: { item: any; theme: any }) {
-  const { height } = useWindowDimensions(); // Altura exacta de la ventana
+  const { height } = useWindowDimensions();
   const [liked, setLiked] = useState(item.liked_by_me ?? false);
   const [likesCount, setLikesCount] = useState(item.likes_count ?? 0);
-  
+
   const player = useVideoPlayer(item.video_url, (p) => {
     p.loop = true;
     p.muted = false;
@@ -35,13 +35,10 @@ function ReelItem({ item, theme }: { item: any; theme: any }) {
   }
 
   return (
-    // Quitamos las medidas fijas y usamos flex: 1 para que se adapte al contenedor
     <View style={{ flex: 1, backgroundColor: '#000' }}>
       <VideoView player={player} style={StyleSheet.absoluteFill} contentFit="cover" nativeControls={false} />
-      
       <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 200, backgroundColor: 'rgba(0,0,0,0.4)' }} />
-      
-      {/* Botones Derecha */}
+
       <View style={{ position: 'absolute', right: 16, bottom: 20, alignItems: 'center', gap: 20 }}>
         <View style={{ borderWidth: 2, borderColor: '#FFF', borderRadius: 30, padding: 2 }}>
           <Avatar name={item.author_name ?? item.author_alias} url={item.author_avatar} size={44} />
@@ -59,7 +56,6 @@ function ReelItem({ item, theme }: { item: any; theme: any }) {
         </TouchableOpacity>
       </View>
 
-      {/* Info Izquierda */}
       <View style={{ position: 'absolute', bottom: 20, left: 16, right: 80 }}>
         <Text style={{ color: '#FFF', fontFamily: fonts.medium, fontSize: 16, marginBottom: 4 }}>@{item.author_alias}</Text>
         {item.body ? <Text style={{ color: '#FFF', fontFamily: fonts.regular, fontSize: 14 }} numberOfLines={3}>{item.body}</Text> : null}
@@ -73,20 +69,38 @@ export function ReelsScreen() {
   const navigation = useNavigation<any>();
   const [tab, setTab] = useState<Tab>('reels');
   const [reels, setReels] = useState<any[]>([]);
+  const [streams, setStreams] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+  const [loadingStreams, setLoadingStreams] = useState(true);
+
   const { width: SCREEN_W } = useWindowDimensions();
   const pagerRef = useRef<FlatList>(null);
 
   useEffect(() => {
-    async function load() {
+    async function loadReels() {
       try {
         const res = await api.posts.reels({ limit: 30 });
         setReels(res.reels ?? []);
-      } catch {}
-      setLoading(false);
+      } catch {} finally {
+        setLoading(false);
+      }
     }
-    load();
+    loadReels();
+  }, []);
+
+  useEffect(() => {
+    async function loadStreams() {
+      try {
+        const res = await api.streams.active();
+        setStreams(res.streams || res || []);
+      } catch {} finally {
+        setLoadingStreams(false);
+      }
+    }
+    loadStreams();
+    // Refrescar streams cada 15 segundos
+    const interval = setInterval(loadStreams, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   function goToTab(t: Tab) {
@@ -114,7 +128,7 @@ export function ReelsScreen() {
         ))}
       </View>
 
-      {/* Pager Horizontal (ocupa todo el espacio restante) */}
+      {/* Pager Horizontal */}
       <FlatList
         ref={pagerRef}
         data={['reels', 'streams'] as Tab[]}
@@ -125,7 +139,7 @@ export function ReelsScreen() {
         onMomentumScrollEnd={onPagerScroll}
         getItemLayout={(_, index) => ({ length: SCREEN_W, offset: SCREEN_W * index, index })}
         renderItem={({ item }) => (
-          <View style={{ width: SCREEN_W, flex: 1 }}> 
+          <View style={{ width: SCREEN_W, flex: 1 }}>
             {item === 'reels' ? (
               loading ? (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator color={theme.text} /></View>
@@ -135,7 +149,6 @@ export function ReelsScreen() {
                   keyExtractor={(r) => r.id}
                   pagingEnabled
                   showsVerticalScrollIndicator={false}
-                  // Al usar flex: 1 en el contenedor padre, pagingEnabled calculará bien el alto
                   ListEmptyComponent={
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                       <Text style={{ color: theme.text, fontFamily: fonts.displayBoldItalic, fontSize: 20 }}>Aún no hay reels</Text>
@@ -145,18 +158,47 @@ export function ReelsScreen() {
                 />
               )
             ) : (
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 }}>
-                <Text style={{ fontSize: 48, marginBottom: 16 }}>[LIVE]</Text>
-                <Text style={{ color: theme.text, fontFamily: fonts.displayBoldItalic, fontSize: 22, textAlign: 'center', marginBottom: 8 }}>Streams en vivo</Text>
-                <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 13, textAlign: 'center', marginBottom: 24 }}>
-                  Transmite en vivo a tus seguidores en tiempo real.
-                </Text>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('LiveStream', { roomName: `live-${Date.now()}` })}
-                  style={{ backgroundColor: theme.danger, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24 }}
-                >
-                  <Text style={{ color: '#FFF', fontFamily: fonts.medium, fontSize: 15 }}>Iniciar Transmisión</Text>
-                </TouchableOpacity>
+              // Pestaña de Streams (Para ver, no para crear)
+              <View style={{ flex: 1, paddingTop: 20 }}>
+                {loadingStreams ? (
+                  <ActivityIndicator color={theme.accent} size="large" style={{ marginTop: 50 }} />
+                ) : (
+                  <FlatList
+                    data={streams}
+                    keyExtractor={(s) => s.id}
+                    numColumns={2}
+                    contentContainerStyle={{ paddingHorizontal: 15 }}
+                    ListEmptyComponent={
+                      <Text style={{ color: theme.textMuted, textAlign: 'center', marginTop: 50, fontFamily: fonts.regular }}>
+                        No hay transmisiones activas en este momento.{'\n'}¡Ve al botón + para iniciar la tuya!
+                      </Text>
+                    }
+                    renderItem={({ item }) => (
+                      <TouchableOpacity 
+                        style={{ flex: 1, margin: 5, height: 220, borderRadius: 12, overflow: 'hidden', backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border }}
+                        onPress={() => navigation.navigate('LiveStream', { roomName: item.id, isHost: false })}
+                      >
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1A1A1A' }}>
+                          <Text style={{ fontSize: 40 }}>📡</Text>
+                        </View>
+                        
+                        <View style={{ padding: 10, backgroundColor: theme.surface }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                            <View style={{ backgroundColor: '#EF4444', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginRight: 6 }}>
+                              <Text style={{ color: '#FFF', fontSize: 10, fontWeight: 'bold' }}>EN VIVO</Text>
+                            </View>
+                            <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 12 }} numberOfLines={1}>
+                              {item.host_name || item.hostName || item.host_alias || 'Creador'}
+                            </Text>
+                          </View>
+                          <Text style={{ color: theme.textMuted, fontSize: 12 }} numberOfLines={1}>
+                            {item.title}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    )}
+                  />
+                )}
               </View>
             )}
           </View>

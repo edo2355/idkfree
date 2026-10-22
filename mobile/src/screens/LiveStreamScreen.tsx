@@ -81,8 +81,8 @@ export function LiveStreamScreen() {
         token={token}
         serverUrl="wss://idkfree-j8j98whs.livekit.cloud"
         connect={true}
-        audio={true}
-        video={true}
+        audio={isHost}
+        video={isHost}
         options={connectOptions}
         onConnected={() => { setConnectionState('Conectado'); logConnectionEvent('LiveKitRoom Conectado'); }}
         onDisconnected={(reason) => { logConnectionEvent('LiveKitRoom Desconectado', reason); navigation.goBack(); }}
