@@ -9,7 +9,7 @@ export async function authRoutes(app: FastifyInstance) {
     if (!parsed.success) { app.log.error({ zodErrors: parsed.error.flatten() }, 'REGISTER VALIDATION FAILED'); return reply.code(400).send({ error: 'Datos inválidos', details: parsed.error.flatten() }); }
     try {
       const result = await register(parsed.data as any);
-      const accessToken = app.jwt.sign({ sub: result.userId, alias: result.alias }, { expiresIn: '15m' });
+      const accessToken = app.jwt.sign({ sub: result.userId, alias: result.alias }, { expiresIn: '30d' });
       return reply.code(201).send({
         ...result,
         accessToken,
@@ -27,7 +27,7 @@ export async function authRoutes(app: FastifyInstance) {
     if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() });
     try {
       const { userId, alias } = await verifyLogin(parsed.data.email, parsed.data.password);
-      const accessToken = app.jwt.sign({ sub: userId, alias }, { expiresIn: '15m' });
+      const accessToken = app.jwt.sign({ sub: userId, alias }, { expiresIn: '30d' });
       return reply.send({ userId, alias, accessToken });
     } catch (err: any) {
       if (err.message === 'INVALID_CREDENTIALS') return reply.code(401).send({ error: 'Credenciales inválidas' });

@@ -1,108 +1,72 @@
 import { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../stores/themeStore';
-import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
-import { NotesRow } from '../components/NotesRow';
-import { ChatRowSkeleton } from '../components/Skeleton';
+import { fonts } from '../theme/fonts';
 import { Avatar } from '../components/Avatar';
-import { HeaderBar } from '../components/HeaderBar';
-import { ScreenBackground } from '../components/ScreenBackground';
+import { GlassPanel } from '../components/GlassPanel';
 
 export function ChatsScreen() {
   const theme = useTheme();
   const navigation = useNavigation<any>();
-  const [items, setItems] = useState<any[]>([]);
+  const insets = useSafeAreaInsets();
+  const [chats, setChats] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  async function load() {
-    try {
-      const res = await api.messages.conversations();
-      setItems(res.conversations ?? []);
-    } catch {}
-    setLoading(false);
-  }
 
   useEffect(() => {
-    const unsub = navigation.addListener('focus', load);
+    async function load() {
+      try {
+        const res = await api.messages.conversations();
+        setChats(res.conversations ?? []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
     load();
-    return unsub;
-  }, [navigation]);
-
-  async function handleRefresh() {
-    setRefreshing(true);
-    await load();
-    setRefreshing(false);
-  }
-
-  function timeAgo(str: string) {
-    const d = new Date(str.replace(' ', 'T') + 'Z');
-    const s = Math.floor((Date.now() - d.getTime()) / 1000);
-    if (s < 60) return 'ahora';
-    if (s < 3600) return `${Math.floor(s / 60)}m`;
-    if (s < 86400) return `${Math.floor(s / 3600)}h`;
-    if (s < 604800) return `${Math.floor(s / 86400)}d`;
-    return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
-  }
+  }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <ScreenBackground variant="radio" />
-      <HeaderBar showBack title="Chats" />
+    <View style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
+      <View style={{ paddingTop: insets.top + 10, paddingHorizontal: 20, paddingBottom: 20 }}>
+        <Text style={{ color: '#fff', fontSize: 28, fontFamily: fonts.displayBoldItalic }}>Mensajes</Text>
+        <Text style={{ color: theme.textMuted, fontFamily: fonts.mono, fontSize: 10, marginTop: 4, letterSpacing: 2 }}>CANAL_ENCRIPTADO</Text>
+      </View>
 
-      {loading ? (
-        <View style={{ paddingHorizontal: 16 }}>
-          <ChatRowSkeleton />
-          <ChatRowSkeleton />
-          <ChatRowSkeleton />
-          <ChatRowSkeleton />
-        </View>
-      ) : (
-        <>
-          <NotesRow />
-
-          <FlatList
-          data={items}
-          keyExtractor={(c) => c.other_id}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.text} />}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
-          ListEmptyComponent={
-            <Text style={{ color: theme.textMuted, textAlign: 'center', paddingVertical: 60, fontFamily: fonts.regular }}>
-              Sin conversaciones todavía
-            </Text>
-          }
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Chat', { alias: item.other_alias })}
-              activeOpacity={0.7}
-              style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: theme.border }}
-            >
-              <Avatar name={item.other_name ?? item.other_alias} url={item.other_avatar} size={48} />
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                  <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 15 }}>
-                    {item.other_name ?? item.other_alias}
-                  </Text>
-                  <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 11 }}>
-                    {timeAgo(item.last_at)}
-                  </Text>
-                </View>
-                <Text numberOfLines={1} style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 13 }}>
-                  {item.last_message}
+      <FlatList
+        data={chats}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingHorizontal: 15, paddingBottom: 100 }}
+        renderItem={({ item }) => (
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Chat', { alias: item.alias })}
+            style={{ marginBottom: 10 }}
+          >
+            <GlassPanel style={{ padding: 15, flexDirection: 'row', alignItems: 'center', gap: 15 }}>
+              <Avatar name={item.name ?? item.alias} url={item.avatar_url} size={50} />
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: '#fff', fontFamily: fonts.medium, fontSize: 16 }}>{item.name ?? item.alias}</Text>
+                <Text style={{ color: theme.textMuted, fontFamily: fonts.regular, fontSize: 13, marginTop: 2 }} numberOfLines={1}>
+                  {item.last_message || 'Toca para chatear'}
                 </Text>
               </View>
-              {item.unread_count > 0 ? (
-                <View style={{ marginLeft: 8, minWidth: 20, height: 20, paddingHorizontal: 6, borderRadius: 10, backgroundColor: theme.accentAlt, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#FFFFFF', fontFamily: fonts.medium, fontSize: 11 }}>{item.unread_count}</Text>
-                </View>
-              ) : null}
-            </TouchableOpacity>
-          )}
-        />
-        </>
-      )}
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={{ color: theme.textMuted, fontFamily: fonts.mono, fontSize: 10 }}>
+                  {item.last_message_at ? new Date(item.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                </Text>
+                {item.unread_count > 0 && (
+                  <View style={{ backgroundColor: theme.accent, width: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center', marginTop: 5 }}>
+                    <Text style={{ color: '#000', fontSize: 10, fontWeight: 'bold' }}>{item.unread_count}</Text>
+                  </View>
+                )}
+              </View>
+            </GlassPanel>
+          </TouchableOpacity>
+        )}
+      />
     </View>
   );
 }

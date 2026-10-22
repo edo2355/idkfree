@@ -1,148 +1,92 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { HomeIcon } from '../components/icons/HomeIcon';
-import { ReelsIcon } from '../components/icons/ReelsIcon';
-import { SearchIcon } from '../components/icons/SearchIcon';
+import { BlurView } from 'expo-blur';
+import { Home, Search, PlusSquare, Clapperboard, User } from 'lucide-react-native';
 import { useTheme } from '../stores/themeStore';
 import { useAuthStore } from '../stores/authStore';
 import { Avatar } from '../components/Avatar';
-import { fonts } from '../theme/fonts';
+
+// Importación de Pantallas
 import { FeedScreen } from '../screens/FeedScreen';
 import { SearchScreen } from '../screens/SearchScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
-import { SettingsScreen } from '../screens/SettingsScreen';
-import { EditProfileScreen } from '../screens/EditProfileScreen';
-import { ChangePasswordScreen } from '../screens/ChangePasswordScreen';
-import { CardScreen } from '../screens/CardScreen';
-import { AboutScreen } from '../screens/AboutScreen';
-import { PrivacyScreen } from '../screens/PrivacyScreen';
-import { TermsScreen } from '../screens/TermsScreen';
-import { MyDataScreen } from '../screens/MyDataScreen';
-import { KycScreen } from '../screens/KycScreen';
 import { CreateScreen } from '../screens/CreateScreen';
 import { ReelsScreen } from '../screens/ReelsScreen';
-import { LiveStreamsScreen } from '../screens/LiveStreamsScreen';
-import { ChatScreen } from '../screens/ChatScreen';
-import { ChatsScreen } from '../screens/ChatsScreen';
-import { HashtagScreen } from '../screens/HashtagScreen';
-import { NotificationsScreen } from '../screens/NotificationsScreen';
-import { UserProfileScreen } from '../screens/UserProfileScreen';
-import { VibesScreen } from '../screens/VibesScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
+import { EditProfileScreen } from '../screens/EditProfileScreen';
+import { CardScreen } from '../screens/CardScreen';
 
 const Tab = createBottomTabNavigator();
-const ProfileStack = createNativeStackNavigator();
-
-function ProfileStackNav() {
-  return (
-    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
-      <ProfileStack.Screen name='ProfileMain' component={ProfileScreen} />
-      <ProfileStack.Screen name='Settings' component={SettingsScreen} />
-      <ProfileStack.Screen name='EditProfile' component={EditProfileScreen} />
-      <ProfileStack.Screen name='ChangePassword' component={ChangePasswordScreen} />
-      <ProfileStack.Screen name='Card' component={CardScreen} />
-      <ProfileStack.Screen name='About' component={AboutScreen} />
-      <ProfileStack.Screen name='Privacy' component={PrivacyScreen} />
-      <ProfileStack.Screen name='Terms' component={TermsScreen} />
-      <ProfileStack.Screen name='MyData' component={MyDataScreen} />
-      <ProfileStack.Screen name='Kyc' component={KycScreen} />
-      <ProfileStack.Screen name='Chat' component={ChatScreen} />
-      <ProfileStack.Screen name='Chats' component={ChatsScreen} />
-      <ProfileStack.Screen name='Hashtag' component={HashtagScreen} />
-      <ProfileStack.Screen name='Notifications' component={NotificationsScreen} />
-      <ProfileStack.Screen name='UserProfile' component={UserProfileScreen} />
-      <ProfileStack.Screen name='Vibes' component={VibesScreen} />
-    </ProfileStack.Navigator>
-  );
-}
-
-function CreateIcon({ color, focused }: { color: string; focused: boolean }) {
-  const theme = useTheme();
-  return (
-    <View
-      style={{
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: focused ? theme.text : theme.surfaceElevated,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: theme.border,
-      }}
-    >
-      <Text style={{ color: focused ? theme.bg : theme.text, fontSize: 26, fontFamily: fonts.regular, marginTop: -3, lineHeight: 30 }}>
-        +
-      </Text>
-    </View>
-  );
-}
 
 export function AppTabs() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: theme.bg,
-          borderTopColor: theme.border,
-          borderTopWidth: 0.5,
-          height: 52 + insets.bottom,
-          paddingBottom: insets.bottom,
-          paddingTop: 6,
+          position: 'absolute',
+          bottom: 20,
+          left: 20,
+          right: 20,
+          elevation: 0,
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
+          height: 60,
+          borderRadius: 20,
+          overflow: 'hidden',
+          borderWidth: 1,
+          borderColor: 'rgba(255,255,255,0.1)',
         },
-        tabBarActiveTintColor: theme.text,
-        tabBarInactiveTintColor: theme.textMuted,
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontFamily: fonts.medium,
-          marginTop: -2,
-        },
+        tabBarBackground: () => (
+          <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} />
+        ),
+        tabBarActiveTintColor: theme.accent, // Azul neón
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
+        tabBarShowLabel: false,
       }}
     >
       <Tab.Screen
-        name='Feed'
+        name="Feed"
         component={FeedScreen}
-        options={{ tabBarIcon: ({ color }) => <HomeIcon size={24} color={color} /> }}
+        options={{ tabBarIcon: ({ color }) => <Home size={24} color={color} /> }}
       />
       <Tab.Screen
-        name='Search'
+        name="Search"
         component={SearchScreen}
-        options={{ tabBarIcon: ({ color }) => <SearchIcon size={24} color={color} /> }}
+        options={{ tabBarIcon: ({ color }) => <Search size={24} color={color} /> }}
       />
       <Tab.Screen
-        name='Create'
+        name="Create"
         component={CreateScreen}
         options={{
-          tabBarIcon: ({ color, focused }) => <CreateIcon color={color} focused={focused} />,
-          tabBarLabel: () => null,
+          tabBarIcon: ({ color }) => (
+            <View style={{ backgroundColor: theme.accent, padding: 8, borderRadius: 12 }}>
+              <PlusSquare size={24} color="#000" />
+            </View>
+          )
         }}
       />
       <Tab.Screen
-        name='Reels'
+        name="Reels"
         component={ReelsScreen}
-        options={{ tabBarIcon: ({ color, focused }) => <ReelsIcon size={24} color={color} filled={focused} /> }}
+        options={{ tabBarIcon: ({ color }) => <Clapperboard size={24} color={color} /> }}
       />
       <Tab.Screen
-        name='Live'
-        component={LiveStreamsScreen}
-        options={{ tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>📡</Text> }}
-      />
-      <Tab.Screen
-        name='Profile'
-        component={ProfileStackNav}
+        name="Profile"
+        component={ProfileScreen}
         options={{
-          tabBarIcon: ({ focused }) => {
+          tabBarIcon: ({ focused, color }) => {
             const me = useAuthStore.getState().user;
             return (
-              <View style={{ borderWidth: focused ? 2 : 0, borderColor: theme.text, borderRadius: 16 }}>
+              <View style={{ borderWidth: focused ? 2 : 0, borderColor: theme.accent, borderRadius: 20, padding: 2 }}>
                 <Avatar name={me?.name ?? me?.alias} url={(me as any)?.avatar_url} size={24} />
               </View>
-            );
-          },
+            )
+          }
         }}
       />
     </Tab.Navigator>
