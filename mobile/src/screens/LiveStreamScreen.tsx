@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { LiveKitRoom, VideoTrack, useTracks, useRoomContext, ConnectOptions, AudioSession, AndroidAudioTypePresets } from '@livekit/react-native';
-import { Track, RoomEvent, ConnectionState, VideoPresets } from 'livekit-client';
+import { LiveKitRoom, VideoTrack, useTracks, useRoomContext, AudioSession, AndroidAudioTypePresets } from '@livekit/react-native';
+import { Track, RoomEvent, ConnectionState, VideoPresets, RoomOptions } from 'livekit-client';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
@@ -78,17 +78,7 @@ export function LiveStreamScreen() {
     );
   }
 
-  const connectOptions: ConnectOptions = {
-    videoCaptureDefaults: {
-      resolution: VideoPresets.h360.resolution,
-    },
-    rtcConfig: {
-      iceTransportPolicy: 'all',
-    },
-    publishDefaults: {
-      simulcast: true,
-    },
-  };
+  
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000' }}>
@@ -98,10 +88,9 @@ export function LiveStreamScreen() {
         connect={true}
         audio={isHost}
         video={isHost}
-        options={connectOptions}
         onConnected={() => { setConnectionState('Conectado'); logConnectionEvent('LiveKitRoom Conectado'); }}
-        onDisconnected={(reason) => {
-          logConnectionEvent('LiveKitRoom Desconectado', reason);
+        onDisconnected={() => {
+          logConnectionEvent('LiveKitRoom Desconectado');
         }}
         onError={(e) => {
           setError('Error de LiveKit: ' + e.message);
