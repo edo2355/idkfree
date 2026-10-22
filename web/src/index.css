@@ -74,3 +74,13 @@ body {
 .text-glow {
   text-shadow: 0 0 20px rgba(255, 87, 34, 0.5);
 }
+
+/* Fondo táctico con rejilla y viñeta */
+.tactical-bg {
+  background-color: var(--bg-base);
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgba(255, 87, 34, 0.05) 0%, transparent 60%);
+  background-size: 30px 30px, 30px 30px, 100% 100%;
+}

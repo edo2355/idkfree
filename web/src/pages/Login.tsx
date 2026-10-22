@@ -29,62 +29,98 @@ export function Login() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+    <div className="tactical-bg" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       
-      <div className="glass-panel" style={{ 
-        width: '100%', 
-        maxWidth: '400px', 
-        padding: '40px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center'
-      }}>
+      {/* HUD SUPERIOR (El sistema de estado de la versión anterior) */}
+      <div style={{ width: '100%', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--glass-border)', fontFamily: 'Space Mono', fontSize: '11px', color: 'var(--text-muted)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#4ade80' }}></div>
+          <span>IDKFREE.OS</span>
+        </div>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          <span className="text-tactical">SERVIDOR</span>
+          <span>V2.0.0_2026</span>
+        </div>
+      </div>
+
+      {/* CONTENEDOR CENTRAL */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
         
-        <div style={{ marginBottom: '30px', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '800', letterSpacing: '4px', color: 'var(--text-main)' }}>
-            IDK<span style={{ color: 'var(--accent-warm)' }}>FREE</span>
-          </h1>
-          <p className="text-tactical" style={{ marginTop: '8px' }}>AUTH_CMD</p>
-          <div style={{ width: '40px', height: '2px', background: 'var(--accent-warm)', margin: '12px auto 0' }} />
-        </div>
-
-        {error && (
-          <div style={{ background: 'rgba(255, 77, 79, 0.1)', color: '#ff4d4f', padding: '12px', borderRadius: '8px', width: '100%', textAlign: 'center', marginBottom: '20px', fontSize: '13px', border: '1px solid rgba(255, 77, 79, 0.3)' }}>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="glass-panel" style={{ 
+          width: '100%', 
+          maxWidth: '420px', 
+          padding: '40px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          borderTop: '2px solid var(--accent-warm)', // Detalle táctico
+          boxShadow: '0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 87, 34, 0.05)'
+        }}>
           
-          <div>
-            <label className="text-tactical" style={{ display: 'block', marginBottom: '8px' }}>EMAIL</label>
-            <input 
-              type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@correo.com" required
-              style={{ width: '100%', padding: '14px 16px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '10px', color: '#fff', fontSize: '15px', outline: 'none' }}
-            />
+          {/* Logo e Identidad */}
+          <div style={{ marginBottom: '35px', textAlign: 'center', width: '100%' }}>
+            <h1 style={{ fontSize: '32px', fontWeight: '800', letterSpacing: '6px', color: '#fff', marginBottom: '5px' }}>
+              IDK<span style={{ color: 'var(--accent-warm)' }}>FREE</span>
+            </h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '15px' }}>
+              <span className="text-tactical">[ AUTH_CMD ]</span>
+              <span className="text-tactical">SYS.REQ.01</span>
+            </div>
+            <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '10px', fontStyle: 'italic' }}>
+              No lo sé, gratis o libre
+            </p>
           </div>
 
-          <div>
-            <label className="text-tactical" style={{ display: 'block', marginBottom: '8px' }}>CONTRASEÑA</label>
-            <input 
-              type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required
-              style={{ width: '100%', padding: '14px 16px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '10px', color: '#fff', fontSize: '15px', outline: 'none' }}
-            />
+          {error && (
+            <div style={{ background: 'rgba(255, 77, 79, 0.1)', color: '#ff4d4f', padding: '12px', borderRadius: '4px', width: '100%', textAlign: 'center', marginBottom: '20px', fontSize: '13px', borderLeft: '3px solid #ff4d4f', fontFamily: 'Space Mono' }}>
+              ERR: {error}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            
+            <div>
+              <label className="text-tactical" style={{ display: 'block', marginBottom: '8px' }}>EMAIL</label>
+              <input 
+                type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" required
+                style={{ width: '100%', padding: '14px 16px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'var(--accent-cool)', fontSize: '15px', outline: 'none', fontFamily: 'Space Mono' }}
+              />
+            </div>
+
+            <div>
+              <label className="text-tactical" style={{ display: 'block', marginBottom: '8px' }}>CONTRASEÑA</label>
+              <input 
+                type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required
+                style={{ width: '100%', padding: '14px 16px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'var(--accent-cool)', fontSize: '15px', outline: 'none', fontFamily: 'Space Mono' }}
+              />
+            </div>
+
+            <button 
+              type="submit" disabled={loading}
+              style={{ marginTop: '10px', width: '100%', padding: '16px', background: 'var(--accent-warm)', color: '#000', border: 'none', borderRadius: '4px', fontSize: '14px', fontWeight: '800', fontFamily: 'Space Mono', letterSpacing: '2px', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 0 20px rgba(255, 87, 34, 0.3)' }}
+            >
+              {loading ? 'AUTENTICANDO...' : 'ENTRAR_'}
+            </button>
+          </form>
+
+          {/* Enlaces Tácticos estilo terminal antiguo */}
+          <div style={{ marginTop: '35px', width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <Link to="/register" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '13px', fontFamily: 'Space Mono', display: 'flex', justifyContent: 'space-between' }}>
+              <span><span style={{ color: 'var(--accent-warm)' }}>&gt;</span> Crear cuenta</span>
+              <span style={{ fontSize: '10px', opacity: 0.5 }}>REG</span>
+            </Link>
+            <Link to="/recover" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '13px', fontFamily: 'Space Mono', display: 'flex', justifyContent: 'space-between' }}>
+              <span><span style={{ color: 'var(--accent-warm)' }}>&gt;</span> Recuperar cuenta</span>
+              <span style={{ fontSize: '10px', opacity: 0.5 }}>REC</span>
+            </Link>
           </div>
 
-          <button 
-            type="submit" disabled={loading}
-            style={{ marginTop: '10px', width: '100%', padding: '16px', background: loading ? 'var(--text-muted)' : 'var(--accent-warm)', color: '#000', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '800', fontFamily: 'Space Mono', letterSpacing: '2px', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 0 20px rgba(255, 87, 34, 0.4)' }}
-          >
-            {loading ? 'AUTENTICANDO...' : 'ENTRAR_'}
-          </button>
-        </form>
-
-        <div style={{ marginTop: '30px', textAlign: 'center' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
-            ¿No tienes cuenta? <Link to="/register" style={{ color: 'var(--accent-warm)', textDecoration: 'none', fontWeight: '600' }}>Crear una ahora</Link>
-          </p>
         </div>
+      </div>
+
+      {/* Footer del sistema */}
+      <div style={{ width: '100%', padding: '20px', textAlign: 'center', fontFamily: 'Space Mono', fontSize: '10px', color: 'var(--text-muted)', opacity: 0.5 }}>
+        [ CREADO POR EDO AMATE ]
       </div>
     </div>
   );
