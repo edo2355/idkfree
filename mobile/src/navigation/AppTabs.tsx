@@ -44,7 +44,7 @@ export function AppTabs() {
         tabBarBackground: () => (
           <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} />
         ),
-        tabBarActiveTintColor: theme.accent, // Azul neón
+        tabBarActiveTintColor: '#00E5FF', // Azul neón
         tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
         tabBarShowLabel: false,
       }}
@@ -64,7 +64,7 @@ export function AppTabs() {
         component={CreateScreen}
         options={{
           tabBarIcon: ({ color }) => (
-            <View style={{ backgroundColor: theme.accent, padding: 8, borderRadius: 12 }}>
+            <View style={{ backgroundColor: '#00E5FF', padding: 8, borderRadius: 12 }}>
               <PlusSquare size={24} color="#000" />
             </View>
           )

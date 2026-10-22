@@ -185,7 +185,7 @@ function StreamUI({ isHost, roomName, onClose, connectionState, setConnectionSta
 
       <View style={{ position: 'absolute', top: 50, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 }}>
-          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: connectionState === 'connected' ? '#4ade80' : '#facc15', marginRight: 8 }} />
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: connectionState === 'connected' ? '#00E5FF' : '#facc15', marginRight: 8 }} />
           <Text style={{ color: '#FFF', fontFamily: fonts.medium, fontSize: 12 }}>
             {connectionState === 'connected' ? 'EN VIVO' : connectionState.toUpperCase()}
           </Text>

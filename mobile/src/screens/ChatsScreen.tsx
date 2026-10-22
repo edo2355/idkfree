@@ -58,7 +58,7 @@ export function ChatsScreen() {
                   {item.last_message_at ? new Date(item.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                 </Text>
                 {item.unread_count > 0 && (
-                  <View style={{ backgroundColor: theme.accent, width: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center', marginTop: 5 }}>
+                  <View style={{ backgroundColor: '#00E5FF', width: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center', marginTop: 5 }}>
                     <Text style={{ color: '#000', fontSize: 10, fontWeight: 'bold' }}>{item.unread_count}</Text>
                   </View>
                 )}
