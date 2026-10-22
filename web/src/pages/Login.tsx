@@ -146,10 +146,14 @@ export function Login() {
               src="/logo-edo.svg" 
               alt="Edo Amate" 
               style={{ 
-                width: '100px', 
+                width: '100%', 
+                maxWidth: '280px', // Aquí controlas el tamaño máximo real
+                height: 'auto',
                 objectFit: 'contain',
-                filter: 'brightness(0) invert(1)', // Fuerza a blanco para el fondo oscuro
-                opacity: 0.8
+                filter: 'brightness(0) invert(1)', 
+                opacity: 0.9, // Un poco más visible
+                margin: '20px auto 0',
+                transform: 'scale(1.1)' // Truco visual para agrandarlo un 10% extra
               }} 
             />
           </div>
