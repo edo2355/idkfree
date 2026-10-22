@@ -3,7 +3,6 @@ import { registerGlobals } from '@livekit/react-native';
 import { View, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Camera } from 'expo-camera';
-import { Audio } from 'expo-av';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -26,7 +25,7 @@ export default function App() {
     (async () => {
       await Camera.requestCameraPermissionsAsync();
       await Camera.requestMicrophonePermissionsAsync();
-      await Audio.requestPermissionsAsync();
+      await Camera.requestMicrophonePermissionsAsync();
     })();
 
     // Pequeño delay para que fuentes y storage carguen
