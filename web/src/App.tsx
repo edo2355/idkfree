@@ -38,8 +38,9 @@ export default function App() {
       
       {/* Rutas Protegidas */}
       <Route path="/golive" element={<GoLive />} />
-          <Route path="/" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
-      <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+          <Route path="/" element={<Landing />} />
+        <Route path="/home" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+      <Route path="/feed" element={<Navigate to="/home" replace />} />
       <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
       <Route path="/create" element={<ProtectedRoute><Create /></ProtectedRoute>} />
       <Route path="/reels" element={<ProtectedRoute><Reels /></ProtectedRoute>} />

@@ -22,7 +22,7 @@ export function Login() {
     try {
       const res = await api.auth.login(email, password);
       setAuth({ id: res.userId, alias: res.alias }, res.accessToken);
-      navigate('/');
+      navigate('/home');
     } catch (err) {
       if (err instanceof ApiError) setError(err.message);
       else setError('Error de conexión');
