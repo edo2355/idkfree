@@ -130,11 +130,17 @@ function StreamUI({ isHost, roomName, onClose, connectionState, setConnectionSta
 
   return (
     <View style={{ flex: 1 }}>
+      {/* TEXTO DE DEBUG PARA VER EL ESTADO DE LAS PISTAS */}
+      <View style={{ position: 'absolute', top: 100, left: 0, right: 0, zIndex: 99, alignItems: 'center' }}>
+        <Text style={{ color: 'yellow', fontSize: 12, backgroundColor: 'rgba(0,0,0,0.8)', padding: 5 }}>
+          [DEBUG] Tracks: {tracks.length} | Main: {mainCamera ? 'SI' : 'NO'} | Mini: {miniCamera ? 'SI' : 'NO'}
+        </Text>
+      </View>
+
       {mainCamera ? (
         <VideoTrack 
           trackRef={mainCamera} 
-          style={StyleSheet.absoluteFill} 
-          objectFit="cover"
+          style={{ flex: 1, width: '100%', height: '100%' }} 
         />
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -161,8 +167,7 @@ function StreamUI({ isHost, roomName, onClose, connectionState, setConnectionSta
         }}>
           <VideoTrack 
             trackRef={miniCamera} 
-            style={{ flex: 1 }} 
-            objectFit="cover"
+            style={{ flex: 1, width: '100%', height: '100%' }} 
           />
         </View>
       )}
