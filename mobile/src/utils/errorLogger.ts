@@ -29,3 +29,7 @@ console.error = (...args) => {
   ErrorLogger.log('ERROR: ' + args.join(' '));
   originalConsoleError(...args);
 };
+
+export const logConnectionEvent = (event: string, details?: any) => {
+  ErrorLogger.log(`[LIVEKIT EVENT] ${event} ${details ? JSON.stringify(details) : ''}`);
+};
