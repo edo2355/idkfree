@@ -83,7 +83,22 @@ export function ChatScreen() {
     >
       {/* Header */}
       <View style={{ paddingTop: 50, paddingHorizontal: 12, paddingBottom: 10, flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: theme.border }}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6} style={{ padding: 6 }}>
+        
+      {/* Botones de Llamada */}
+      <TouchableOpacity
+        onPress={() => navigation.navigate('CallScreen', { targetUserId: other.id, type: 'audio' })}
+        style={{ padding: 8 }}
+      >
+        <Text style={{ fontSize: 20 }}>📞</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => navigation.navigate('CallScreen', { targetUserId: other.id, type: 'video' })}
+        style={{ padding: 8 }}
+      >
+        <Text style={{ fontSize: 20 }}>📹</Text>
+      </TouchableOpacity>
+<TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.6} style={{ padding: 6 }}>
           <Text style={{ color: theme.text, fontSize: 18 }}>←</Text>
         </TouchableOpacity>
         <TouchableOpacity
