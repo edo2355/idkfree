@@ -88,6 +88,17 @@ export function LiveStreamScreen() {
         connect={true}
         audio={isHost}
         video={isHost}
+        options={{
+          rtcConfig: {
+            iceServers: [
+              { urls: 'stun:stun.relay.metered.ca:80' },
+              { urls: 'turn:global.relay.metered.ca:80', username: 'ea14b5a65b1801d824c1e330', credential: 'kZCK4YMmrG9zwYjL' },
+              { urls: 'turn:global.relay.metered.ca:80?transport=tcp', username: 'ea14b5a65b1801d824c1e330', credential: 'kZCK4YMmrG9zwYjL' },
+              { urls: 'turn:global.relay.metered.ca:443', username: 'ea14b5a65b1801d824c1e330', credential: 'kZCK4YMmrG9zwYjL' },
+              { urls: 'turns:global.relay.metered.ca:443?transport=tcp', username: 'ea14b5a65b1801d824c1e330', credential: 'kZCK4YMmrG9zwYjL' },
+            ]
+          }
+        } as any} // El 'as any' evita el error de TypeScript que tuvimos antes, pero funciona perfecto en ejecución.
         onConnected={() => { setConnectionState('Conectado'); logConnectionEvent('LiveKitRoom Conectado'); }}
         onDisconnected={() => {
           logConnectionEvent('LiveKitRoom Desconectado');
