@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { LiveKitRoom, VideoTrack, useTracks, useRoomContext, ConnectOptions } from '@livekit/react-native';
-import { Track, RoomEvent, ConnectionState } from 'livekit-client';
+import { Track, RoomEvent, ConnectionState, VideoPresets } from 'livekit-client';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { api } from '../api/client';
@@ -25,9 +25,8 @@ export function LiveStreamScreen() {
         logConnectionEvent('Solicitando token', { roomName, isHost });
         const res = await api.livekit.getToken(roomName, isHost);
         setToken(res.token);
-        logConnectionEvent('Token recibido', { tokenLength: res.token?.length });
       } catch (err: any) {
-        setError(err.message || 'Error al conectar al servidor de video');
+        setError(err.message || 'Error al conectar al servidor');
         ErrorLogger.log('TOKEN ERROR: ' + err.message);
       }
     }
@@ -55,23 +54,15 @@ export function LiveStreamScreen() {
   }
 
   const connectOptions: ConnectOptions = {
+    videoCaptureDefaults: {
+      resolution: VideoPresets.h360.resolution, // Calidad baja para priorizar conexión
+    },
     rtcConfig: {
-      // Forzamos a que use SIEMPRE el servidor Relay (TURN)
-      iceTransportPolicy: 'relay',
-      iceServers: [
-        {
-          // Usamos un TURN público que soporta TLS en el puerto 443
-          urls: 'turns:openrelay.metered.ca:443?transport=tcp',
-          username: 'openrelayproject',
-          credential: 'openrelayproject',
-        },
-        {
-          // Fallback por si el puerto 443 falla
-          urls: 'turn:openrelay.metered.ca:80',
-          username: 'openrelayproject',
-          credential: 'openrelayproject',
-        }
-      ],
+      iceTransportPolicy: 'all', 
+    },
+    // Aumentamos los tiempos de espera para redes lentas (Cuba)
+    publishDefaults: {
+      simulcast: true, 
     },
   };
 
@@ -81,65 +72,69 @@ export function LiveStreamScreen() {
         token={token}
         serverUrl="wss://idkfree-j8j98whs.livekit.cloud"
         connect={true}
-        audio={isHost}
-        video={isHost}
+        audio={isHost} 
+        video={isHost} 
         options={connectOptions}
         onConnected={() => { setConnectionState('Conectado'); logConnectionEvent('LiveKitRoom Conectado'); }}
-        onDisconnected={(reason) => { logConnectionEvent('LiveKitRoom Desconectado', reason); navigation.goBack(); }}
+        onDisconnected={(reason) => { 
+          logConnectionEvent('LiveKitRoom Desconectado', reason); 
+          // En lugar de salir inmediatamente, mostramos un error si se cae la red
+          setError('La conexión se perdió. Revisa tu red e intenta de nuevo.'); 
+        }}
         onError={(e) => {
           setError('Error de LiveKit: ' + e.message);
           ErrorLogger.log('LIVEKIT ROOM ERROR: ' + e.message);
         }}
       >
-        <StreamUI roomName={roomName} onClose={() => navigation.goBack()} connectionState={connectionState} setConnectionState={setConnectionState} />
+        <StreamUI isHost={isHost} roomName={roomName} onClose={() => navigation.goBack()} connectionState={connectionState} setConnectionState={setConnectionState} />
       </LiveKitRoom>
     </View>
   );
 }
 
-function StreamUI({ roomName, onClose, connectionState, setConnectionState }: { roomName: string, onClose: () => void, connectionState: string, setConnectionState: (s: string) => void }) {
+function StreamUI({ isHost, roomName, onClose, connectionState, setConnectionState }: { isHost: boolean, roomName: string, onClose: () => void, connectionState: string, setConnectionState: (s: string) => void }) {
   const theme = useTheme();
   const room = useRoomContext();
   const tracks = useTracks([Track.Source.Camera]);
   
-  const localCamera = tracks.find(t => t.participant.isLocal);
+  // Buscar la cámara correcta: si soy host, la mía. Si soy espectador, la del host.
+  const cameraToShow = isHost 
+    ? tracks.find(t => t.participant.isLocal) 
+    : tracks.find(t => !t.participant.isLocal);
 
   useEffect(() => {
     if (!room) return;
-
-    logConnectionEvent('Room object inicializado');
 
     const handleConnectionStateChanged = (state: ConnectionState) => {
       setConnectionState(state);
       logConnectionEvent('Estado de conexión cambiado', state);
     };
 
-    const handleMediaDevicesError = (e: any) => {
-      ErrorLogger.log('MEDIA DEVICES ERROR: ' + e.message);
-    };
-
     room.on(RoomEvent.ConnectionStateChanged, handleConnectionStateChanged);
-    room.on(RoomEvent.MediaDevicesError, handleMediaDevicesError);
-
     return () => {
       room.off(RoomEvent.ConnectionStateChanged, handleConnectionStateChanged);
-      room.off(RoomEvent.MediaDevicesError, handleMediaDevicesError);
     };
   }, [room]);
 
   return (
     <View style={{ flex: 1 }}>
-      {localCamera ? (
-        <VideoTrack trackRef={localCamera} style={StyleSheet.absoluteFill} />
+      {/* Renderizado del Video */}
+      {cameraToShow ? (
+        <VideoTrack 
+          trackRef={cameraToShow} 
+          style={StyleSheet.absoluteFill} 
+          objectFit="cover"
+        />
       ) : (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator color={theme.accent} size="large" />
           <Text style={{ color: '#FFF', marginTop: 10, fontFamily: fonts.medium }}>
-            Encendiendo cámara local...
+            {isHost ? 'Iniciando cámara...' : 'Esperando video del host...'}
           </Text>
         </View>
       )}
 
+      {/* UI Overlay */}
       <View style={{ position: 'absolute', top: 50, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 }}>
           <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: connectionState === 'connected' ? '#4ade80' : '#facc15', marginRight: 8 }} />
@@ -153,11 +148,8 @@ function StreamUI({ roomName, onClose, connectionState, setConnectionState }: { 
       </View>
 
       <View style={{ position: 'absolute', bottom: 40, left: 20, right: 20 }}>
-        <Text style={{ color: '#FFF', fontFamily: fonts.medium, fontSize: 18 }}>Transmitiendo en vivo</Text>
+        <Text style={{ color: '#FFF', fontFamily: fonts.medium, fontSize: 18 }}>{isHost ? 'Transmitiendo' : 'Viendo'}</Text>
         <Text style={{ color: 'rgba(255,255,255,0.7)', fontFamily: fonts.regular, fontSize: 14 }}>Sala: {roomName}</Text>
-        <Text style={{ color: 'rgba(255,255,255,0.5)', fontFamily: fonts.regular, fontSize: 10, marginTop: 5 }}>
-          Estado: {connectionState}
-        </Text>
       </View>
     </View>
   );
