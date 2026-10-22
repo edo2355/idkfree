@@ -1,20 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  --bg-base: #050505;
+  --bg-base: #0a0a0a;
   
-  /* Nuevos Acentos (Azul Neón / Cyan) */
-  --accent-main: #00E5FF; /* Puedes cambiarlo a #4ade80 (Verde) o #FFFFFF (Blanco) */
-  --accent-glow: rgba(0, 229, 255, 0.4);
-  
-  /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-bg-hover: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  
-  /* Texto */
-  --text-main: #FFFFFF;
+  /* Paleta ultra limpia */
+  --text-main: #f0f0f0;
   --text-muted: #888888;
+  --accent-subtle: #E25A39; /* Naranja apagado, no neón */
+  
+  /* Glassmorphism Limpio (Más oscuro y difuminado) */
+  --glass-bg: rgba(20, 20, 20, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-hover: rgba(255, 255, 255, 0.25);
 }
 
 * {
@@ -32,49 +29,58 @@ body {
   overflow-x: hidden;
 }
 
-/* Fondo Táctico con MESH GRADIENT y TEXTURA DE RUIDO */
-.tactical-bg {
+/* Fondo Mesh Gradient Suave + Ruido (Estilo las fotos) */
+.clean-bg {
   position: relative;
   min-height: 100vh;
-  background-color: #050505;
+  background-color: #0a0a0a;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(0, 229, 255, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(255, 255, 255, 0.05) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(0, 229, 255, 0.05) 0px, transparent 50%);
+    radial-gradient(circle at 15% 50%, rgba(50, 60, 80, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(80, 50, 40, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(30, 40, 50, 0.3) 0%, transparent 50%);
   z-index: 1;
 }
 
-/* Capa de Ruido (Grain) sobre el fondo */
-.tactical-bg::before {
+/* Textura de Ruido sutil */
+.clean-bg::before {
   content: "";
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none;
   z-index: -1;
-  opacity: 0.15; /* Ajusta la intensidad del ruido aquí */
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.2;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-
-/* Glassmorphism Classes */
+/* Paneles de Cristal Limpio */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
 .text-tactical {
   font-family: 'Space Mono', monospace;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 10px;
   color: var(--text-muted);
+}
+
+/* Inputs minimalistas (Solo línea inferior) */
+.input-minimal {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--text-main);
+  padding: 12px 0;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.input-minimal:focus {
+  border-bottom-color: var(--glass-border-hover);
 }

@@ -29,17 +29,22 @@ export function Login() {
   }
 
   return (
-    <div className="tactical-bg" style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className="clean-bg" style={{ display: 'flex', flexDirection: 'column', position: 'relative' }}>
       
-      {/* HUD SUPERIOR */}
-      <div style={{ width: '100%', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--glass-border)', fontFamily: 'Space Mono', fontSize: '11px', color: 'var(--text-muted)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-main)' }}></div>
-          <span>IDKFREE.OS</span>
+      {/* ESQUINAS TÁCTICAS (El detalle de las imágenes) */}
+      <div style={{ position: 'absolute', top: 30, left: 30, width: 20, height: 20, borderTop: '1px solid rgba(255,255,255,0.3)', borderLeft: '1px solid rgba(255,255,255,0.3)' }}></div>
+      <div style={{ position: 'absolute', top: 30, right: 30, width: 20, height: 20, borderTop: '1px solid rgba(255,255,255,0.3)', borderRight: '1px solid rgba(255,255,255,0.3)' }}></div>
+      <div style={{ position: 'absolute', bottom: 30, left: 30, width: 20, height: 20, borderBottom: '1px solid rgba(255,255,255,0.3)', borderLeft: '1px solid rgba(255,255,255,0.3)' }}></div>
+      <div style={{ position: 'absolute', bottom: 30, right: 30, width: 20, height: 20, borderBottom: '1px solid rgba(255,255,255,0.3)', borderRight: '1px solid rgba(255,255,255,0.3)' }}></div>
+
+      {/* HUD SUPERIOR MINIMALISTA */}
+      <div style={{ width: '100%', padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'Space Mono', fontSize: '11px', color: 'var(--text-muted)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span className="text-tactical">IDKFREE_SYS</span>
         </div>
         <div style={{ display: 'flex', gap: '20px' }}>
-          <span className="text-tactical">SERVIDOR</span>
-          <span>V2.0.0_2026</span>
+          <span className="text-tactical">LATENCY: 24ms</span>
+          <span className="text-tactical">V2.0</span>
         </div>
       </div>
 
@@ -48,73 +53,90 @@ export function Login() {
         
         <div className="glass-panel" style={{ 
           width: '100%', 
-          maxWidth: '420px', 
+          maxWidth: '380px', 
           padding: '40px',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          borderTop: '2px solid var(--accent-main)', // Borde superior con el nuevo color
-          boxShadow: '0 0 40px rgba(0,0,0,0.8), inset 0 0 20px var(--accent-glow)'
         }}>
           
-          <div style={{ marginBottom: '35px', textAlign: 'center', width: '100%' }}>
-            <h1 style={{ fontSize: '32px', fontWeight: '800', letterSpacing: '6px', color: '#fff', marginBottom: '5px' }}>
-              IDK<span style={{ color: 'var(--accent-main)' }}>FREE</span>
-            </h1>
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '15px' }}>
-              <span className="text-tactical">[ AUTH_CMD ]</span>
-              <span className="text-tactical">SYS.REQ.01</span>
+          <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <div>
+              <h1 style={{ fontSize: '24px', fontWeight: '500', letterSpacing: '4px', color: '#fff', margin: 0 }}>
+                ACCESO
+              </h1>
+              <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '5px' }}>
+                Identifícate para continuar
+              </p>
             </div>
+            <div style={{ width: '6px', height: '6px', backgroundColor: 'var(--accent-subtle)' }}></div>
           </div>
 
           {error && (
-            <div style={{ background: 'rgba(255, 77, 79, 0.1)', color: '#ff4d4f', padding: '12px', borderRadius: '4px', width: '100%', textAlign: 'center', marginBottom: '20px', fontSize: '13px', borderLeft: '3px solid #ff4d4f', fontFamily: 'Space Mono' }}>
-              ERR: {error}
+            <div style={{ color: '#ff4d4f', marginBottom: '20px', fontSize: '12px', fontFamily: 'Space Mono' }}>
+              [ ERROR: {error} ]
             </div>
           )}
 
-          <form onSubmit={handleLogin} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
             
             <div>
-              <label className="text-tactical" style={{ display: 'block', marginBottom: '8px' }}>EMAIL</label>
+              <label className="text-tactical" style={{ display: 'block', marginBottom: '5px' }}>Usuario / Email</label>
               <input 
-                type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" required
-                style={{ width: '100%', padding: '14px 16px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'var(--accent-main)', fontSize: '15px', outline: 'none', fontFamily: 'Space Mono' }}
+                type="email" 
+                className="input-minimal" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
               />
             </div>
 
             <div>
-              <label className="text-tactical" style={{ display: 'block', marginBottom: '8px' }}>CONTRASEÑA</label>
+              <label className="text-tactical" style={{ display: 'block', marginBottom: '5px' }}>Contraseña</label>
               <input 
-                type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required
-                style={{ width: '100%', padding: '14px 16px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'var(--accent-main)', fontSize: '15px', outline: 'none', fontFamily: 'Space Mono' }}
+                type="password" 
+                className="input-minimal" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
               />
             </div>
 
             <button 
-              type="submit" disabled={loading}
-              style={{ marginTop: '10px', width: '100%', padding: '16px', background: 'var(--accent-main)', color: '#000', border: 'none', borderRadius: '4px', fontSize: '14px', fontWeight: '800', fontFamily: 'Space Mono', letterSpacing: '2px', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 0 20px var(--accent-glow)' }}
+              type="submit" 
+              disabled={loading}
+              style={{ 
+                marginTop: '15px', 
+                width: '100%', 
+                padding: '16px', 
+                background: 'rgba(255,255,255,0.05)', 
+                color: '#fff', 
+                border: '1px solid var(--glass-border)', 
+                borderRadius: '4px', 
+                fontSize: '12px', 
+                fontWeight: '600', 
+                fontFamily: 'Space Mono', 
+                letterSpacing: '2px', 
+                cursor: loading ? 'not-allowed' : 'pointer', 
+                transition: 'all 0.3s'
+              }}
+              onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'var(--glass-border-hover)'; }}
+              onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'var(--glass-border)'; }}
             >
-              {loading ? 'AUTENTICANDO...' : 'ENTRAR_'}
+              {loading ? 'VERIFICANDO...' : 'INICIAR SESIÓN'}
             </button>
           </form>
 
-          <div style={{ marginTop: '35px', width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <Link to="/register" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '13px', fontFamily: 'Space Mono', display: 'flex', justifyContent: 'space-between' }}>
-              <span><span style={{ color: 'var(--accent-main)' }}>&gt;</span> Crear cuenta</span>
-              <span style={{ fontSize: '10px', opacity: 0.5 }}>REG</span>
+          {/* Footer del panel */}
+          <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--glass-border)', paddingTop: '20px' }}>
+            <Link to="/register" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '11px', fontFamily: 'Space Mono' }}>
+              CREAR CUENTA
             </Link>
-            <Link to="/recover" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '13px', fontFamily: 'Space Mono', display: 'flex', justifyContent: 'space-between' }}>
-              <span><span style={{ color: 'var(--accent-main)' }}>&gt;</span> Recuperar cuenta</span>
-              <span style={{ fontSize: '10px', opacity: 0.5 }}>REC</span>
+            <Link to="/recover" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '11px', fontFamily: 'Space Mono' }}>
+              RECUPERAR
             </Link>
           </div>
 
         </div>
-      </div>
-
-      <div style={{ width: '100%', padding: '20px', textAlign: 'center', fontFamily: 'Space Mono', fontSize: '10px', color: 'var(--text-muted)', opacity: 0.5 }}>
-        [ CREADO POR EDO AMATE ]
       </div>
     </div>
   );
