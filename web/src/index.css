@@ -1,24 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  /* Paleta de colores basada en las referencias */
-  --bg-base: #030303;
-  --bg-gradient: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #050505 60%, #000000 100%);
+  --bg-base: #050505;
+  
+  /* Nuevos Acentos (Azul Neón / Cyan) */
+  --accent-main: #00E5FF; /* Puedes cambiarlo a #4ade80 (Verde) o #FFFFFF (Blanco) */
+  --accent-glow: rgba(0, 229, 255, 0.4);
   
   /* Glassmorphism */
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-bg-hover: rgba(255, 255, 255, 0.06);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-light: rgba(255, 255, 255, 0.15);
   
-  /* Texto y Acentos */
+  /* Texto */
   --text-main: #FFFFFF;
   --text-muted: #888888;
-  --accent-warm: #FF5722; /* Naranja de las imágenes */
-  --accent-cool: #00E5FF; /* Cyan para detalles tecnológicos */
-  
-  /* Sombras */
-  --shadow-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -29,58 +25,56 @@
 
 body {
   background-color: var(--bg-base);
-  background-image: var(--bg-gradient);
   color: var(--text-main);
   font-family: 'Inter', system-ui, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-/* Ocultar barra de scroll estándar y poner una elegante */
+/* Fondo Táctico con MESH GRADIENT y TEXTURA DE RUIDO */
+.tactical-bg {
+  position: relative;
+  min-height: 100vh;
+  background-color: #050505;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(0, 229, 255, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(255, 255, 255, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(0, 229, 255, 0.05) 0px, transparent 50%);
+  z-index: 1;
+}
+
+/* Capa de Ruido (Grain) sobre el fondo */
+.tactical-bg::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.15; /* Ajusta la intensidad del ruido aquí */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-/* Clases utilitarias de Glassmorphism */
+/* Glassmorphism Classes */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
-.glass-panel-interactive {
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-.glass-panel-interactive:hover {
-  background: var(--glass-bg-hover);
-  border-color: var(--glass-border-light);
-  transform: translateY(-2px);
-}
-
-/* Textos Tácticos */
 .text-tactical {
   font-family: 'Space Mono', monospace;
   letter-spacing: 2px;
   text-transform: uppercase;
   font-size: 12px;
   color: var(--text-muted);
-}
-
-.text-glow {
-  text-shadow: 0 0 20px rgba(255, 87, 34, 0.5);
-}
-
-/* Fondo táctico con rejilla y viñeta */
-.tactical-bg {
-  background-color: var(--bg-base);
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    radial-gradient(circle at 50% 50%, rgba(255, 87, 34, 0.05) 0%, transparent 60%);
-  background-size: 30px 30px, 30px 30px, 100% 100%;
 }

@@ -29,12 +29,12 @@ export function Login() {
   }
 
   return (
-    <div className="tactical-bg" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+    <div className="tactical-bg" style={{ display: 'flex', flexDirection: 'column' }}>
       
-      {/* HUD SUPERIOR (El sistema de estado de la versión anterior) */}
+      {/* HUD SUPERIOR */}
       <div style={{ width: '100%', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--glass-border)', fontFamily: 'Space Mono', fontSize: '11px', color: 'var(--text-muted)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#4ade80' }}></div>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-main)' }}></div>
           <span>IDKFREE.OS</span>
         </div>
         <div style={{ display: 'flex', gap: '20px' }}>
@@ -53,22 +53,18 @@ export function Login() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          borderTop: '2px solid var(--accent-warm)', // Detalle táctico
-          boxShadow: '0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 87, 34, 0.05)'
+          borderTop: '2px solid var(--accent-main)', // Borde superior con el nuevo color
+          boxShadow: '0 0 40px rgba(0,0,0,0.8), inset 0 0 20px var(--accent-glow)'
         }}>
           
-          {/* Logo e Identidad */}
           <div style={{ marginBottom: '35px', textAlign: 'center', width: '100%' }}>
             <h1 style={{ fontSize: '32px', fontWeight: '800', letterSpacing: '6px', color: '#fff', marginBottom: '5px' }}>
-              IDK<span style={{ color: 'var(--accent-warm)' }}>FREE</span>
+              IDK<span style={{ color: 'var(--accent-main)' }}>FREE</span>
             </h1>
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '15px' }}>
               <span className="text-tactical">[ AUTH_CMD ]</span>
               <span className="text-tactical">SYS.REQ.01</span>
             </div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '10px', fontStyle: 'italic' }}>
-              No lo sé, gratis o libre
-            </p>
           </div>
 
           {error && (
@@ -83,7 +79,7 @@ export function Login() {
               <label className="text-tactical" style={{ display: 'block', marginBottom: '8px' }}>EMAIL</label>
               <input 
                 type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" required
-                style={{ width: '100%', padding: '14px 16px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'var(--accent-cool)', fontSize: '15px', outline: 'none', fontFamily: 'Space Mono' }}
+                style={{ width: '100%', padding: '14px 16px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'var(--accent-main)', fontSize: '15px', outline: 'none', fontFamily: 'Space Mono' }}
               />
             </div>
 
@@ -91,26 +87,25 @@ export function Login() {
               <label className="text-tactical" style={{ display: 'block', marginBottom: '8px' }}>CONTRASEÑA</label>
               <input 
                 type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required
-                style={{ width: '100%', padding: '14px 16px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'var(--accent-cool)', fontSize: '15px', outline: 'none', fontFamily: 'Space Mono' }}
+                style={{ width: '100%', padding: '14px 16px', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'var(--accent-main)', fontSize: '15px', outline: 'none', fontFamily: 'Space Mono' }}
               />
             </div>
 
             <button 
               type="submit" disabled={loading}
-              style={{ marginTop: '10px', width: '100%', padding: '16px', background: 'var(--accent-warm)', color: '#000', border: 'none', borderRadius: '4px', fontSize: '14px', fontWeight: '800', fontFamily: 'Space Mono', letterSpacing: '2px', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 0 20px rgba(255, 87, 34, 0.3)' }}
+              style={{ marginTop: '10px', width: '100%', padding: '16px', background: 'var(--accent-main)', color: '#000', border: 'none', borderRadius: '4px', fontSize: '14px', fontWeight: '800', fontFamily: 'Space Mono', letterSpacing: '2px', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 0 20px var(--accent-glow)' }}
             >
               {loading ? 'AUTENTICANDO...' : 'ENTRAR_'}
             </button>
           </form>
 
-          {/* Enlaces Tácticos estilo terminal antiguo */}
           <div style={{ marginTop: '35px', width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <Link to="/register" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '13px', fontFamily: 'Space Mono', display: 'flex', justifyContent: 'space-between' }}>
-              <span><span style={{ color: 'var(--accent-warm)' }}>&gt;</span> Crear cuenta</span>
+              <span><span style={{ color: 'var(--accent-main)' }}>&gt;</span> Crear cuenta</span>
               <span style={{ fontSize: '10px', opacity: 0.5 }}>REG</span>
             </Link>
             <Link to="/recover" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '13px', fontFamily: 'Space Mono', display: 'flex', justifyContent: 'space-between' }}>
-              <span><span style={{ color: 'var(--accent-warm)' }}>&gt;</span> Recuperar cuenta</span>
+              <span><span style={{ color: 'var(--accent-main)' }}>&gt;</span> Recuperar cuenta</span>
               <span style={{ fontSize: '10px', opacity: 0.5 }}>REC</span>
             </Link>
           </div>
@@ -118,7 +113,6 @@ export function Login() {
         </div>
       </div>
 
-      {/* Footer del sistema */}
       <div style={{ width: '100%', padding: '20px', textAlign: 'center', fontFamily: 'Space Mono', fontSize: '10px', color: 'var(--text-muted)', opacity: 0.5 }}>
         [ CREADO POR EDO AMATE ]
       </div>
