@@ -8,49 +8,43 @@ export default function Dashboard() {
     async function fetchStats() {
       try {
         const token = localStorage.getItem('@idk_cpanel_token');
-        const res = await fetch('http://localhost:3001/api/admin/stats', {
+        const res = await fetch('https://idkfreegetid.dpdns.org/api/admin/stats', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        
         if (res.ok) {
           const data = await res.json();
-          setStats({
-            users: data.total_users || 0,
-            posts: data.total_posts || 0,
-            messages: data.total_messages || 0
-          });
+          setStats({ users: data.total_users || 0, posts: data.total_posts || 0, messages: data.total_messages || 0 });
         }
-      } catch (error) {
-        console.error('Error cargando estadísticas', error);
-      } finally {
-        setLoading(false);
-      }
+      } catch (error) { console.error(error); } finally { setLoading(false); }
     }
     fetchStats();
   }, []);
 
   return (
     <div>
-      <h1 style={{ fontSize: '28px', marginBottom: '20px' }}>Resumen General</h1>
+      <h1 style={{ fontSize: '28px', fontWeight: '600', marginBottom: '30px', letterSpacing: '1px' }}>
+        SISTEMA_<span style={{ color: 'var(--accent-warm)' }}>STATS</span>
+      </h1>
+      
       <div style={{ display: 'flex', gap: '20px' }}>
         
-        <div style={{ flex: 1, background: '#181b21', padding: '20px', borderRadius: '10px', border: '1px solid #2a2e39' }}>
-          <p style={{ color: '#a0a5b1', margin: 0, fontSize: '14px' }}>Usuarios Totales</p>
-          <h2 style={{ margin: '10px 0 0 0', fontSize: '32px', color: '#00f2fe' }}>
+        <div className="glass-panel glass-panel-interactive" style={{ flex: 1, padding: '25px' }}>
+          <p className="text-tactical">Usuarios Totales</p>
+          <h2 style={{ fontSize: '42px', fontWeight: '800', color: 'var(--text-main)', marginTop: '10px' }}>
             {loading ? '...' : stats.users}
           </h2>
         </div>
 
-        <div style={{ flex: 1, background: '#181b21', padding: '20px', borderRadius: '10px', border: '1px solid #2a2e39' }}>
-          <p style={{ color: '#a0a5b1', margin: 0, fontSize: '14px' }}>Posts Totales</p>
-          <h2 style={{ margin: '10px 0 0 0', fontSize: '32px', color: '#00f2fe' }}>
+        <div className="glass-panel glass-panel-interactive" style={{ flex: 1, padding: '25px' }}>
+          <p className="text-tactical">Posts Totales</p>
+          <h2 style={{ fontSize: '42px', fontWeight: '800', color: 'var(--text-main)', marginTop: '10px' }}>
             {loading ? '...' : stats.posts}
           </h2>
         </div>
 
-        <div style={{ flex: 1, background: '#181b21', padding: '20px', borderRadius: '10px', border: '1px solid #2a2e39' }}>
-          <p style={{ color: '#a0a5b1', margin: 0, fontSize: '14px' }}>Mensajes Totales</p>
-          <h2 style={{ margin: '10px 0 0 0', fontSize: '32px', color: '#00f2fe' }}>
+        <div className="glass-panel glass-panel-interactive" style={{ flex: 1, padding: '25px' }}>
+          <p className="text-tactical">Mensajes</p>
+          <h2 style={{ fontSize: '42px', fontWeight: '800', color: 'var(--text-main)', marginTop: '10px' }}>
             {loading ? '...' : stats.messages}
           </h2>
         </div>
