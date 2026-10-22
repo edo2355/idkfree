@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ principal, main ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -26,13 +26,13 @@ jobs:
     - name: Instalar dependencias
       run: |
         cd mobile
-        npm install
+        npm install --legacy-peer-deps
 
     - name: Compilar APK (Gradle)
       run: |
         cd mobile/android
         chmod +x gradlew
-        ./gradlew assembleRelease
+        ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
 
     - name: Subir APK como Artefacto
       uses: actions/upload-artifact@v4
