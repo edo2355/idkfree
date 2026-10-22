@@ -43,4 +43,55 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.send({ user: res.rows[0] });
     } catch { return reply.code(401).send({ error: 'No autenticado' }); }
   });
+
+  // ENVIAR CÓDIGO DE VERIFICACIÓN DE CORREO
+  app.post('/auth/send-email-otp', async (req, reply) => {
+    const { email } = req.body as any;
+    if (!email) return reply.code(400).send({ error: 'Email requerido' });
+
+    try {
+      const userRes = await query('SELECT id FROM users WHERE email = $1', [email]);
+      if (userRes.rows.length === 0) return reply.code(404).send({ error: 'Usuario no encontrado' });
+
+      const userId = userRes.rows[0].id;
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = new Date(Date.now() + 10 * 60000).toISOString();
+
+      await query(
+        'INSERT INTO email_otps (id, user_id, email, otp_code, expires_at) VALUES ($1, $2, $3, $4, $5)',
+        [crypto.randomUUID(), userId, email, otp, expiresAt]
+      );
+
+      // Simulamos el envío del correo (En producción usarías Resend o Nodemailer)
+      app.log.info(`[SIMULACIÓN EMAIL] Código para ${email}: ${otp}`);
+      
+      return reply.send({ message: 'Código enviado al correo (Revisa los logs del servidor)' });
+    } catch (err) {
+      return reply.code(500).send({ error: 'Error interno' });
+    }
+  });
+
+  // VERIFICAR CÓDIGO DE CORREO
+  app.post('/auth/verify-email-otp', async (req, reply) => {
+    const { email, otp_code } = req.body as any;
+    if (!email || !otp_code) return reply.code(400).send({ error: 'Datos incompletos' });
+
+    try {
+      const res = await query(
+        'SELECT * FROM email_otps WHERE email = $1 AND otp_code = $2 AND expires_at > CURRENT_TIMESTAMP ORDER BY created_at DESC LIMIT 1',
+        [email, otp_code]
+      );
+
+      if (res.rows.length === 0) return reply.code(401).send({ error: 'Código inválido o expirado' });
+
+      const userId = res.rows[0].user_id;
+      await query('UPDATE users SET email_verified = TRUE WHERE id = $1', [userId]);
+      await query('DELETE FROM email_otps WHERE user_id = $1', [userId]);
+
+      return reply.send({ message: 'Correo verificado exitosamente' });
+    } catch (err) {
+      return reply.code(500).send({ error: 'Error interno' });
+    }
+  });
+
 }

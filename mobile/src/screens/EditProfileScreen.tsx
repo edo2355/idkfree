@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator,
 import { idkAlert as Alert } from '../components/IDKAlert';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import { CategorySelector } from '../components/CategorySelector';
 import { useTheme } from '../stores/themeStore';
 import { fonts } from '../theme/fonts';
 import { useAuthStore } from '../stores/authStore';
@@ -17,6 +18,7 @@ export function EditProfileScreen() {
   const { user } = useAuthStore();
 
   const [name, setName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState(user?.phone_number || '');
   const [bio, setBio] = useState('');
   const [accountType, setAccountType] = useState('personal');
   const [category, setCategory] = useState('');
@@ -153,7 +155,7 @@ export function EditProfileScreen() {
         {accountType !== 'personal' && (
           <>
             <Text style={{ color: theme.textMuted, fontFamily: fonts.medium, fontSize: 11, letterSpacing: 1.5, marginBottom: 6 }}>CATEGORÍA</Text>
-            <TextInput value={category} onChangeText={setCategory} placeholder="Ej: Música, Tech, Arte" placeholderTextColor={theme.textSubtle} style={{ backgroundColor: theme.surface, color: theme.text, fontFamily: fonts.regular, fontSize: 15, padding: 14, borderRadius: 8, borderWidth: 1, borderColor: theme.border, marginBottom: 20 }} />
+            <CategorySelector accountType={accountType} value={category} onChange={setCategory} />
           </>
         )}
 
