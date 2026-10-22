@@ -9,6 +9,7 @@ import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { StoryViewer } from './StoryViewer';
+import { LiveStoryBubble } from './LiveStoryBubble';
 
 interface Group {
   author_id: string;
@@ -125,7 +126,9 @@ export function StoriesRow() {
             </Text>
           </TouchableOpacity>
 
-          {/* Grupos */}
+          <LiveStoryBubble />
+
+                {/* Grupos */}
           {groups.map((g, idx) => {
             const avatar = avatarUrls[g.author_id];
             const ringColor = g.all_viewed ? theme.border : theme.text;
