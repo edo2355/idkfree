@@ -142,11 +142,16 @@ export function Login() {
 
           {/* LOGO EDO AMATE EN EL FONDO DEL PANEL */}
           <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 0.4 }}>
-            <svg width="60" height="25" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 20 L25 10 L40 20 L25 30 Z" fill="#ffffff" opacity="0.8"/>
-              <text x="50" y="18" textAnchor="middle" fill="#ffffff" fontSize="16" fontFamily="Space Mono" fontWeight="bold" letterSpacing="4">edo</text>
-              <text x="50" y="30" textAnchor="middle" fill="#888888" fontSize="8" fontFamily="Space Mono" letterSpacing="3">AMATE</text>
-            </svg>
+            <img 
+              src="/logo-edo.svg" 
+              alt="Edo Amate" 
+              style={{ 
+                width: '100px', 
+                objectFit: 'contain',
+                filter: 'brightness(0) invert(1)', // Fuerza a blanco para el fondo oscuro
+                opacity: 0.8
+              }} 
+            />
           </div>
 
         </div>
