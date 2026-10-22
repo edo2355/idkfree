@@ -18,13 +18,24 @@ export function Login() {
     setLoading(true);
 
     try {
-      const res = await api.auth.login(email, password);
+      // Creamos una promesa de timeout de 15 segundos
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('El servidor tardó demasiado en responder. Verifica tu conexión.')), 15000)
+      );
+
+      // Hacemos la petición real y competimos contra el tiempo
+      const res: any = await Promise.race([
+        api.auth.login(email, password),
+        timeoutPromise
+      ]);
+
       setAuth(res.user, res.token);
       navigate('/home');
     } catch (err: any) {
       setError(err.message || 'Credenciales inválidas');
     } finally {
-      setLoading(false);
+      // ESTO ES VITAL: Pase lo que pase, apagamos el "VERIFICANDO..."
+      setLoading(false); 
     }
   }
 
