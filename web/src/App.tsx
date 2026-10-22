@@ -6,6 +6,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 
 import { Login } from './pages/Login';
 import { Landing } from './pages/Landing';
+import WebLayout from './layouts/WebLayout';
 import { Register } from './pages/Register';
 import { Feed } from './pages/Feed';
 import { Profile } from './pages/Profile';
@@ -37,17 +38,27 @@ export default function App() {
       <Route path="/register" element={<Register />} />
       
       {/* Rutas Protegidas */}
-      <Route path="/golive" element={<GoLive />} />
+      
           <Route path="/" element={<Landing />} />
-        <Route path="/home" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
-      <Route path="/feed" element={<Navigate to="/home" replace />} />
-      <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
-      <Route path="/create" element={<ProtectedRoute><Create /></ProtectedRoute>} />
-      <Route path="/reels" element={<ProtectedRoute><Reels /></ProtectedRoute>} />
-      <Route path="/chats" element={<ProtectedRoute><Chats /></ProtectedRoute>} />
-      <Route path="/chat/:userId" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-      <Route path="/u/:alias" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-      <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+        <Route path="/" element={<ProtectedRoute><WebLayout /></ProtectedRoute>}>
+          <Route path="home" element={<Feed />} />
+          <Route path="search" element={<Search />} />
+          <Route path="create" element={<Create />} />
+          <Route path="reels" element={<Reels />} />
+          <Route path="chats" element={<Chats />} />
+          <Route path="chat/:userId" element={<Chat />} />
+          <Route path="u/:alias" element={<Profile />} />
+          <Route path="edit-profile" element={<EditProfile />} />
+          <Route path="golive" element={<GoLive />} />
+        </Route>
+      
+      
+      
+      
+      
+      
+      
+      
       
       <Route path="/404" element={<NotFound />} />
       <Route path="*" element={<Navigate to="/404" replace />} />
