@@ -56,7 +56,22 @@ export function LiveStreamScreen() {
 
   const connectOptions: ConnectOptions = {
     rtcConfig: {
-      iceTransportPolicy: 'all', 
+      // Forzamos a que use SIEMPRE el servidor Relay (TURN)
+      iceTransportPolicy: 'relay',
+      iceServers: [
+        {
+          // Usamos un TURN público que soporta TLS en el puerto 443
+          urls: 'turns:openrelay.metered.ca:443?transport=tcp',
+          username: 'openrelayproject',
+          credential: 'openrelayproject',
+        },
+        {
+          // Fallback por si el puerto 443 falla
+          urls: 'turn:openrelay.metered.ca:80',
+          username: 'openrelayproject',
+          credential: 'openrelayproject',
+        }
+      ],
     },
   };
 
