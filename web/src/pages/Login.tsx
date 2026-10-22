@@ -18,7 +18,7 @@ export function Login() {
     setLoading(true);
 
     try {
-      const res = await api.auth.login({ email, password });
+      const res = await api.auth.login(email, password);
       setAuth(res.user, res.token);
       navigate('/home');
     } catch (err: any) {
