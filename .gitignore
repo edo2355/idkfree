@@ -57,3 +57,7 @@ coverage/
 *.db
 *.bak
 _trash/
+*.log
+*.zip
+*.apk
+*.aab
