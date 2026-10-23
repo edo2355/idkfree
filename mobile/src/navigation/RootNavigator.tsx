@@ -2,6 +2,14 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AppTabs } from './AppTabs';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { MyDataScreen } from '../screens/MyDataScreen';
+import { PrivacyScreen } from '../screens/PrivacyScreen';
+import { AboutScreen } from '../screens/AboutScreen';
+import { TermsScreen } from '../screens/TermsScreen';
+import { CardScreen } from '../screens/CardScreen';
+import { ChangePasswordScreen } from '../screens/ChangePasswordScreen';
+import { EditProfileScreen } from '../screens/EditProfileScreen';
+import { KycScreen } from '../screens/KycScreen';
 import { AuthStack } from './AuthStack';
 import { useAuthStore } from '../stores/authStore';
 import { View, ActivityIndicator, Text } from 'react-native';
@@ -25,8 +33,10 @@ export function RootNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {token ? (
-        <Stack.Screen name="Main" component={AppTabs} />
-        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <>
+          <Stack.Screen name="Main" component={AppTabs} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+        </>
       ) : (
         <Stack.Screen name="Auth" component={AuthStack} />
       )}

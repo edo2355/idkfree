@@ -25,7 +25,8 @@ export function FeedScreen() {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  const token = useAuthStore((s) => s.token);
+  useEffect(() => { if (token) load(); }, [token]);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
