@@ -4,6 +4,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
+import { CatalogPage } from './pages/CatalogPage';
+import { CheckoutPage } from './pages/CheckoutPage';
 import { Login } from './pages/Login';
 import { Landing } from './pages/Landing';
 import WebLayout from './layouts/WebLayout';
@@ -49,7 +51,9 @@ export default function App() {
           <Route path="chat/:userId" element={<Chat />} />
           <Route path="u/:alias" element={<Profile />} />
           <Route path="edit-profile" element={<EditProfile />} />
-          <Route path="golive" element={<GoLive />} />
+                    <Route path="golive" element={<GoLive />} />
+          <Route path="catalog/:userId" element={<CatalogPage />} />
+          <Route path="checkout" element={<CheckoutPage />} />
         </Route>
       
       

@@ -135,7 +135,8 @@ export function PostCard({ post, onComment, onShare }: PostCardProps) {
           alt="Post media" 
           className="post-media" 
           onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=IDKFREE&background=1A1A1A&color=A3A3A3&size=400&font-size=0.3';
+            // Fallback táctico: ocultar la imagen rota y mostrar solo el fondo oscuro
+            (e.target as HTMLImageElement).style.display = 'none';
           }} 
         />
       ) : null}

@@ -11,6 +11,7 @@ import './Profile.css';
 type Tab = 'posts' | 'reels' | 'streams';
 
 export function Profile() {
+  const navigate = useNavigate();
   const { alias } = useParams();
   const currentUser = useAuthStore(s => s.user);
   const [profile, setProfile] = useState<any>(null);
@@ -35,11 +36,11 @@ export function Profile() {
     load();
   }, [alias]);
 
-  if (loading || !profile) return <Layout><div style={{ padding: 40, color: 'white' }}>Cargando perfil...</div></Layout>;
+  if (loading || !profile) return <div style={{ padding: 40, color: 'white' }}>Cargando perfil...</div>;
 
   const u = profile.user;
   const stats = profile.stats;
-  const isMe = currentUser?.alias === u.alias;
+  const isMe = currentUser?.alias === u?.alias;
 
   const mediaPosts = posts.filter((p: any) => p.image_url || p.video_url);
   const textPosts = posts.filter((p: any) => !p.image_url && !p.video_url);
@@ -50,17 +51,17 @@ export function Profile() {
   }
 
   return (
-    <Layout>
+    
       <div className="profile-container">
         <div className="profile-header">
           <img 
-            src={u.avatar_url ? resolveAssetUrl(u.avatar_url) : `https://ui-avatars.com/api/?name=${u.alias}&background=1A1A1A&color=A855F7&size=200`} 
-            alt={u.alias} 
+            src={u.avatar_url ? resolveAssetUrl(u.avatar_url) : `https://ui-avatars.com/api/?name=${u?.alias}&background=1A1A1A&color=A855F7&size=200`} 
+            alt={u?.alias} 
             className="profile-avatar-large" 
           />
           <div className="profile-info">
             <div className="profile-username">
-              {u.name || u.alias} <span style={{ color: 'var(--text-muted)' }}>@{u.alias}</span>
+              {u?.name || u?.alias} <span style={{ color: 'var(--text-muted)' }}>@{u?.alias}</span>
               
               {/* Badge de Creador / Empresa */}
               {u.account_type && u.account_type !== 'personal' && (
@@ -82,7 +83,7 @@ export function Profile() {
               <span><strong>{stats?.followers ?? 0}</strong> seguidores</span>
               <span><strong>{stats?.following ?? 0}</strong> siguiendo</span>
             </div>
-            <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>{u.bio || 'Sin biografía todavía.'}</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>{u?.bio || 'Sin biografía todavía.'}</p>
             
             {/* Enlaces */}
             {parsedLinks.length > 0 && (
@@ -97,7 +98,15 @@ export function Profile() {
 
             {/* Botón Editar (Solo si es mi perfil) */}
             {isMe && (
-              <Link to="/edit-profile" className="edit-profile-btn">Editar Perfil</Link>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+                <Link to="/edit-profile" className="edit-profile-btn">Editar Perfil</Link>
+                <button
+                  onClick={() => navigate(`/catalog/${alias || 'me'}`)}
+                  style={{ padding: '10px 20px', backgroundColor: 'transparent', border: '1px solid #00E5FF', color: '#00E5FF', fontFamily: 'monospace', cursor: 'pointer', textTransform: 'uppercase' }}
+                >
+                  [ VER CATÁLOGO ]
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -145,6 +154,6 @@ export function Profile() {
           </div>
         )}
       </div>
-    </Layout>
+    
   );
 }
