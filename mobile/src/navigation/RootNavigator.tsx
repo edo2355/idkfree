@@ -18,6 +18,8 @@ import { CardScreen } from '../screens/CardScreen';
 import { StartStreamScreen } from '../screens/StartStreamScreen';
 import { ChatsScreen } from '../screens/ChatsScreen';
 import { UserProfileScreen } from '../screens/UserProfileScreen';
+import { CatalogScreen } from '../screens/CatalogScreen';
+import { AddCatalogItemScreen } from '../screens/AddCatalogItemScreen';
 import { LiveStreamScreen } from '../screens/LiveStreamScreen';
 import { CallScreen } from '../screens/CallScreen';
 
@@ -53,6 +55,8 @@ export function RootNavigator() {
           <Stack.Screen name="StartStream" component={StartStreamScreen} />
           <Stack.Screen name="Chats" component={ChatsScreen} />
           <Stack.Screen name="UserProfile" component={UserProfileScreen} />
+          <Stack.Screen name="Catalog" component={CatalogScreen} />
+          <Stack.Screen name="AddCatalogItem" component={AddCatalogItemScreen} />
           <Stack.Screen name="LiveStream" component={LiveStreamScreen} />
           <Stack.Screen name="Call" component={CallScreen} />
         </>
