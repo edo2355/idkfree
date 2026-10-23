@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { registerGlobals } from '@livekit/react-native';
+// import { registerGlobals } from '@livekit/react-native'; // DESACTIVADO TEMPORALMENTE
 import { View, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Camera } from 'expo-camera';
@@ -14,7 +14,7 @@ import { darkTheme } from './src/theme/dark';
 import { IDKAlertProvider } from './src/components/IDKAlert';
 
 // Inicializar WebRTC para LiveKit
-registerGlobals();
+// registerGlobals(); // <--- LO MOVEREMOS A LIVESTREAMSCREEN Y CALLSCREEN
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -23,9 +23,13 @@ export default function App() {
 
   useEffect(() => {
     (async () => {
-      await Camera.requestCameraPermissionsAsync();
-      await Camera.requestMicrophonePermissionsAsync();
-      await Camera.requestMicrophonePermissionsAsync();
+      try {
+        const camera = await Camera.requestCameraPermissionsAsync();
+        const mic = await Camera.requestMicrophonePermissionsAsync();
+        console.log('Permisos:', { camera: camera.status, mic: mic.status });
+      } catch (e) {
+        console.warn('Error pidiendo permisos:', e);
+      }
     })();
 
     // Pequeño delay para que fuentes y storage carguen
