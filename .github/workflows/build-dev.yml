@@ -31,7 +31,7 @@ jobs:
     - name: Generar carpeta Android (Expo Prebuild)
       run: |
         cd mobile
-        npx expo prebuild --platform android --no-install
+        npx expo prebuild --platform android --clean --no-install
 
     - name: Compilar Development APK (Gradle)
       run: |
