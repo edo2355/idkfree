@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useAuthStore } from '../stores/authStore';
 import { View, Text, ScrollView, RefreshControl, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../stores/themeStore';
@@ -26,7 +27,10 @@ export function FeedScreen() {
   }
 
   const token = useAuthStore((s) => s.token);
-  useEffect(() => { if (token) load(); }, [token]);
+  const token = useAuthStore((s) => s.token);
+  useEffect(() => {
+    if (token) load();
+  }, [token]);
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
