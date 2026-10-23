@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fonts } from '../theme/fonts';
 
 const STORAGE_KEY = '@idkfree_backend_url';
-const DEFAULT_BASE = 'http://127.0.0.1:3000/api';
+const DEFAULT_BASE = 'https://idkfreegetid.dpdns.org/api';
 
 type Health = 'connected' | 'slow' | 'reconnecting' | 'offline';
 
