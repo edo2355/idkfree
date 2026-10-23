@@ -12,8 +12,8 @@ const DEFAULT_IP = 'https://idkfreegetid.dpdns.org';
 import Constants from 'expo-constants';
 
 async function getBaseUrl(): Promise<string> {
-  const stored = await AsyncStorage.getItem(STORAGE_KEY);
-  if (stored) return stored;
+  // const stored = await AsyncStorage.getItem(STORAGE_KEY);
+  // if (stored) return stored;
   const fromBuild = (Constants.expoConfig?.extra as any)?.apiUrl;
   if (fromBuild) return String(fromBuild);
   return `${DEFAULT_IP}/api`;

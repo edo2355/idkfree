@@ -14,7 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 type State = 'local-ok' | 'remote-ok' | 'remote-reconnecting' | 'slow' | 'searching' | 'offline';
 
 const STORAGE_KEY = '@idkfree_backend_url';
-const DEFAULT_BASE = 'http://127.0.0.1:3000/api';
+const DEFAULT_BASE = 'https://idkfreegetid.dpdns.org/api';
 
 interface Props {
   size?: number;

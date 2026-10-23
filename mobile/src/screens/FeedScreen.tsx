@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
+import { MessageCircle } from 'lucide-react-native';
 import { View, Text, ScrollView, RefreshControl, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../stores/themeStore';
@@ -19,14 +20,17 @@ export function FeedScreen() {
     try {
       const res = await api.posts.feed({ limit: 50 });
       setPosts(res.posts ?? []);
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      if (e.status === 401 || (e.message && e.message.includes('No autenticado'))) {
+        useAuthStore.getState().clearAuth();
+      } else {
+        console.log('Error cargando feed:', e);
+      }
     } finally {
       setLoading(false);
     }
   }
 
-  const token = useAuthStore((s) => s.token);
   const token = useAuthStore((s) => s.token);
   useEffect(() => {
     if (token) load();
@@ -38,8 +42,7 @@ export function FeedScreen() {
       <View style={{ paddingTop: insets.top + 10, paddingHorizontal: 20, paddingBottom: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' }}>
         <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: 2 }}>IDK<Text style={{ color: theme.accent }}>FREE</Text></Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#00E5FF' }} />
-          <Text style={{ color: '#888', fontFamily: fonts.mono, fontSize: 10 }}>ONLINE</Text>
+          
         </View>
       </View>
 

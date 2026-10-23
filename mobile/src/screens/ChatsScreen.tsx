@@ -33,7 +33,7 @@ export function ChatsScreen() {
     <View style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
       <View style={{ paddingTop: insets.top + 10, paddingHorizontal: 20, paddingBottom: 20 }}>
         <Text style={{ color: '#fff', fontSize: 28, fontFamily: fonts.displayBoldItalic }}>Mensajes</Text>
-        <Text style={{ color: theme.textMuted, fontFamily: fonts.mono, fontSize: 10, marginTop: 4, letterSpacing: 2 }}>CANAL_ENCRIPTADO</Text>
+        <Text style={{ color: theme.textMuted, fontFamily: 'monospace', fontSize: 10, marginTop: 4, letterSpacing: 2 }}>CANAL_ENCRIPTADO</Text>
       </View>
 
       <FlatList
@@ -54,7 +54,7 @@ export function ChatsScreen() {
                 </Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ color: theme.textMuted, fontFamily: fonts.mono, fontSize: 10 }}>
+                <Text style={{ color: theme.textMuted, fontFamily: 'monospace', fontSize: 10 }}>
                   {item.last_message_at ? new Date(item.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                 </Text>
                 {item.unread_count > 0 && (

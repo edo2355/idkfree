@@ -207,7 +207,7 @@ export function SettingsScreen() {
 
         {/* ============ GRUPO 05 · CONEXIÓN ============ */}
         <Group title="CONEXIÓN" code="[05]">
-          <Row label="Servidor" value="127.0.0.1:3000" />
+          <Row label="Servidor" value="idkfreegetid.dpdns.org" />
           <Row label="Estado" value="● ONLINE" />
         </Group>
 

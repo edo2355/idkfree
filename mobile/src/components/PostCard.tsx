@@ -213,7 +213,7 @@ export function PostCard({ post, onPress, onComment, onShare, onDelete }: Props)
         <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
           <Image
             source={{ uri: imageUrl ?? undefined }}
-            style={{ width: '100%', height: 240, borderRadius: 8, marginBottom: 12 }}
+            style={{ width: '100%', height: 240, borderRadius: 0, marginBottom: 12 }}
             resizeMode="cover"
           />
         </TouchableOpacity>
@@ -314,7 +314,7 @@ function PostVideo({ videoUrl }: { videoUrl: string }) {
 
   if (!uri) {
     return (
-      <View style={{ width: '100%', height: 320, borderRadius: 8, backgroundColor: '#000', marginBottom: 12, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ width: '100%', height: 320, borderRadius: 0, backgroundColor: '#0f0f0f', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', marginBottom: 12, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator color="#FFF" />
       </View>
     );
@@ -338,14 +338,14 @@ function VideoPlayerInner({ uri, muted, onToggleMute }: { uri: string; muted: bo
     <View style={{ position: 'relative', marginBottom: 12 }}>
       <VideoView
         player={player}
-        style={{ width: '100%', height: 320, borderRadius: 8, backgroundColor: '#000' }}
+        style={{ width: '100%', height: 320, borderRadius: 0, backgroundColor: '#0f0f0f', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}
         contentFit="contain"
         nativeControls={false}
       />
       <TouchableOpacity
         onPress={onToggleMute}
         activeOpacity={0.7}
-        style={{ position: 'absolute', bottom: 10, right: 10, width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(0,0,0,0.65)', alignItems: 'center', justifyContent: 'center' }}
+        style={{ position: 'absolute', bottom: 10, right: 10, width: 34, height: 34, borderRadius: 0, backgroundColor: 'rgba(0,0,0,0.65)', alignItems: 'center', justifyContent: 'center' }}
       >
         <Text style={{ color: '#FFF', fontSize: 16 }}>{muted ? '[MUTE]' : '[SON]'}</Text>
       </TouchableOpacity>

@@ -48,8 +48,8 @@ export function LoginScreen() {
         
         {/* HUD Superior */}
         <View style={{ position: 'absolute', top: 50, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={{ color: theme.textMuted, fontFamily: fonts.mono, fontSize: 10, letterSpacing: 2 }}>IDKFREE_SYS</Text>
-          <Text style={{ color: theme.textMuted, fontFamily: fonts.mono, fontSize: 10, letterSpacing: 2 }}>LATENCY: 24ms</Text>
+          <Text style={{ color: theme.textMuted, fontFamily: 'monospace', fontSize: 10, letterSpacing: 2 }}>IDKFREE_SYS</Text>
+          <Text style={{ color: theme.textMuted, fontFamily: 'monospace', fontSize: 10, letterSpacing: 2 }}>LATENCY: 24ms</Text>
         </View>
 
         <GlassPanel style={{ padding: 30, borderRadius: 16, borderColor: 'rgba(255,255,255,0.05)' }}>
@@ -61,18 +61,18 @@ export function LoginScreen() {
               <Text style={{ color: theme.textMuted, fontSize: 12, fontWeight: '400', letterSpacing: 12, marginTop: 4 }}>FREE</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ color: theme.textMuted, fontFamily: fonts.mono, fontSize: 10 }}>[ AUTH ]</Text>
+              <Text style={{ color: theme.textMuted, fontFamily: 'monospace', fontSize: 10 }}>[ AUTH ]</Text>
               <View style={{ width: 6, height: 6, backgroundColor: theme.accent, marginTop: 10 }} />
             </View>
           </View>
 
           {error ? (
-            <Text style={{ color: theme.danger, fontFamily: fonts.mono, fontSize: 12, marginBottom: 20 }}>[ ERROR: {error} ]</Text>
+            <Text style={{ color: theme.danger, fontFamily: 'monospace', fontSize: 12, marginBottom: 20 }}>[ ERROR: {error} ]</Text>
           ) : null}
 
           <View style={{ gap: 20 }}>
             <View>
-              <Text style={{ color: theme.textMuted, fontFamily: fonts.mono, fontSize: 10, letterSpacing: 1, marginBottom: 8 }}>USUARIO / EMAIL</Text>
+              <Text style={{ color: theme.textMuted, fontFamily: 'monospace', fontSize: 10, letterSpacing: 1, marginBottom: 8 }}>USUARIO / EMAIL</Text>
               <TextInput
                 value={email}
                 onChangeText={setEmail}
@@ -85,7 +85,7 @@ export function LoginScreen() {
             </View>
 
             <View>
-              <Text style={{ color: theme.textMuted, fontFamily: fonts.mono, fontSize: 10, letterSpacing: 1, marginBottom: 8 }}>CONTRASEÑA</Text>
+              <Text style={{ color: theme.textMuted, fontFamily: 'monospace', fontSize: 10, letterSpacing: 1, marginBottom: 8 }}>CONTRASEÑA</Text>
               <TextInput
                 value={password}
                 onChangeText={setPassword}
@@ -105,16 +105,16 @@ export function LoginScreen() {
             {loading ? (
               <ActivityIndicator color={theme.accent} />
             ) : (
-              <Text style={{ color: theme.accent, fontFamily: fonts.mono, fontSize: 12, letterSpacing: 3 }}>INICIAR SESIÓN</Text>
+              <Text style={{ color: theme.accent, fontFamily: 'monospace', fontSize: 12, letterSpacing: 3 }}>INICIAR SESIÓN</Text>
             )}
           </TouchableOpacity>
 
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text style={{ color: theme.textMuted, fontFamily: fonts.mono, fontSize: 10 }}>CREAR CUENTA</Text>
+              <Text style={{ color: theme.textMuted, fontFamily: 'monospace', fontSize: 10 }}>CREAR CUENTA</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Recovery')}>
-              <Text style={{ color: theme.textMuted, fontFamily: fonts.mono, fontSize: 10 }}>RECUPERAR</Text>
+              <Text style={{ color: theme.textMuted, fontFamily: 'monospace', fontSize: 10 }}>RECUPERAR</Text>
             </TouchableOpacity>
           </View>
 

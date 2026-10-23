@@ -40,7 +40,7 @@ function ReelItem({ item, theme }: { item: any; theme: any }) {
       <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 200, backgroundColor: 'rgba(0,0,0,0.4)' }} />
 
       <View style={{ position: 'absolute', right: 16, bottom: 20, alignItems: 'center', gap: 20 }}>
-        <View style={{ borderWidth: 2, borderColor: '#FFF', borderRadius: 30, padding: 2 }}>
+        <View style={{ borderWidth: 2, borderColor: '#FFF', borderRadius: 0, padding: 2 }}>
           <Avatar name={item.author_name ?? item.author_alias} url={item.author_avatar} size={44} />
         </View>
         <TouchableOpacity onPress={toggleLike} style={{ alignItems: 'center' }}>
@@ -123,7 +123,7 @@ export function ReelsScreen() {
             <Text style={{ fontSize: 14, fontFamily: fonts.medium, letterSpacing: 1, color: tab === t ? theme.text : theme.textMuted }}>
               {t === 'reels' ? 'REELS' : 'STREAMS'}
             </Text>
-            {tab === t && <View style={{ height: 2, backgroundColor: theme.text, marginTop: 6, borderRadius: 1 }} />}
+            {tab === t && <View style={{ height: 2, backgroundColor: theme.text, marginTop: 6, borderRadius: 0 }} />}
           </TouchableOpacity>
         ))}
       </View>
@@ -175,7 +175,7 @@ export function ReelsScreen() {
                     }
                     renderItem={({ item }) => (
                       <TouchableOpacity 
-                        style={{ flex: 1, margin: 5, height: 220, borderRadius: 12, overflow: 'hidden', backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border }}
+                        style={{ flex: 1, margin: 5, height: 220, borderRadius: 0, overflow: 'hidden', backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border }}
                         onPress={() => navigation.navigate('LiveStream', { roomName: item.id, isHost: false })}
                       >
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1A1A1A' }}>
@@ -184,7 +184,7 @@ export function ReelsScreen() {
                         
                         <View style={{ padding: 10, backgroundColor: theme.surface }}>
                           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                            <View style={{ backgroundColor: '#EF4444', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginRight: 6 }}>
+                            <View style={{ backgroundColor: '#EF4444', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 0, marginRight: 6 }}>
                               <Text style={{ color: '#FFF', fontSize: 10, fontWeight: 'bold' }}>EN VIVO</Text>
                             </View>
                             <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 12 }} numberOfLines={1}>

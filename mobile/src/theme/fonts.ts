@@ -27,6 +27,7 @@ export const fontAssets = {
 };
 
 export const fonts = {
+  mono: 'monospace',
   // Editorial / display (serif)
   displayRegular: 'PlayfairDisplay_400Regular',
   displayBold: 'PlayfairDisplay_700Bold',

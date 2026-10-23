@@ -33,7 +33,9 @@
       "minSdkVersion": 24,
       "permissions": [
         "CAMERA",
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
       ]
     },
     "web": {
@@ -54,6 +56,14 @@
             "kotlinVersion": "2.2.10",
             "extraProguardRules": "-keep class livekit.** { *; }\n-keep class com.livekit.** { *; }\n-keep class org.webrtc.** { *; }\n-keep class livekit.org.jni_zero.** { *; }\n-keep class org.jni_zero.** { *; }\n-dontwarn livekit.**\n-dontwarn com.livekit.**\n-dontwarn org.webrtc.**\n-dontwarn livekit.org.jni_zero.**\n-dontwarn org.jni_zero.**"
           }
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Permitir a IDKFREE acceder a tus fotos.",
+          "savePhotosPermission": "Permitir a IDKFREE guardar fotos.",
+          "isAccessMediaLocationEnabled": true
         }
       ]
     ],

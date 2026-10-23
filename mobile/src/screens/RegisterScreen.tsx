@@ -29,6 +29,13 @@ export function RegisterScreen({ navigation }: any) {
 
     setLoading(true);
     try {
+      // Validación rápida del alias antes de enviar al backend
+      if (!/^[a-z0-9_]+$/.test(alias)) {
+        Alert.alert('ALIAS INVÁLIDO', 'El alias solo puede contener letras minúsculas, números y guiones bajos (_). No uses @ ni puntos.');
+        setLoading(false);
+        return false;
+      }
+
       const payload: any = {
         alias,
         email,

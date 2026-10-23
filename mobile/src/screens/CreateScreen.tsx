@@ -59,11 +59,11 @@ export function CreateScreen() {
     return () => clearInterval(interval);
   }, [isRecording]);
 
-  if (!permission) return <View style={{ flex: 1, backgroundColor: '#000' }} />;
+  if (!permission) return <View style={{ flex: 1, paddingBottom: 80, backgroundColor: '#000' }} />;
   if (!permission.granted) {
     return (
       <View style={{ flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-        <Text style={{ color: '#FFF', fontFamily: 'monospace', marginBottom: 20, textAlign: 'center' }}>
+        <Text style={{ color: '#FFF', fontFamily: 'monospace', marginBottom: 100, textAlign: 'center' }}>
           // SECURITY_ACCESS_REQUIRED{'\n\n'}Se requiere acceso a la cámara.
         </Text>
         <TouchableOpacity onPress={requestPermission} style={{ backgroundColor: '#32D3EE', paddingHorizontal: 20, paddingVertical: 12 }}>
@@ -185,7 +185,7 @@ export function CreateScreen() {
     <Modal visible={settingsOpen} transparent animationType="slide" onRequestClose={() => setSettingsOpen(false)}>
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' }}>
         <View style={{ backgroundColor: '#0A0A0A', borderTopWidth: 1, borderTopColor: '#222', padding: 20, paddingBottom: 40, maxHeight: '80%' }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 100 }}>
             <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 14, letterSpacing: 2 }}>[ OPCIONES ]</Text>
             <TouchableOpacity onPress={() => setSettingsOpen(false)}>
               <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 14 }}>[ ✗ ]</Text>
@@ -195,7 +195,7 @@ export function CreateScreen() {
           <ScrollView>
             {/* Timer */}
             <Text style={{ color: '#888', fontFamily: 'monospace', fontSize: 10, letterSpacing: 1.5, marginBottom: 8 }}>TIMER</Text>
-            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 20 }}>
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 100 }}>
               {[0, 3, 10].map((t) => (
                 <TouchableOpacity
                   key={t}
@@ -211,7 +211,7 @@ export function CreateScreen() {
 
             {/* Video Quality */}
             <Text style={{ color: '#888', fontFamily: 'monospace', fontSize: 10, letterSpacing: 1.5, marginBottom: 8 }}>RESOLUCIÓN VIDEO</Text>
-            <View style={{ flexDirection: 'row', gap: 6, marginBottom: 20 }}>
+            <View style={{ flexDirection: 'row', gap: 6, marginBottom: 100 }}>
               {(['480p', '720p', '1080p', '2160p'] as VidQuality[]).map((q) => (
                 <TouchableOpacity
                   key={q}
@@ -299,7 +299,7 @@ export function CreateScreen() {
             <TouchableOpacity
               key={c}
               onPress={() => setNoteBg(c)}
-              style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c, borderWidth: c === noteBg ? 2 : 1, borderColor: c === noteBg ? '#FFF' : '#333' }}
+              style={{ width: 32, height: 32, borderRadius: 0, backgroundColor: c, borderWidth: c === noteBg ? 2 : 1, borderColor: c === noteBg ? '#FFF' : '#333' }}
             />
           ))}
         </View>
@@ -422,8 +422,8 @@ export function CreateScreen() {
       {/* Recording indicator */}
       {isRecording && (
         <View style={{ position: 'absolute', top: 150, left: 0, right: 0, alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(239,68,68,0.9)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 }}>
-            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFF', marginRight: 8 }} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(239,68,68,0.9)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 0 }}>
+            <View style={{ width: 8, height: 8, borderRadius: 0, backgroundColor: '#FFF', marginRight: 8 }} />
             <Text style={{ color: '#FFF', fontFamily: 'monospace', fontSize: 12 }}>
               {Math.floor(recordingSeconds / 60)}:{(recordingSeconds % 60).toString().padStart(2, '0')}
             </Text>
@@ -432,9 +432,9 @@ export function CreateScreen() {
       )}
 
       {/* Bottom controls */}
-      <View style={{ position: 'absolute', bottom: 40, left: 0, right: 0, alignItems: 'center' }}>
+      <View style={{ position: 'absolute', bottom: 100, left: 0, right: 0, alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 40 }}>
-          <TouchableOpacity onPress={() => setGalleryOpen(true)} style={{ width: 48, height: 48, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center' }}>
+          <TouchableOpacity onPress={() => setGalleryOpen(true)} style={{ width: 48, height: 48, borderRadius: 0, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ fontSize: 22 }}>[IMG]</Text>
           </TouchableOpacity>
 
@@ -443,7 +443,7 @@ export function CreateScreen() {
             onPressOut={() => shotType === 'video' && stopRecording()}
             onPress={() => shotType === 'photo' && takePhoto()}
             style={{
-              width: 80, height: 80, borderRadius: 40,
+              width: 80, height: 80, borderRadius: 0,
               borderWidth: 4, borderColor: '#FFF',
               backgroundColor: shotType === 'video' && isRecording ? '#EF4444' : 'rgba(255,255,255,0.2)',
               alignItems: 'center', justifyContent: 'center',
@@ -457,7 +457,7 @@ export function CreateScreen() {
             }} />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setFacing(facing === 'back' ? 'front' : 'back')} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center' }}>
+          <TouchableOpacity onPress={() => setFacing(facing === 'back' ? 'front' : 'back')} style={{ width: 48, height: 48, borderRadius: 0, backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ fontSize: 22 }}>↻</Text>
           </TouchableOpacity>
         </View>

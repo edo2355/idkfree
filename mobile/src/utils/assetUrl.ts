@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEY = '@idkfree_backend_url';
-const DEFAULT_IP = '127.0.0.1';
+const DEFAULT_IP = 'idkfreegetid.dpdns.org';
 const PORT = '3000';
 
 /**
@@ -13,7 +13,7 @@ export async function resolveAssetUrl(relative: string | null | undefined): Prom
   if (relative.startsWith('http://') || relative.startsWith('https://')) return relative;
 
   const stored = await AsyncStorage.getItem(STORAGE_KEY);
-  const baseUrl = stored ?? `http://${DEFAULT_IP}:${PORT}/api`;
+  const baseUrl = stored ?? `https://${DEFAULT_IP}/api`;
 
   // baseUrl = "http://host:3000/api" → root = "http://host:3000"
   const root = baseUrl.replace(/\/api\/?$/, '');
