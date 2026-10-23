@@ -15,7 +15,43 @@ export async function catalogRoutes(app: FastifyInstance) {
     } catch (err) {
       app.log.error(err);
       return reply.code(500).send({ error: 'Error al cargar catálogo' });
+    
+  // Comprar un item del catálogo
+  app.post('/catalog/buy', { preValidation: [(app as any).authenticate] }, async (req, reply) => {
+    const { itemId } = req.body as any;
+    const buyerId = (req.user as any).id;
+
+    try {
+      // 1. Obtener los datos del item
+      const itemRes = await db.execute({
+        sql: 'SELECT user_id, price FROM catalog_items WHERE id = ?',
+        args: [itemId]
+      });
+
+      if (itemRes.rows.length === 0) return reply.code(404).send({ error: 'Item no encontrado' });
+      
+      const sellerId = itemRes.rows[0].user_id;
+      const amount = itemRes.rows[0].price;
+
+      if (sellerId === buyerId) return reply.code(400).send({ error: 'No puedes comprar tu propio item' });
+
+      // 2. Crear la orden
+      const orderId = crypto.randomUUID();
+      await db.execute({
+        sql: 'INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)',
+        args: [orderId, buyerId, sellerId, itemId, amount, 'pending']
+      });
+
+      // 3. Marcar el item como vendido (opcional)
+      // await db.execute({ sql: 'UPDATE catalog_items SET status = "sold" WHERE id = ?', args: [itemId] });
+
+      return reply.send({ ok: true, orderId, amount });
+    } catch (err) {
+      app.log.error(err);
+      return reply.code(500).send({ error: 'Error al procesar la orden' });
     }
+  });
+}
   });
 
   // Publicar un nuevo item
@@ -35,7 +71,43 @@ export async function catalogRoutes(app: FastifyInstance) {
     } catch (err) {
       app.log.error(err);
       return reply.code(500).send({ error: 'Error al publicar item' });
+    
+  // Comprar un item del catálogo
+  app.post('/catalog/buy', { preValidation: [(app as any).authenticate] }, async (req, reply) => {
+    const { itemId } = req.body as any;
+    const buyerId = (req.user as any).id;
+
+    try {
+      // 1. Obtener los datos del item
+      const itemRes = await db.execute({
+        sql: 'SELECT user_id, price FROM catalog_items WHERE id = ?',
+        args: [itemId]
+      });
+
+      if (itemRes.rows.length === 0) return reply.code(404).send({ error: 'Item no encontrado' });
+      
+      const sellerId = itemRes.rows[0].user_id;
+      const amount = itemRes.rows[0].price;
+
+      if (sellerId === buyerId) return reply.code(400).send({ error: 'No puedes comprar tu propio item' });
+
+      // 2. Crear la orden
+      const orderId = crypto.randomUUID();
+      await db.execute({
+        sql: 'INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)',
+        args: [orderId, buyerId, sellerId, itemId, amount, 'pending']
+      });
+
+      // 3. Marcar el item como vendido (opcional)
+      // await db.execute({ sql: 'UPDATE catalog_items SET status = "sold" WHERE id = ?', args: [itemId] });
+
+      return reply.send({ ok: true, orderId, amount });
+    } catch (err) {
+      app.log.error(err);
+      return reply.code(500).send({ error: 'Error al procesar la orden' });
     }
+  });
+}
   });
 
 
@@ -54,7 +126,43 @@ export async function catalogRoutes(app: FastifyInstance) {
     } catch (err) {
       app.log.error(err);
       return reply.code(500).send({ error: 'Error al actualizar' });
+    
+  // Comprar un item del catálogo
+  app.post('/catalog/buy', { preValidation: [(app as any).authenticate] }, async (req, reply) => {
+    const { itemId } = req.body as any;
+    const buyerId = (req.user as any).id;
+
+    try {
+      // 1. Obtener los datos del item
+      const itemRes = await db.execute({
+        sql: 'SELECT user_id, price FROM catalog_items WHERE id = ?',
+        args: [itemId]
+      });
+
+      if (itemRes.rows.length === 0) return reply.code(404).send({ error: 'Item no encontrado' });
+      
+      const sellerId = itemRes.rows[0].user_id;
+      const amount = itemRes.rows[0].price;
+
+      if (sellerId === buyerId) return reply.code(400).send({ error: 'No puedes comprar tu propio item' });
+
+      // 2. Crear la orden
+      const orderId = crypto.randomUUID();
+      await db.execute({
+        sql: 'INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)',
+        args: [orderId, buyerId, sellerId, itemId, amount, 'pending']
+      });
+
+      // 3. Marcar el item como vendido (opcional)
+      // await db.execute({ sql: 'UPDATE catalog_items SET status = "sold" WHERE id = ?', args: [itemId] });
+
+      return reply.send({ ok: true, orderId, amount });
+    } catch (err) {
+      app.log.error(err);
+      return reply.code(500).send({ error: 'Error al procesar la orden' });
     }
+  });
+}
   });
 
   // Eliminar item
@@ -71,6 +179,78 @@ export async function catalogRoutes(app: FastifyInstance) {
     } catch (err) {
       app.log.error(err);
       return reply.code(500).send({ error: 'Error al eliminar item' });
+    
+  // Comprar un item del catálogo
+  app.post('/catalog/buy', { preValidation: [(app as any).authenticate] }, async (req, reply) => {
+    const { itemId } = req.body as any;
+    const buyerId = (req.user as any).id;
+
+    try {
+      // 1. Obtener los datos del item
+      const itemRes = await db.execute({
+        sql: 'SELECT user_id, price FROM catalog_items WHERE id = ?',
+        args: [itemId]
+      });
+
+      if (itemRes.rows.length === 0) return reply.code(404).send({ error: 'Item no encontrado' });
+      
+      const sellerId = itemRes.rows[0].user_id;
+      const amount = itemRes.rows[0].price;
+
+      if (sellerId === buyerId) return reply.code(400).send({ error: 'No puedes comprar tu propio item' });
+
+      // 2. Crear la orden
+      const orderId = crypto.randomUUID();
+      await db.execute({
+        sql: 'INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)',
+        args: [orderId, buyerId, sellerId, itemId, amount, 'pending']
+      });
+
+      // 3. Marcar el item como vendido (opcional)
+      // await db.execute({ sql: 'UPDATE catalog_items SET status = "sold" WHERE id = ?', args: [itemId] });
+
+      return reply.send({ ok: true, orderId, amount });
+    } catch (err) {
+      app.log.error(err);
+      return reply.code(500).send({ error: 'Error al procesar la orden' });
+    }
+  });
+}
+  });
+
+  // Comprar un item del catálogo
+  app.post('/catalog/buy', { preValidation: [(app as any).authenticate] }, async (req, reply) => {
+    const { itemId } = req.body as any;
+    const buyerId = (req.user as any).id;
+
+    try {
+      // 1. Obtener los datos del item
+      const itemRes = await db.execute({
+        sql: 'SELECT user_id, price FROM catalog_items WHERE id = ?',
+        args: [itemId]
+      });
+
+      if (itemRes.rows.length === 0) return reply.code(404).send({ error: 'Item no encontrado' });
+      
+      const sellerId = itemRes.rows[0].user_id;
+      const amount = itemRes.rows[0].price;
+
+      if (sellerId === buyerId) return reply.code(400).send({ error: 'No puedes comprar tu propio item' });
+
+      // 2. Crear la orden
+      const orderId = crypto.randomUUID();
+      await db.execute({
+        sql: 'INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)',
+        args: [orderId, buyerId, sellerId, itemId, amount, 'pending']
+      });
+
+      // 3. Marcar el item como vendido (opcional)
+      // await db.execute({ sql: 'UPDATE catalog_items SET status = "sold" WHERE id = ?', args: [itemId] });
+
+      return reply.send({ ok: true, orderId, amount });
+    } catch (err) {
+      app.log.error(err);
+      return reply.code(500).send({ error: 'Error al procesar la orden' });
     }
   });
 }
