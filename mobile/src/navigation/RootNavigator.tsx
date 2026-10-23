@@ -22,6 +22,11 @@ import { CatalogScreen } from '../screens/CatalogScreen';
 import { AddCatalogItemScreen } from '../screens/AddCatalogItemScreen';
 import { LiveStreamScreen } from '../screens/LiveStreamScreen';
 import { CallScreen } from '../screens/CallScreen';
+import { ErrorLogsScreen } from '../screens/ErrorLogsScreen';
+import { CheckoutScreen } from '../screens/CheckoutScreen';
+import { WalletScreen } from '../screens/WalletScreen';
+import { PaymentSettingsScreen } from '../screens/PaymentSettingsScreen';
+import { SendMoneyScreen } from '../screens/SendMoneyScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -59,6 +64,11 @@ export function RootNavigator() {
           <Stack.Screen name="AddCatalogItem" component={AddCatalogItemScreen} />
           <Stack.Screen name="LiveStream" component={LiveStreamScreen} />
           <Stack.Screen name="Call" component={CallScreen} />
+          <Stack.Screen name="ErrorLogs" component={ErrorLogsScreen} />
+          <Stack.Screen name="Checkout" component={CheckoutScreen} />
+          <Stack.Screen name="Wallet" component={WalletScreen} />
+          <Stack.Screen name="PaymentSettings" component={PaymentSettingsScreen} />
+          <Stack.Screen name="SendMoney" component={SendMoneyScreen} />
         </>
       ) : (
         <Stack.Screen name="Auth" component={AuthStack} />

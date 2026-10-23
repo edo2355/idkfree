@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { registerGlobals } from '@livekit/react-native';
+// import { registerGlobals } from '@livekit/react-native';
 import { View, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Camera } from 'expo-camera';
@@ -7,14 +7,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { RootNavigator } from './src/navigation/RootNavigator';
-import { DebugOverlay } from './src/components/DebugOverlay';
+// import { DebugOverlay } from './src/components/DebugOverlay';
 import { SplashScreen } from './src/screens/SplashScreen';
 import { fontAssets } from './src/theme/fonts';
 import { darkTheme } from './src/theme/dark';
 import { IDKAlertProvider } from './src/components/IDKAlert';
 
 // Inicializar WebRTC para LiveKit
-registerGlobals();
+// registerGlobals();
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -57,7 +57,7 @@ export default function App() {
         <NavigationContainer>
           <StatusBar style="light" />
           <RootNavigator />
-          <DebugOverlay />
+          {/* <DebugOverlay /> */}
         </NavigationContainer>
       </IDKAlertProvider>
     </SafeAreaProvider>

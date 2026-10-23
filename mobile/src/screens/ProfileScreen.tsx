@@ -78,6 +78,8 @@ export function ProfileScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: theme.bg }} contentContainerStyle={{ paddingBottom: 60 }}>
       <View style={{ paddingTop: 60, paddingHorizontal: 20, paddingBottom: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text style={{ fontSize: 24, color: theme.text, fontFamily: fonts.displayBoldItalic }}>Perfil</Text>
+        
+        
         <TouchableOpacity onPress={() => navigation.navigate('Settings')}><Text style={{ color: theme.textMuted, fontFamily: fonts.medium, fontSize: 13 }}>Ajustes</Text></TouchableOpacity>
       </View>
 
@@ -129,18 +131,25 @@ export function ProfileScreen() {
 
       <StatsHero stats={stats} joinedAt={u.created_at ? String(u.created_at).slice(0, 10).replace(/-/g, '.') : undefined} />
 
-      <View style={{ paddingHorizontal: 32, marginTop: 20, marginBottom: 16 }}>
+      <View style={{ paddingHorizontal: 32, marginTop: 20, marginBottom: 10 }}>
         <TouchableOpacity onPress={() => navigation.navigate('EditProfile')} style={{ paddingVertical: 12, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
           <Text style={{ color: theme.text, fontFamily: fonts.medium, fontSize: 14 }}>Editar perfil</Text>
         </TouchableOpacity>
       </View>
+      
 
       <ProfileTabs active={tab} onChange={setTab} />
 
       <View style={{ padding: 2 }}>
         {tab === 'posts' ? (
           <PostGrid posts={photoPosts.length > 0 ? photoPosts : posts} />
-        ) : tab === 'notas' ? (
+        ) : tab === 'catalogo' ? (
+          <View style={{ padding: 16 }}>
+             <TouchableOpacity onPress={() => navigation.navigate('Catalog', { userId: u.id, alias: u.alias })} style={{ paddingVertical: 12, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: theme.accent }}>
+                <Text style={{ color: theme.accent, fontFamily: fonts.mono, fontSize: 14 }}>[ VER MI CATÁLOGO ]</Text>
+             </TouchableOpacity>
+          </View>
+        ) : tab === 'dummy' ? (
           <View style={{ padding: 16 }}>
             {textPosts.map((p) => (
               <View key={p.id} style={{ backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 12, padding: 14, marginBottom: 10 }}>

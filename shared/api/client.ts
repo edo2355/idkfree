@@ -76,6 +76,9 @@ export function createApi(config: ApiConfig) {
   }
 
   return {
+    post: <T>(path: string, body: any) => request<T>(path, { method: 'POST', body: JSON.stringify(body) }),
+    put: <T>(path: string, body: any) => request<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
+    delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
     auth: {
       register: (d: any) => request<any>('/auth/register', { method: 'POST', body: JSON.stringify(d) }),
       login: (email: string, password: string) => request<any>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),

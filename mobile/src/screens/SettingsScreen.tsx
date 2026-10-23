@@ -130,6 +130,11 @@ export function SettingsScreen() {
 
         {/* ============ GRUPO 01 · CUENTA ============ */}
         <Group title="CUENTA" code="[01]" defaultOpen>
+          
+                  <Row label="Mis Cuentas de Cobro" value="Configurar" onPress={() => navigation.navigate('PaymentSettings')} />
+        <Row label="Mi Billetera (IDKPay)" value="Ver Saldo" onPress={() => navigation.navigate('Wallet')} />
+          <Row label="IDKFREE+ Premium" value="Desde $5" accent onPress={() => navigation.navigate('Checkout', { amount: 5, concept: 'Suscripción IDKFREE+ Premium' })} />
+          <Row label="Probar Pagos (Checkout)" value="Ir" onPress={() => navigation.navigate('Checkout', { amount: 10, concept: 'Prueba de Pago' })} />
           <Row label="Editar perfil" onPress={() => navigation.navigate('EditProfile')} />
           <Row label="Cambiar contraseña" onPress={() => navigation.navigate('ChangePassword')} />
           <Row label="Carnet IDKFREE" onPress={() => navigation.navigate('Card')} />
@@ -207,6 +212,7 @@ export function SettingsScreen() {
 
         {/* ============ GRUPO 05 · CONEXIÓN ============ */}
         <Group title="CONEXIÓN" code="[05]">
+          <Row label="Logs de Error" value="Debug" onPress={() => navigation.navigate('ErrorLogs')} />
           <Row label="Servidor" value="idkfreegetid.dpdns.org" />
           <Row label="Estado" value="● ONLINE" />
         </Group>
@@ -219,7 +225,27 @@ export function SettingsScreen() {
         </Group>
 
         {/* ============ GRUPO 06 · ACERCA DE ============ */}
-        <Group title="ACERCA DE" code="[06]">
+              {/* === SECCIÓN DE PAGOS Y BILLETERA === */}
+      <Group title="PAGOS Y BILLETERA" code="[ $ ]" defaultOpen={true}>
+        <Row 
+          label="Mi Billetera (IDKPay)" 
+          value="Ver Saldo" 
+          onPress={() => navigation.navigate('Wallet')} 
+        />
+        <Row 
+          label="IDKFREE+ Premium" 
+          value="Desde $5" 
+          accent
+          onPress={() => navigation.navigate('Checkout', { amount: 5, concept: 'Suscripción IDKFREE+ Premium' })} 
+        />
+        <Row 
+          label="Probar Pasarelas" 
+          value="Checkout" 
+          onPress={() => navigation.navigate('Checkout', { amount: 10, concept: 'Prueba de Pago' })} 
+        />
+      </Group>
+
+      <Group title="ACERCA DE" code="[06]">
           <Row label="Sobre IDKFREE" onPress={() => navigation.navigate('About')} />
           <Row label="Versión" value="2.0.0" />
           <Row label="Desarrollado por" value="Edo Amate" />
