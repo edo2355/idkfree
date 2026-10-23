@@ -31,7 +31,7 @@ export function FeedScreen() {
     <View style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
       {/* HUD Superior Táctico */}
       <View style={{ paddingTop: insets.top + 10, paddingHorizontal: 20, paddingBottom: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' }}>
-        <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: 2 }}>IDK<span style={{ color: theme.accent }}>FREE</span></Text>
+        <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: 2 }}>IDK<Text style={{ color: theme.accent }}>FREE</Text></Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#00E5FF' }} />
           <Text style={{ color: '#888', fontFamily: fonts.mono, fontSize: 10 }}>ONLINE</Text>
