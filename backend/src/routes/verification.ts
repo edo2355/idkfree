@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import crypto from 'crypto';
-import { query } from '../db/pool.js'; // Asegúrate de que esta sea la ruta correcta a tu DB
+import { query } from '../db/pool.js';
+import { sendVerificationEmail, sendVerificationSMS } from '../services/emailService.js'; // Asegúrate de que esta sea la ruta correcta a tu DB
 
 export async function verificationRoutes(app: FastifyInstance) {
   // RUTA 1: ENVIAR CÓDIGO OTP
@@ -19,7 +20,16 @@ export async function verificationRoutes(app: FastifyInstance) {
 
       await query('INSERT INTO phone_otps (id, user_id, phone_number, otp_code, expires_at) VALUES (?, ?, ?, ?, ?)', [crypto.randomUUID(), userId, phone_number, otp, expiresAt]);
 
-      console.log(`\n🚨 [SMS SIMULADO] Código OTP para ${phone_number}: ${otp}\n`);
+      
+    // Enviar código real (usa email o sms según corresponda)
+    // Asumimos que phone_number es un correo o teléfono. 
+    // Si es un correo, usamos Resend. Si es teléfono, usamos SMS.
+    if (phone_number.includes('@')) {
+      await sendVerificationEmail(phone_number, otp);
+    } else {
+      await sendVerificationSMS(phone_number, otp);
+    }
+    
       return reply.send({ message: 'Código enviado', ok: true });
     } catch (err) {
       app.log.error(err);

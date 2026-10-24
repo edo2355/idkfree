@@ -22,6 +22,7 @@
     "dotenv": "^16.6.1",
     "fastify": "^4.28.1",
     "livekit-server-sdk": "^2.19.1",
+    "resend": "latest",
     "zod": "^3.23.8"
   },
   "devDependencies": {
