@@ -1,62 +1,74 @@
 import { FastifyInstance } from 'fastify';
 import crypto from 'crypto';
 import { query } from '../db/pool.js';
-import { sendVerificationEmail, sendVerificationSMS } from '../services/emailService.js'; // Asegúrate de que esta sea la ruta correcta a tu DB
+import { sendVerificationEmail, sendVerificationSMS } from '../services/emailService.js';
 
 export async function verificationRoutes(app: FastifyInstance) {
-  // RUTA 1: ENVIAR CÓDIGO OTP
+  
+  // RUTA 1: ENVIAR CÓDIGO OTP (Detecta email o teléfono)
   app.post('/auth/send-otp', async (req, reply) => {
-    const { phone_number } = req.body as any;
-    if (!phone_number) return reply.code(400).send({ error: 'Teléfono requerido' });
+    const { phone_number: identifier } = req.body as any; // El frontend envía el email o teléfono aquí
+    if (!identifier) return reply.code(400).send({ error: 'Email o teléfono requerido' });
 
     try {
-      const isEmail = phone_number.includes('@');
+      const isEmail = identifier.includes('@');
+      
+      // Buscar al usuario dependiendo de si es email o teléfono
       const userRes = isEmail 
-        ? await query('SELECT id FROM users WHERE email = ?', [phone_number])
-        : await query('SELECT id FROM users WHERE phone_number = ?', [phone_number]);
+        ? await query('SELECT id FROM users WHERE email = ?', [identifier])
+        : await query('SELECT id FROM users WHERE phone_number = ?', [identifier]);
 
-      if (userRes.rows.length === 0) return reply.code(404).send({ error: 'Teléfono no registrado en IDKFREE' });
+      if (userRes.rows.length === 0) {
+        return reply.code(404).send({ error: isEmail ? 'Correo no registrado en IDKFREE' : 'Teléfono no registrado en IDKFREE' });
+      }
+      
       const userId = userRes.rows[0].id;
-
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 10 * 60000).toISOString();
 
-      await query('INSERT INTO phone_otps (id, user_id, phone_number, otp_code, expires_at) VALUES (?, ?, ?, ?, ?)', [crypto.randomUUID(), userId, phone_number, otp, expiresAt]);
+      // Guardar OTP (usando la columna phone_number para ambos casos para no romper la tabla existente)
+      await query(
+        'INSERT INTO phone_otps (id, user_id, phone_number, otp_code, expires_at) VALUES (?, ?, ?, ?, ?)', 
+        [crypto.randomUUID(), userId, identifier, otp, expiresAt]
+      );
 
-      
-    // Enviar código real (usa email o sms según corresponda)
-    // Asumimos que phone_number es un correo o teléfono. 
-    // Si es un correo, usamos Resend. Si es teléfono, usamos SMS.
-    if (phone_number.includes('@')) {
-      await sendVerificationEmail(phone_number, otp);
-    } else {
-      await sendVerificationSMS(phone_number, otp);
-    }
-    
+      // Enviar código real
+      if (isEmail) {
+        await sendVerificationEmail(identifier, otp);
+      } else {
+        await sendVerificationSMS(identifier, otp);
+      }
+
       return reply.send({ message: 'Código enviado', ok: true });
-    } catch (err: any) {
+    } catch (err) {
       app.log.error('Error en send-otp:', err);
-      return reply.code(500).send({ error: 'Error al enviar código', details: err.message });
+      return reply.code(500).send({ error: 'Error interno al enviar código' });
     }
   });
 
   // RUTA 2: VERIFICAR OTP
   app.post('/auth/verify-otp', async (req, reply) => {
-    const { phone_number, otp_code } = req.body as any;
-    if (!phone_number || !otp_code) return reply.code(400).send({ error: 'Datos incompletos' });
+    const { phone_number: identifier, otp_code } = req.body as any;
+    if (!identifier || !otp_code) return reply.code(400).send({ error: 'Datos incompletos' });
 
     try {
-      const res = await query('SELECT * FROM phone_otps WHERE phone_number = ? AND otp_code = ? AND expires_at > CURRENT_TIMESTAMP ORDER BY created_at DESC LIMIT 1', [phone_number, otp_code]);
+      // Buscar el OTP sin importar si es email o teléfono
+      const res = await query(
+        'SELECT * FROM phone_otps WHERE phone_number = ? AND otp_code = ? AND expires_at > CURRENT_TIMESTAMP ORDER BY created_at DESC LIMIT 1', 
+        [identifier, otp_code]
+      );
 
       if (res.rows.length === 0) return reply.code(401).send({ error: 'Código inválido o expirado' });
 
       const userId = res.rows[0].user_id;
-      await query('UPDATE users SET is_phone_verified = TRUE WHERE id = ?', [userId]);
       
+      // Marcar como verificado
+      await query('UPDATE users SET is_phone_verified = TRUE WHERE id = ?', [userId]);
+
       return reply.send({ message: 'Verificado correctamente', ok: true });
     } catch (err) {
-      app.log.error(err);
-      return reply.code(500).send({ error: 'Error interno' });
+      app.log.error('Error en verify-otp:', err);
+      return reply.code(500).send({ error: 'Error interno al verificar' });
     }
   });
 }
