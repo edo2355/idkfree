@@ -27,6 +27,7 @@ import { messageRoutes } from './routes/messages.js';
 import { livekitRoutes } from './routes/livekit.js';
 import { adminRoutes } from './routes/admin.js';
 import { uploadRoutes } from './routes/uploads.js';
+import { kycRoutes } from './routes/kyc.js';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import { join } from 'path';
@@ -78,6 +79,7 @@ await app.register(adminRoutes, { prefix: '/api' });
   app.register(livekitRoutes, { prefix: '/api' });
   app.register(messageRoutes, { prefix: '/api' });
 await app.register(uploadRoutes, { prefix: '/api' });
+  app.register(kycRoutes, { prefix: '/api' });
 
 // Capturar tiempo de arranque para calcular uptime
 const _startedAt = Date.now();
