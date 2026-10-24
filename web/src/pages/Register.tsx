@@ -92,7 +92,7 @@ export function Register() {
         </div>
 
         <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" required />
-        <Input label="Alias" value={alias} onChange={(e) => setAlias(e.target.value)} placeholder="@tu_alias" required />
+        <Input label="Alias" value={alias} onChange={(e) => setAlias(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 30))} placeholder="tu_alias" required />
         <Input label="Nombre (opcional)" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre" />
         <Input label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
 

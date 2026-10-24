@@ -85,13 +85,13 @@ export function RegisterScreen({ navigation }: any) {
           
           <Text style={styles.label}>ALIAS (@) *</Text>
           <TextInput
-            style={styles.input}
-            placeholder="alias_unico"
-            placeholderTextColor="#555"
-            value={alias}
-            onChangeText={setAlias}
-            autoCapitalize="none"
-          />
+        value={alias}
+        onChangeText={(t) => setAlias(t.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 30))}
+        placeholder="tu_alias"
+        placeholderTextColor="#444"
+        style={{ backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: '#333', color: '#fff', padding: 15, fontFamily: 'monospace', borderRadius: 8 }}
+        autoCapitalize="none"
+      />
 
           <Text style={styles.label}>EMAIL *</Text>
           <TextInput
