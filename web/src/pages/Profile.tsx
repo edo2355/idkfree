@@ -99,8 +99,8 @@ export function Profile() {
             {isMe && (
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
                 <Link to="/edit-profile" className="btn-tactical" style={{ textDecoration: 'none' }}>Editar Perfil</Link>
-                <Link to="/settings" className="btn-tactical" style={{ textDecoration: 'none', borderColor: '#00E5FF', color: '#00E5FF' }}>[ AJUSTES ]</Link>
-                <Link to="/catalog/me" className="btn-tactical" style={{ textDecoration: 'none', borderColor: '#fff', color: '#fff' }}>[ VER CATÁLOGO ]</Link>
+                <Link to="/settings" className="btn-tactical" style={{ textDecoration: 'none' }}>[ AJUSTES ]</Link>
+                <Link to="/catalog/me" className="btn-tactical" style={{ textDecoration: 'none' }}>[ VER CATÁLOGO ]</Link>
               </div>
             )}
           </div>
