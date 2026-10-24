@@ -97,11 +97,12 @@ export function Profile() {
 
             {/* Botón Editar (Solo si es mi perfil) */}
             {isMe && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                <Link to="/edit-profile" className="edit-profile-btn">Editar Perfil</Link>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <Link to="/edit-profile" className="edit-profile-btn" style={{ padding: '10px 20px', border: '1px solid #333', color: '#fff', textDecoration: 'none' }}>Editar Perfil</Link>
+                <Link to="/settings" className="settings-btn" style={{ padding: '10px 20px', border: '1px solid #00E5FF', color: '#00E5FF', textDecoration: 'none' }}>[ AJUSTES ]</Link>
                 <button
                   onClick={() => navigate(`/catalog/${alias || 'me'}`)}
-                  style={{ padding: '10px 20px', backgroundColor: 'transparent', border: '1px solid #00E5FF', color: '#00E5FF', fontFamily: 'monospace', cursor: 'pointer', textTransform: 'uppercase' }}
+                  style={{ padding: '10px 20px', backgroundColor: 'transparent', border: '1px solid #fff', color: '#fff', fontFamily: 'monospace', cursor: 'pointer', textTransform: 'uppercase' }}
                 >
                   [ VER CATÁLOGO ]
                 </button>
@@ -123,9 +124,11 @@ export function Profile() {
                 {mediaPosts.map(p => (
                   <div key={p.id} className="profile-grid-item">
                     {p.video_url ? (
-                      <video src={resolveAssetUrl(p.video_url)} />
+                      <video src={resolveAssetUrl(p.video_url)} controls />
+                    ) : p.image_url ? (
+                      <img src={resolveAssetUrl(p.image_url)} alt="post" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
-                      <img src={resolveAssetUrl(p.image_url)} alt="post" />
+                      <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#444', fontSize: '10px', fontFamily: 'monospace' }}>[ SIN_IMG ]</div>
                     )}
                   </div>
                 ))}

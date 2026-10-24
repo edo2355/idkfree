@@ -136,3 +136,9 @@
 .edit-profile-btn:hover {
   background: var(--surface);
 }
+
+/* Mejoras visuales para la cuadrícula */
+.profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 20px; }
+.profile-grid-item { aspect-ratio: 1 / 1; background-color: #0f0f0f; border: 1px solid #222; overflow: hidden; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+.profile-grid-item:hover { border-color: #00E5FF; }
+.profile-grid-item img, .profile-grid-item video { width: 100%; height: 100%; object-fit: cover; }
