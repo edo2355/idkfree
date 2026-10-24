@@ -5,10 +5,9 @@ CREATE TABLE IF NOT EXISTS catalog_items (
   description TEXT,
   price REAL DEFAULT 0,
   currency TEXT DEFAULT 'USD',
-  type TEXT DEFAULT 'product', -- 'product' o 'service'
+  type TEXT DEFAULT 'product',
   image_url TEXT,
+  status TEXT DEFAULT 'active',
   category TEXT DEFAULT 'General',
-  status TEXT DEFAULT 'active', -- 'active', 'sold', 'paused'
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
