@@ -1,6 +1,8 @@
 // ============================================================
 // migrate.ts — Migraciones multi-engine (SQLite/Turso/Postgres)
-// Usa el facade async (query/exec) en lugar de db.prepare sync
+// IMPORTANTE: Turso vía HTTP NO soporta transacciones (BEGIN/COMMIT/ROLLBACK).
+// Cada statement se ejecuta en autocommit. Por eso las migraciones
+// deben ser idempotentes (CREATE TABLE IF NOT EXISTS, ADD COLUMN defensivo, etc.)
 // ============================================================
 import { readFileSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
@@ -16,7 +18,6 @@ async function migrate() {
   const dir = join(__dirname, 'migrations');
   const files = readdirSync(dir).filter((f) => f.endsWith('.sql')).sort();
 
-  // Crear tabla de control
   await exec(`CREATE TABLE IF NOT EXISTS migrations (
     name TEXT PRIMARY KEY,
     applied_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -37,14 +38,13 @@ async function migrate() {
     const sql = readFileSync(join(dir, file), 'utf-8');
 
     try {
-      await exec('BEGIN');
+      // Sin transacciones: Turso HTTP no las soporta.
+      // Las migraciones deben ser idempotentes.
       await exec(sql);
       await query('INSERT INTO migrations (name) VALUES ($1)', [file]);
-      await exec('COMMIT');
       console.log(`  ✓ Aplicada: ${file}`);
       applied++;
     } catch (err) {
-      await exec('ROLLBACK');
       console.error(`  ✗ Error en ${file}:`, err);
       process.exit(1);
     }
