@@ -97,9 +97,9 @@ export function Profile() {
 
             {/* Botón Editar (Solo si es mi perfil) */}
             {isMe && (
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Link to="/edit-profile" className="edit-profile-btn" style={{ padding: '10px 20px', border: '1px solid #333', color: '#fff', textDecoration: 'none' }}>Editar Perfil</Link>
-                <Link to="/settings" className="settings-btn" style={{ padding: '10px 20px', border: '1px solid #00E5FF', color: '#00E5FF', textDecoration: 'none' }}>[ AJUSTES ]</Link>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
+                <Link to="/edit-profile" className="edit-profile-btn" style={{ padding: '10px 20px', border: '1px solid #333', color: '#fff', textDecoration: 'none', fontFamily: 'monospace' }}>Editar Perfil</Link>
+                <Link to="/settings" className="settings-btn" style={{ padding: '10px 20px', border: '1px solid #00E5FF', color: '#00E5FF', textDecoration: 'none', fontFamily: 'monospace' }}>[ AJUSTES ]</Link>
                 <button
                   onClick={() => navigate(`/catalog/${alias || 'me'}`)}
                   style={{ padding: '10px 20px', backgroundColor: 'transparent', border: '1px solid #fff', color: '#fff', fontFamily: 'monospace', cursor: 'pointer', textTransform: 'uppercase' }}
@@ -124,11 +124,26 @@ export function Profile() {
                 {mediaPosts.map(p => (
                   <div key={p.id} className="profile-grid-item">
                     {p.video_url ? (
-                      <video src={resolveAssetUrl(p.video_url)} controls />
+                      <video 
+                        src={resolveAssetUrl(p.video_url)} 
+                        controls 
+                        onError={(e) => {
+                          const parent = (e.target as HTMLElement).parentElement;
+                          if (parent) parent.innerHTML = '<div style="width:100%;height:100%;display:flex;justify-content:center;align-items:center;color:#333;font-size:10px;font-family:monospace;background:#0f0f0f">[ SIN_VIDEO ]</div>';
+                        }}
+                      />
                     ) : p.image_url ? (
-                      <img src={resolveAssetUrl(p.image_url)} alt="post" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img 
+                        src={resolveAssetUrl(p.image_url)} 
+                        alt="" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        onError={(e) => {
+                          const parent = (e.target as HTMLElement).parentElement;
+                          if (parent) parent.innerHTML = '<div style="width:100%;height:100%;display:flex;justify-content:center;align-items:center;color:#333;font-size:10px;font-family:monospace;background:#0f0f0f">[ SIN_IMG ]</div>';
+                        }}
+                      />
                     ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#444', fontSize: '10px', fontFamily: 'monospace' }}>[ SIN_IMG ]</div>
+                      <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#333', fontSize: '10px', fontFamily: 'monospace', background: '#0f0f0f' }}>[ NO_DATA ]</div>
                     )}
                   </div>
                 ))}
