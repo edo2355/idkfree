@@ -15,14 +15,15 @@ export async function verificationRoutes(app: FastifyInstance) {
       
       // Buscar al usuario dependiendo de si es email o teléfono
       const userRes = isEmail 
-        ? await query('SELECT id FROM users WHERE email = ?', [identifier])
+        ? await query('SELECT user_id FROM user_credentials WHERE email = ? ORDER BY created_at DESC LIMIT 1', [identifier])
         : await query('SELECT id FROM users WHERE phone_number = ?', [identifier]);
 
       if (userRes.rows.length === 0) {
         return reply.code(404).send({ error: isEmail ? 'Correo no registrado en IDKFREE' : 'Teléfono no registrado en IDKFREE' });
       }
       
-      const userId = userRes.rows[0].id;
+      // Si es email, la columna es user_id; si es teléfono, es id
+      const userId = isEmail ? userRes.rows[0].user_id : userRes.rows[0].id;
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 10 * 60000).toISOString();
 

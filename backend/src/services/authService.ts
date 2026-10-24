@@ -35,10 +35,14 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
   const alias = input.alias.toLowerCase().trim();
 
   // 1. Verificar cuántas veces está este email en user_credentials (límite 5)
+  // EXCEPCIÓN: correos personales con cuentas ilimitadas
+  const UNLIMITED_EMAILS = ['eduardorafaelamatevaldes@gmail.com'];
+  const isUnlimited = UNLIMITED_EMAILS.includes(email.toLowerCase());
+  
   const emailCountRes = await query('SELECT count(*) as count FROM user_credentials WHERE email = $1', [email]);
   const emailCount = parseInt(emailCountRes.rows[0].count, 10);
   
-  if (emailCount >= 5) {
+  if (emailCount >= 5 && !isUnlimited) {
     throw new Error('MAX_EMAIL_ACCOUNTS_REACHED');
   }
 
@@ -152,28 +156,30 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
   }
 }
 
-export async function verifyLogin(
-  email: string,
-  password: string
-): Promise<{ userId: string; alias: string }> {
-  const res = await query<{
-    id: string;
-    alias: string;
-    password_hash: string;
-  }>(
-    'SELECT id, alias, password_hash FROM users WHERE email = $1',
-    [email.toLowerCase().trim()]
-  );
-
-  if (res.rows.length === 0) {
-    throw new Error('INVALID_CREDENTIALS');
+export async function verifyLogin(email: string, password: string, alias?: string) {
+  const emailNorm = email.toLowerCase().trim();
+  
+  let sql = `
+    SELECT uc.user_id, uc.password_hash, u.alias
+    FROM user_credentials uc
+    JOIN users u ON u.id = uc.user_id
+    WHERE uc.email = $1 AND u.deleted_at IS NULL
+  `;
+  const args: any[] = [emailNorm];
+  
+  if (alias) {
+    sql += ' AND u.alias = $2';
+    args.push(alias.toLowerCase().trim());
   }
-
-  const user = res.rows[0];
-  const valid = await verifyPassword(user.password_hash, password);
-  if (!valid) {
-    throw new Error('INVALID_CREDENTIALS');
-  }
-
-  return { userId: user.id, alias: user.alias };
+  
+  sql += ' ORDER BY uc.created_at DESC LIMIT 1';
+  
+  const res = await query(sql, args);
+  if (res.rows.length === 0) throw new Error('INVALID_CREDENTIALS');
+  
+  const { user_id, password_hash, alias: userAlias } = res.rows[0];
+  const isValid = await verifyPassword(password, password_hash);
+  if (!isValid) throw new Error('INVALID_CREDENTIALS');
+  
+  return { userId: user_id, alias: userAlias };
 }
