@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { panicRecover, restoreRecover, fenixRecover, overridePendingDeletion, getRecoveryAudit } from '../services/recoveryService.js';
+import { panicRecover, restoreRecover, fenixRecover, overridePendingDeletion, getRecoveryAudit, verifyCardSecrets } from '../services/recoveryService.js';
 import { migrateAccount } from '../services/fenixMigrationService.js';
 import { requireAuth } from '../middleware/auth.js';
 
