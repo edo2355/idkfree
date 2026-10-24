@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS fenix_migrations (
   new_user_id TEXT NOT NULL,
   old_email TEXT NOT NULL,
   new_email TEXT NOT NULL,
-  migrated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  migrated_at TEXT
 );

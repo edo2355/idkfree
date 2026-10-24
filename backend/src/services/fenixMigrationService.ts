@@ -30,9 +30,9 @@ export async function migrateAccount(oldUserId: string, newEmail: string, newPas
 
   // 5. Registrar la migración
   await query(
-    `INSERT INTO fenix_migrations (id, old_user_id, new_user_id, old_email, new_email) 
-     SELECT ?, ?, ?, email, ? FROM users WHERE id = ?`,
-    [uuid(), oldUserId, newUserId, newEmail, oldUserId]
+    `INSERT INTO fenix_migrations (id, old_user_id, new_user_id, old_email, new_email, migrated_at) 
+     SELECT ?, ?, ?, email, ?, ? FROM users WHERE id = ?`,
+    [uuid(), oldUserId, newUserId, newEmail, new Date().toISOString(), oldUserId]
   );
 
   return { newUserId, newEmail, message: 'Cuenta migrada exitosamente al nuevo usuario.' };
