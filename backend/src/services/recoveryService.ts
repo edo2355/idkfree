@@ -22,7 +22,7 @@ interface RestoreInput extends RecoverInput {
  * Verifica secret del QR + (PIN mental OR backup impreso).
  * Devuelve el método usado: 'mental' (fuerte) o 'printed' (débil).
  */
-async function verifyCardSecrets(
+export async function verifyCardSecrets(
   kind: Kind,
   input: RecoverInput
 ): Promise<{ userId: string; alias: string; method: Method }> {
