@@ -67,7 +67,10 @@ export async function verificationRoutes(app: FastifyInstance) {
       // Marcar como verificado
       await query('UPDATE users SET email_verified = TRUE WHERE id = ?', [userId]);
 
-      return reply.send({ message: 'Verificado correctamente', ok: true });
+      const userRes = await query('SELECT alias FROM users WHERE id = $1', [userId]);
+      const alias = userRes.rows[0]?.alias;
+      const accessToken = app.jwt.sign({ sub: userId, alias }, { expiresIn: '30d' });
+      return reply.send({ message: 'Verificado correctamente', ok: true, accessToken, userId, alias });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       app.log.error({ err }, 'Error en verify-otp: ' + msg);

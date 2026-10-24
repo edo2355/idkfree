@@ -45,8 +45,15 @@ export function VerifyEmailPage() {
       });
 
       if (res.ok) {
-        alert('¡Cuenta verificada con éxito! Ahora puedes iniciar sesión.');
-        navigate('/login');
+        const data = await res.json();
+        if (data.accessToken) {
+          // Auto-login: guardar sesión y entrar al feed
+          useAuthStore.getState().setAuth({ id: data.userId, alias: data.alias }, data.accessToken);
+          navigate('/home');
+        } else {
+          alert('¡Cuenta verificada con éxito! Ahora puedes iniciar sesión.');
+          navigate('/login');
+        }
       } else {
         const data = await res.json();
         setError(data.error || 'Código inválido o expirado');
