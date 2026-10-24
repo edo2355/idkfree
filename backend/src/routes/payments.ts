@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { db } from '../db/index.js';
+import { query } from '../db/pool.js';
 import crypto from 'crypto';
 
 export async function paymentRoutes(app: FastifyInstance) {
@@ -8,10 +8,7 @@ export async function paymentRoutes(app: FastifyInstance) {
     const { provider, account_data } = req.body as any;
     const userId = (req.user as any).id;
     try {
-      await db.execute({
-        sql: 'INSERT OR REPLACE INTO user_payment_accounts (id, user_id, provider, account_data) VALUES (?, ?, ?, ?)',
-        args: [crypto.randomUUID(), userId, provider, account_data]
-      });
+      await query('INSERT OR REPLACE INTO user_payment_accounts (id, user_id, provider, account_data) VALUES (?, ?, ?, ?)', [crypto.randomUUID(), userId, provider, account_data]);
       return reply.send({ ok: true });
     } catch (err) {
       app.log.error(err);
@@ -33,10 +30,7 @@ export async function paymentRoutes(app: FastifyInstance) {
     const transferId = crypto.randomUUID();
 
     try {
-      await db.execute({
-        sql: 'INSERT INTO money_transfers (id, sender_id, receiver_account, provider, amount, status) VALUES (?, ?, ?, ?, ?, ?)',
-        args: [transferId, userId, receiver_account, provider, amount, 'pending']
-      });
+      await query('INSERT INTO money_transfers (id, sender_id, receiver_account, provider, amount, status) VALUES (?, ?, ?, ?, ?, ?)', [transferId, userId, receiver_account, provider, amount, 'pending']);
       return reply.send({ ok: true, transferId });
     } catch (err) {
       return reply.code(500).send({ error: 'Error al registrar envío' });

@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import crypto from 'crypto';
-import { db } from '../db.js'; // Asegúrate de que esta sea la ruta correcta a tu DB
+import { query } from '../db/pool.js'; // Asegúrate de que esta sea la ruta correcta a tu DB
 
 export async function verificationRoutes(app: FastifyInstance) {
   // RUTA 1: ENVIAR CÓDIGO OTP
@@ -9,10 +9,7 @@ export async function verificationRoutes(app: FastifyInstance) {
     if (!phone_number) return reply.code(400).send({ error: 'Teléfono requerido' });
 
     try {
-      const userRes = await db.execute({
-        sql: 'SELECT id FROM users WHERE phone_number = ?',
-        args: [phone_number]
-      });
+      const userRes = await query('SELECT id FROM users WHERE phone_number = ?', [phone_number]);
 
       if (userRes.rows.length === 0) return reply.code(404).send({ error: 'Teléfono no registrado en IDKFREE' });
       const userId = userRes.rows[0].id;
@@ -20,10 +17,7 @@ export async function verificationRoutes(app: FastifyInstance) {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 10 * 60000).toISOString();
 
-      await db.execute({
-        sql: 'INSERT INTO phone_otps (id, user_id, phone_number, otp_code, expires_at) VALUES (?, ?, ?, ?, ?)',
-        args: [crypto.randomUUID(), userId, phone_number, otp, expiresAt]
-      });
+      await query('INSERT INTO phone_otps (id, user_id, phone_number, otp_code, expires_at) VALUES (?, ?, ?, ?, ?)', [crypto.randomUUID(), userId, phone_number, otp, expiresAt]);
 
       console.log(`\n🚨 [SMS SIMULADO] Código OTP para ${phone_number}: ${otp}\n`);
       return reply.send({ message: 'Código enviado', ok: true });
@@ -39,15 +33,12 @@ export async function verificationRoutes(app: FastifyInstance) {
     if (!phone_number || !otp_code) return reply.code(400).send({ error: 'Datos incompletos' });
 
     try {
-      const res = await db.execute({
-        sql: 'SELECT * FROM phone_otps WHERE phone_number = ? AND otp_code = ? AND expires_at > CURRENT_TIMESTAMP ORDER BY created_at DESC LIMIT 1',
-        args: [phone_number, otp_code]
-      });
+      const res = await query('SELECT * FROM phone_otps WHERE phone_number = ? AND otp_code = ? AND expires_at > CURRENT_TIMESTAMP ORDER BY created_at DESC LIMIT 1', [phone_number, otp_code]);
 
       if (res.rows.length === 0) return reply.code(401).send({ error: 'Código inválido o expirado' });
 
       const userId = res.rows[0].user_id;
-      await db.execute({ sql: 'UPDATE users SET is_phone_verified = TRUE WHERE id = ?', args: [userId] });
+      await query('UPDATE users SET is_phone_verified = TRUE WHERE id = ?', [userId]);
       
       return reply.send({ message: 'Verificado correctamente', ok: true });
     } catch (err) {

@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { db } from '../db/index.js';
+import { query } from '../db/pool.js';
 import crypto from 'crypto';
 
 export async function catalogRoutes(app: FastifyInstance) {
@@ -7,10 +7,7 @@ export async function catalogRoutes(app: FastifyInstance) {
   app.get('/catalog/:userId', async (req, reply) => {
     const { userId } = req.params as any;
     try {
-      const res = await db.execute({
-        sql: 'SELECT * FROM catalog_items WHERE user_id = ? AND status = "active" ORDER BY created_at DESC',
-        args: [userId]
-      });
+      const res = await query('SELECT * FROM catalog_items WHERE user_id = ? AND status = "active" ORDER BY created_at DESC', [userId]);
       return reply.send({ items: res.rows });
     } catch (err) {
       app.log.error(err);
@@ -23,10 +20,7 @@ export async function catalogRoutes(app: FastifyInstance) {
 
     try {
       // 1. Obtener los datos del item
-      const itemRes = await db.execute({
-        sql: 'SELECT user_id, price FROM catalog_items WHERE id = ?',
-        args: [itemId]
-      });
+      const itemRes = await query('SELECT user_id, price FROM catalog_items WHERE id = ?', [itemId]);
 
       if (itemRes.rows.length === 0) return reply.code(404).send({ error: 'Item no encontrado' });
       
@@ -37,13 +31,10 @@ export async function catalogRoutes(app: FastifyInstance) {
 
       // 2. Crear la orden
       const orderId = crypto.randomUUID();
-      await db.execute({
-        sql: 'INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)',
-        args: [orderId, buyerId, sellerId, itemId, amount, 'pending']
-      });
+      await query('INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)', [orderId, buyerId, sellerId, itemId, amount, 'pending']);
 
       // 3. Marcar el item como vendido (opcional)
-      // await db.execute({ sql: 'UPDATE catalog_items SET status = "sold" WHERE id = ?', args: [itemId] });
+      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
 
       return reply.send({ ok: true, orderId, amount });
     } catch (err) {
@@ -63,10 +54,7 @@ export async function catalogRoutes(app: FastifyInstance) {
 
     try {
       const id = crypto.randomUUID();
-      await db.execute({
-        sql: 'INSERT INTO catalog_items (id, user_id, title, description, price, currency, type, image_url, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        args: [id, userId, title, description || '', price || 0, currency || 'USD', type || 'product', image_url || null, category || 'General']
-      });
+      await query('INSERT INTO catalog_items (id, user_id, title, description, price, currency, type, image_url, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [id, userId, title, description || '', price || 0, currency || 'USD', type || 'product', image_url || null, category || 'General']);
       return reply.send({ id, message: 'Item publicado' });
     } catch (err) {
       app.log.error(err);
@@ -79,10 +67,7 @@ export async function catalogRoutes(app: FastifyInstance) {
 
     try {
       // 1. Obtener los datos del item
-      const itemRes = await db.execute({
-        sql: 'SELECT user_id, price FROM catalog_items WHERE id = ?',
-        args: [itemId]
-      });
+      const itemRes = await query('SELECT user_id, price FROM catalog_items WHERE id = ?', [itemId]);
 
       if (itemRes.rows.length === 0) return reply.code(404).send({ error: 'Item no encontrado' });
       
@@ -93,13 +78,10 @@ export async function catalogRoutes(app: FastifyInstance) {
 
       // 2. Crear la orden
       const orderId = crypto.randomUUID();
-      await db.execute({
-        sql: 'INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)',
-        args: [orderId, buyerId, sellerId, itemId, amount, 'pending']
-      });
+      await query('INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)', [orderId, buyerId, sellerId, itemId, amount, 'pending']);
 
       // 3. Marcar el item como vendido (opcional)
-      // await db.execute({ sql: 'UPDATE catalog_items SET status = "sold" WHERE id = ?', args: [itemId] });
+      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
 
       return reply.send({ ok: true, orderId, amount });
     } catch (err) {
@@ -118,10 +100,7 @@ export async function catalogRoutes(app: FastifyInstance) {
     const userId = (req.user as any).id;
 
     try {
-      await db.execute({
-        sql: 'UPDATE catalog_items SET title = ?, description = ?, price = ?, type = ?, category = ? WHERE id = ? AND user_id = ?',
-        args: [title, description, price, type, category || 'General', id, userId]
-      });
+      await query('UPDATE catalog_items SET title = ?, description = ?, price = ?, type = ?, category = ? WHERE id = ? AND user_id = ?', [title, description, price, type, category || 'General', id, userId]);
       return reply.send({ message: 'Item actualizado' });
     } catch (err) {
       app.log.error(err);
@@ -134,10 +113,7 @@ export async function catalogRoutes(app: FastifyInstance) {
 
     try {
       // 1. Obtener los datos del item
-      const itemRes = await db.execute({
-        sql: 'SELECT user_id, price FROM catalog_items WHERE id = ?',
-        args: [itemId]
-      });
+      const itemRes = await query('SELECT user_id, price FROM catalog_items WHERE id = ?', [itemId]);
 
       if (itemRes.rows.length === 0) return reply.code(404).send({ error: 'Item no encontrado' });
       
@@ -148,13 +124,10 @@ export async function catalogRoutes(app: FastifyInstance) {
 
       // 2. Crear la orden
       const orderId = crypto.randomUUID();
-      await db.execute({
-        sql: 'INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)',
-        args: [orderId, buyerId, sellerId, itemId, amount, 'pending']
-      });
+      await query('INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)', [orderId, buyerId, sellerId, itemId, amount, 'pending']);
 
       // 3. Marcar el item como vendido (opcional)
-      // await db.execute({ sql: 'UPDATE catalog_items SET status = "sold" WHERE id = ?', args: [itemId] });
+      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
 
       return reply.send({ ok: true, orderId, amount });
     } catch (err) {
@@ -171,10 +144,7 @@ export async function catalogRoutes(app: FastifyInstance) {
     const userId = (req.user as any).id;
 
     try {
-      await db.execute({
-        sql: 'DELETE FROM catalog_items WHERE id = ? AND user_id = ?',
-        args: [id, userId]
-      });
+      await query('DELETE FROM catalog_items WHERE id = ? AND user_id = ?', [id, userId]);
       return reply.send({ message: 'Item eliminado' });
     } catch (err) {
       app.log.error(err);
@@ -187,10 +157,7 @@ export async function catalogRoutes(app: FastifyInstance) {
 
     try {
       // 1. Obtener los datos del item
-      const itemRes = await db.execute({
-        sql: 'SELECT user_id, price FROM catalog_items WHERE id = ?',
-        args: [itemId]
-      });
+      const itemRes = await query('SELECT user_id, price FROM catalog_items WHERE id = ?', [itemId]);
 
       if (itemRes.rows.length === 0) return reply.code(404).send({ error: 'Item no encontrado' });
       
@@ -201,13 +168,10 @@ export async function catalogRoutes(app: FastifyInstance) {
 
       // 2. Crear la orden
       const orderId = crypto.randomUUID();
-      await db.execute({
-        sql: 'INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)',
-        args: [orderId, buyerId, sellerId, itemId, amount, 'pending']
-      });
+      await query('INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)', [orderId, buyerId, sellerId, itemId, amount, 'pending']);
 
       // 3. Marcar el item como vendido (opcional)
-      // await db.execute({ sql: 'UPDATE catalog_items SET status = "sold" WHERE id = ?', args: [itemId] });
+      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
 
       return reply.send({ ok: true, orderId, amount });
     } catch (err) {
@@ -225,10 +189,7 @@ export async function catalogRoutes(app: FastifyInstance) {
 
     try {
       // 1. Obtener los datos del item
-      const itemRes = await db.execute({
-        sql: 'SELECT user_id, price FROM catalog_items WHERE id = ?',
-        args: [itemId]
-      });
+      const itemRes = await query('SELECT user_id, price FROM catalog_items WHERE id = ?', [itemId]);
 
       if (itemRes.rows.length === 0) return reply.code(404).send({ error: 'Item no encontrado' });
       
@@ -239,13 +200,10 @@ export async function catalogRoutes(app: FastifyInstance) {
 
       // 2. Crear la orden
       const orderId = crypto.randomUUID();
-      await db.execute({
-        sql: 'INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)',
-        args: [orderId, buyerId, sellerId, itemId, amount, 'pending']
-      });
+      await query('INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)', [orderId, buyerId, sellerId, itemId, amount, 'pending']);
 
       // 3. Marcar el item como vendido (opcional)
-      // await db.execute({ sql: 'UPDATE catalog_items SET status = "sold" WHERE id = ?', args: [itemId] });
+      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
 
       return reply.send({ ok: true, orderId, amount });
     } catch (err) {
