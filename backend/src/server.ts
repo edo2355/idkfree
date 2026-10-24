@@ -41,6 +41,16 @@ await app.register(rateLimit, {
   errorResponseBuilder: () => ({ error: 'Demasiadas peticiones. Intenta de nuevo en 1 minuto.' }),
 });
 await app.register(jwt, { secret: env.jwtSecret });
+
+  // Decorador global para verificar el token JWT en las rutas
+  app.decorate('authenticate', async function (request: any, reply: any) {
+    try {
+      await request.jwtVerify();
+    } catch (err) {
+      reply.send(err);
+    }
+  });
+
 await app.register(multipart, { limits: { fileSize: 25 * 1024 * 1024 } });
 await app.register(fastifyStatic, { root: join(process.cwd(), 'uploads'), prefix: '/uploads/' });
 
