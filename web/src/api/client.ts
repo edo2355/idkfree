@@ -105,6 +105,11 @@ export const api = {
       return res.json();
     }
   },
+  kyc: {
+    status: () => request<any>('/kyc/status'),
+    submit: (d: { document_type: string; document_number: string; document_photo?: string; selfie_photo?: string }) =>
+      request<any>('/kyc/submit', { method: 'POST', body: JSON.stringify(d) }),
+  },
   streams: {
     start: (title: string, description?: string) => request<any>('/streams/start', { method: 'POST', body: JSON.stringify({ title, description }) }),
     active: () => request<any>('/streams/active'),
