@@ -94,4 +94,31 @@ export async function authRoutes(app: FastifyInstance) {
     }
   });
 
+
+  // GET /api/auth/check-alias — Verifica si un alias está disponible
+  app.get('/auth/check-alias', async (req, reply) => {
+    const { alias } = req.query as { alias: string };
+    if (!alias) return reply.code(400).send({ error: 'Alias requerido' });
+
+    try {
+      const res = await query('SELECT id FROM users WHERE alias = ?', [alias.toLowerCase().trim()]);
+      const isAvailable = res.rows.length === 0;
+
+      let suggestions: string[] = [];
+      if (!isAvailable) {
+        // Generar 3 sugerencias aleatorias si está ocupado
+        suggestions = [
+          `${alias}${Math.floor(Math.random() * 99) + 1}`,
+          `${alias}_${Math.floor(Math.random() * 999) + 1}`,
+          `${alias}_cuba`
+        ];
+      }
+
+      return reply.send({ available: isAvailable, suggestions });
+    } catch (err) {
+      app.log.error(err);
+      return reply.code(500).send({ error: 'Error al verificar alias' });
+    }
+  });
+
 }
