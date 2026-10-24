@@ -38,10 +38,16 @@ export function Register() {
         pins: { panic: pinPanic, recovery: pinRecovery, destroy: pinDestroy },
         secretPins: [pinPanic, pinRecovery, pinDestroy],
       });
-      // Register no devuelve token → auto-login
-      const login = await api.auth.login(email, password);
-      setAuth({ id: login.userId, alias: login.alias }, login.accessToken);
-      navigate('/');
+      
+      // Enviar el correo de verificación
+      await fetch('https://idkfreegetid.dpdns.org/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone_number: email })
+      });
+
+      // Redirigir a la pantalla de verificación
+      navigate('/verify-email', { state: { email } });
     } catch (err) {
       if (err instanceof ApiError) setError(err.message);
       else setError('Error de conexión');
