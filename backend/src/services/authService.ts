@@ -102,7 +102,14 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
       `INSERT INTO users (id, email, alias, password_hash, name)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING id, alias`,
-      [userId, email, alias, passwordHash, input.name ?? null]
+      [userId, `${alias}@idkfree.local`, alias, passwordHash, input.name ?? null]
+    );
+
+    // Insertar credenciales reales en user_credentials (permite 5 cuentas por email)
+    await query(
+      `INSERT INTO user_credentials (id, user_id, email, password_hash)
+       VALUES ($1, $2, $3, $4)`,
+      [uuid(), userId, email, passwordHash]
     );
     const user = userRes.rows[0] ?? { id: userId, alias };
 
