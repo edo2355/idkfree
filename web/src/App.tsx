@@ -7,6 +7,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { CatalogPage } from './pages/CatalogPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { Login } from './pages/Login';
+import { RecoveryPage } from './pages/RecoveryPage';
 import { VerifyEmailPage } from './pages/VerifyEmailPage';
 import { Landing } from './pages/Landing';
 import WebLayout from './layouts/WebLayout';
@@ -41,6 +42,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/recovery" element={<RecoveryPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       
       {/* Rutas Protegidas */}

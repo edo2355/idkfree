@@ -147,7 +147,8 @@ export function Login() {
             >
               {loading ? 'VERIFICANDO...' : 'INICIAR SESIÓN'}
             </button>
-          </form>
+          <Link to='/recovery' style={{ color: '#ff0044', fontSize: '12px', display: 'block', marginTop: '15px', textAlign: 'center' }}>Recuperar cuenta con Carnet</Link>
+    </form>
 
           {/* Enlaces del footer del formulario */}
           <div style={{ marginTop: '25px', display: 'flex', justifyContent: 'space-between' }}>
