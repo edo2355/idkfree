@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../stores/authStore';
 import './SettingsPage.css';
 
 export function VerifyEmailPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  
-  // Si venimos del registro, tenemos el email en el state. Si no, lo pedimos.
   const initialEmail = location.state?.email || '';
-  
+
   const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
@@ -17,7 +16,6 @@ export function VerifyEmailPage() {
   const [resendSuccess, setResendSuccess] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
-  // Temporizador de reenvío
   useEffect(() => {
     if (cooldown > 0) {
       const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
@@ -27,13 +25,7 @@ export function VerifyEmailPage() {
 
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.includes('@') && !/^\+?[0-9]+$/.test(email)) {
-      return setError('Ingresa un email o teléfono válido.');
-    }
-    if (code.length !== 6) {
-      return setError('El código debe tener 6 dígitos.');
-    }
-
+    if (code.length !== 6) return setError('El código debe tener 6 dígitos.');
     setError('');
     setLoading(true);
 
@@ -47,11 +39,11 @@ export function VerifyEmailPage() {
       if (res.ok) {
         const data = await res.json();
         if (data.accessToken) {
-          // Auto-login: guardar sesión y entrar al feed
+          // Guardar sesión en Zustand y redirigir al Feed
           useAuthStore.getState().setAuth({ id: data.userId, alias: data.alias }, data.accessToken);
           navigate('/home');
         } else {
-          alert('¡Cuenta verificada con éxito! Ahora puedes iniciar sesión.');
+          alert('Cuenta verificada. Inicia sesión.');
           navigate('/login');
         }
       } else {
@@ -81,7 +73,7 @@ export function VerifyEmailPage() {
       if (res.ok) {
         setResendSuccess(true);
         setCooldown(60);
-        setTimeout(() => setResendSuccess(false), 5000); // El mensaje de éxito desaparece en 5s
+        setTimeout(() => setResendSuccess(false), 5000);
       } else {
         const data = await res.json();
         setError(data.error || 'No se pudo reenviar el código.');
@@ -142,7 +134,7 @@ export function VerifyEmailPage() {
         >
           {resendLoading ? 'ENVIANDO...' : cooldown > 0 ? `REENVIAR EN ${cooldown}s` : 'REENVIAR CÓDIGO'}
         </button>
-
+        
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
           <button type="button" onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', color: '#666', fontFamily: 'Space Mono', fontSize: '12px', cursor: 'pointer' }}>
             Volver al Login
