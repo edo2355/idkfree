@@ -15,8 +15,8 @@ export async function verificationRoutes(app: FastifyInstance) {
       
       // Buscar al usuario dependiendo de si es email o teléfono
       const userRes = isEmail 
-        ? await query('SELECT user_id FROM user_credentials WHERE email = ? ORDER BY created_at DESC LIMIT 1', [identifier])
-        : await query('SELECT id FROM users WHERE phone_number = ?', [identifier]);
+        ? await query('SELECT user_id FROM user_credentials WHERE email = $1 ORDER BY created_at DESC LIMIT 1', [identifier])
+        : await query('SELECT id FROM users WHERE phone_number = $1', [identifier]);
 
       if (userRes.rows.length === 0) {
         return reply.code(404).send({ error: isEmail ? 'Correo no registrado en IDKFREE' : 'Teléfono no registrado en IDKFREE' });
@@ -29,7 +29,7 @@ export async function verificationRoutes(app: FastifyInstance) {
 
       // Guardar OTP (usando la columna phone_number para ambos casos para no romper la tabla existente)
       await query(
-        'INSERT INTO phone_otps (id, user_id, phone_number, otp_code, expires_at) VALUES (?, ?, ?, ?, ?)', 
+        'INSERT INTO phone_otps (id, user_id, phone_number, otp_code, expires_at) VALUES ($1, $2, $3, $4, $5)', 
         [crypto.randomUUID(), userId, identifier, otp, expiresAt]
       );
 
@@ -56,7 +56,7 @@ export async function verificationRoutes(app: FastifyInstance) {
     try {
       // Buscar el OTP sin importar si es email o teléfono
       const res = await query(
-        'SELECT * FROM phone_otps WHERE phone_number = ? AND otp_code = ? AND expires_at > CURRENT_TIMESTAMP ORDER BY created_at DESC LIMIT 1', 
+        'SELECT * FROM phone_otps WHERE phone_number = $1 AND otp_code = $2 AND expires_at > CURRENT_TIMESTAMP ORDER BY created_at DESC LIMIT 1', 
         [identifier, otp_code]
       );
 
