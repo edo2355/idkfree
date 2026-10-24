@@ -41,7 +41,8 @@ export async function verificationRoutes(app: FastifyInstance) {
 
       return reply.send({ message: 'Código enviado', ok: true });
     } catch (err) {
-      app.log.error('Error en send-otp:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      app.log.error({ err }, 'Error en send-otp: ' + msg);
       return reply.code(500).send({ error: 'Error interno al enviar código' });
     }
   });
@@ -67,7 +68,8 @@ export async function verificationRoutes(app: FastifyInstance) {
 
       return reply.send({ message: 'Verificado correctamente', ok: true });
     } catch (err) {
-      app.log.error('Error en verify-otp:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      app.log.error({ err }, 'Error en verify-otp: ' + msg);
       return reply.code(500).send({ error: 'Error interno al verificar' });
     }
   });
