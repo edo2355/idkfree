@@ -148,3 +148,9 @@
 .profile-grid-item { aspect-ratio: 1 / 1 !important; background-color: #0f0f0f !important; border: 1px solid #1a1a1a !important; overflow: hidden !important; display: flex !important; justify-content: center !important; align-items: center !important; position: relative; }
 .profile-grid-item img, .profile-grid-item video { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block; }
 .profile-grid-item:hover { border-color: #00E5FF !important; }
+
+/* Corrección de la cuadrícula estilo Instagram */
+.profile-grid { display: grid; grid-template-columns: repeat(3, 1fr) !important; gap: 4px !important; margin-top: 20px !important; }
+.profile-grid-item { aspect-ratio: 1 / 1 !important; background-color: #0f0f0f !important; border: 1px solid #1a1a1a !important; overflow: hidden !important; display: flex !important; justify-content: center !important; align-items: center !important; position: relative; }
+.profile-grid-item img, .profile-grid-item video { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block; }
+.profile-grid-item:hover { border-color: #00E5FF !important; }
