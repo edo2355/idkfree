@@ -15,6 +15,7 @@ import { Feed } from './pages/Feed';
 import { Profile } from './pages/Profile';
 import { EditProfile } from './pages/EditProfile';
 import { SettingsPage } from './pages/SettingsPage';
+import { KycPage } from './pages/KycPage';
 import { NotFound } from './pages/NotFound';
 import { SplashScreen } from './pages/SplashScreen';
 import { Chats } from './pages/Chats';
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="u/:alias" element={<Profile />} />
           <Route path="edit-profile" element={<EditProfile />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="kyc" element={<KycPage />} />
                     <Route path="golive" element={<GoLive />} />
           <Route path="catalog/:userId" element={<CatalogPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
