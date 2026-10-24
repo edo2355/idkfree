@@ -30,6 +30,7 @@ export async function authRoutes(app: FastifyInstance) {
       const accessToken = app.jwt.sign({ sub: userId, alias }, { expiresIn: '30d' });
       return reply.send({ userId, alias, accessToken });
     } catch (err: any) {
+      if (err.message === 'MAX_EMAIL_ACCOUNTS_REACHED') { return reply.code(400).send({ error: 'Límite de 5 cuentas alcanzado' }); }
       if (err.message === 'INVALID_CREDENTIALS') return reply.code(401).send({ error: 'Credenciales inválidas' });
       app.log.error(err); return reply.code(500).send({ error: 'Error interno' });
     }

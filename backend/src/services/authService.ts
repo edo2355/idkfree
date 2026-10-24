@@ -39,7 +39,7 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
     [email, alias]
   );
   if (existing.rows.length > 0) {
-    throw new Error('EMAIL_OR_ALIAS_TAKEN');
+    throw new Error('MAX_EMAIL_ACCOUNTS_REACHED');
   }
 
   // PINs del carnet — usar los del usuario o generar
