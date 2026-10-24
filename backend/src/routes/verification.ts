@@ -65,7 +65,7 @@ export async function verificationRoutes(app: FastifyInstance) {
       const userId = res.rows[0].user_id;
       
       // Marcar como verificado
-      await query('UPDATE users SET is_phone_verified = TRUE WHERE id = ?', [userId]);
+      await query('UPDATE users SET email_verified = TRUE WHERE id = ?', [userId]);
 
       return reply.send({ message: 'Verificado correctamente', ok: true });
     } catch (err) {
