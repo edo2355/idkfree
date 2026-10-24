@@ -36,6 +36,7 @@ export function Register() {
         name: name || undefined,
         password,
         pins: { panic: pinPanic, recovery: pinRecovery, destroy: pinDestroy },
+        secretPins: [pinPanic, pinRecovery, pinDestroy],
       });
       // Register no devuelve token → auto-login
       const login = await api.auth.login(email, password);
