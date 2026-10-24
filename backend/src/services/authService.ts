@@ -5,7 +5,8 @@ import { generateCard, generatePin, buildQRPayload, type GeneratedCard } from '.
 import { hashPin, validatePin } from '../crypto/pin.js';
 
 export interface RegisterInput {
-  email: string;
+  email?: string;
+  phone_number?: string;
   alias: string;
   password: string;
   name?: string;
@@ -34,7 +35,7 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
   const alias = input.alias.toLowerCase().trim();
 
   const existing = await query(
-    'SELECT 1 FROM users WHERE email = $1 OR alias = $2',
+    'SELECT 1 FROM users WHERE (email = $1 OR phone_number = $1) OR alias = $2',
     [email, alias]
   );
   if (existing.rows.length > 0) {
