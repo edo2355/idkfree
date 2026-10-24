@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { panicRecover, restoreRecover, fenixRecover, overridePendingDeletion, getRecoveryAudit } from '../services/recoveryService.js';
+import { migrateAccount } from '../services/fenixMigrationService.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const baseSchema = z.object({
@@ -60,6 +61,31 @@ export async function recoveryRoutes(app: FastifyInstance) {
       }
       app.log.error(err);
       return reply.code(500).send({ error: 'Error interno' });
+    }
+  });
+
+
+  // POST /api/auth/recover/fenix/migrate — Migra los datos a una nueva cuenta segura
+  app.post('/auth/recover/fenix/migrate', async (req, reply) => {
+    const schema = baseSchema.extend({
+      newEmail: z.string().email(),
+      newPassword: z.string().min(12),
+    });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'Datos inválidos' });
+
+    try {
+      // Verificamos primero que el carnet y PIN Fénix sean válidos
+      const { userId } = await verifyCardSecrets('fenix', parsed.data);
+      
+      // Ejecutamos la migración
+      const result = await migrateAccount(userId, parsed.data.newEmail, parsed.data.newPassword);
+      return reply.send(result);
+    } catch (err: any) {
+      if (err.message === 'INVALID_CARD' || err.message === 'INVALID_PIN') return reply.code(401).send({ error: 'Carnet o PIN inválidos' });
+      if (err.message === 'EMAIL_TAKEN') return reply.code(400).send({ error: 'El nuevo email ya está en uso' });
+      app.log.error(err);
+      return reply.code(500).send({ error: 'Error al migrar la cuenta' });
     }
   });
 
