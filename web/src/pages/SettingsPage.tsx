@@ -12,13 +12,17 @@ export function SettingsPage() {
     if (!confirm('¿Estás seguro? Esta acción eliminará tu cuenta y todos tus datos permanentemente.')) return;
     try {
       const token = useAuthStore.getState().token;
-      await fetch('https://idkfreegetid.dpdns.org/api/auth/account', {
+      const res = await fetch('https://idkfreegetid.dpdns.org/api/auth/account', {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
-      useAuthStore.getState().clearAuth();
-      navigate('/');
-      alert('Cuenta eliminada.');
+      if (res.ok) {
+        useAuthStore.getState().clearAuth();
+        navigate('/');
+        alert('Cuenta eliminada correctamente.');
+      } else {
+        alert('No se pudo eliminar la cuenta. Revisa los logs.');
+      }
     } catch (e) {
       alert('Error al eliminar la cuenta.');
     }
