@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { PostCard } from '../components/PostCard';
 import { NotesRow } from '../components/NotesRow';
-import { Layout } from '../components/Layout';
 import { useAuthStore } from '../stores/authStore';
 import './Feed.css';
 
@@ -57,7 +56,7 @@ export function Feed() {
   }
 
   return (
-    <Layout>
+    <>
       <div className="feed-wrapper">
         {/* Columna Central */}
         <div className="feed-main">
@@ -129,6 +128,6 @@ export function Feed() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

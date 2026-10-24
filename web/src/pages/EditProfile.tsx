@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
-import { Layout } from '../components/Layout';
 import './EditProfile.css';
 
 export function EditProfile() {
@@ -62,10 +61,10 @@ export function EditProfile() {
     setLinks(newLinks);
   }
 
-  if (loading) return <Layout><div style={{ padding: 40, color: 'white' }}>Cargando...</div></Layout>;
+  if (loading) return <div style={{ padding: 40, color: 'white' }}>Cargando...</div>;
 
   return (
-    <Layout>
+    <>
       <div className="edit-profile-container">
         <h1>Editar Perfil</h1>
         <form onSubmit={handleSave} className="edit-form">
@@ -114,6 +113,6 @@ export function EditProfile() {
           </button>
         </form>
       </div>
-    </Layout>
+    </>
   );
 }

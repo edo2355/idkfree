@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
-import { Layout } from '../components/Layout';
 import './Chats.css';
 
 export function Chats() {
@@ -24,7 +23,7 @@ export function Chats() {
   }, []);
 
   return (
-    <Layout>
+    <>
       <div className="chats-container">
         <div className="chats-header">
           <h1>Mensajes</h1>
@@ -53,6 +52,6 @@ export function Chats() {
           )}
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
-import { Layout } from '../components/Layout';
 import './Create.css';
 
 export function Create() {
@@ -54,7 +53,7 @@ export function Create() {
   }
 
   return (
-    <Layout>
+    <>
       <div className="create-container">
         <h1>Crear Publicación</h1>
         <form onSubmit={handlePublish} className="create-form">
@@ -107,6 +106,6 @@ export function Create() {
           </button>
         </form>
       </div>
-    </Layout>
+    </>
   );
 }

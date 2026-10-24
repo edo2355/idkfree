@@ -1,8 +1,7 @@
-export function resolveAssetUrl(url?: string | null): string {
+export function resolveAssetUrl(url: string) {
   if (!url) return '';
-  if (url.startsWith('http')) return url; // Ya es una URL absoluta
-  
-  // Si es relativa, le pegamos la URL del backend
-  const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3000/api').replace('/api', '');
-  return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  // Apuntar a la URL del backend en producción
+  const BACKEND_URL = 'https://idkfreegetid.dpdns.org';
+  return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }

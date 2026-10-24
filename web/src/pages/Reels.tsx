@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { useAuthStore } from '../stores/authStore';
-import { Layout } from '../components/Layout';
 import './Reels.css';
 
 export function Reels() {
@@ -44,21 +43,21 @@ export function Reels() {
     }
   }
 
-  if (loading) return <Layout><div className="reels-loading">Cargando Reels...</div></Layout>;
+  if (loading) return <div className="reels-loading">Cargando Reels...</div>;
 
   if (reels.length === 0) {
     return (
-      <Layout>
+      <>
         <div className="reels-empty">
           <h2>No hay Reels aún</h2>
           <p>Los videos que se suban desde la app aparecerán aquí.</p>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <div className="reels-wrapper">
         {reels.map((reel, index) => (
           <div key={reel.id} className="reel-container">
@@ -112,6 +111,6 @@ export function Reels() {
           </div>
         ))}
       </div>
-    </Layout>
+    </>
   );
 }

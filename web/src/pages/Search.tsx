@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
-import { Layout } from '../components/Layout';
 import './Search.css';
 
 export function Search() {
@@ -51,7 +50,7 @@ export function Search() {
   }
 
   return (
-    <Layout>
+    <>
       <div className="search-container">
         <div className="search-header">
           <h1>Explorar</h1>
@@ -97,6 +96,6 @@ export function Search() {
           )}
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

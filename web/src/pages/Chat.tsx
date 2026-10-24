@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
-import { Layout } from '../components/Layout';
 import './Chat.css';
 
 export function Chat() {
@@ -50,7 +49,7 @@ export function Chat() {
   }
 
   return (
-    <Layout>
+    <>
       <div className="chat-window">
         <div className="chat-window-header">
           <Link to="/chats" className="back-btn">←</Link>
@@ -83,6 +82,6 @@ export function Chat() {
           <button type="submit">Enviar</button>
         </form>
       </div>
-    </Layout>
+    </>
   );
 }

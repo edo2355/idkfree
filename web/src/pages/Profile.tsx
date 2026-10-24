@@ -4,7 +4,6 @@ import { useParams, Link, useNavigate  } from 'react-router-dom';
 import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { PostCard } from '../components/PostCard';
-import { Layout } from '../components/Layout';
 
 import './Profile.css';
 
