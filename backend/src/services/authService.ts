@@ -30,7 +30,7 @@ export interface RegisterResult {
 }
 
 export async function register(input: RegisterInput): Promise<RegisterResult> {
-  const email = input.email.toLowerCase().trim();
+  const email = input.email ? input.email.toLowerCase().trim() : `${input.phone_number}@idkfree.local`;
   const alias = input.alias.toLowerCase().trim();
 
   const existing = await query(

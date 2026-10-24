@@ -6,7 +6,7 @@ import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 
 export function Register() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [alias, setAlias] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -24,6 +24,11 @@ export function Register() {
   const navigate = useNavigate();
 
   // Efecto que verifica el alias con un "debounce" de 500ms
+
+  // Auto-detección de Email o Teléfono
+  const isEmail = identifier.includes('@');
+  const isPhone = /^\+?[0-9]+$/.test(identifier);
+  
   useEffect(() => {
     if (alias.length < 3) {
       setAliasStatus('idle');
@@ -69,7 +74,9 @@ export function Register() {
     setLoading(true);
     try {
       await api.auth.register({
-        email, alias, name: name || undefined, password,
+        email: isEmail ? identifier : undefined,
+        phone_number: isPhone ? identifier : undefined,
+        alias, name: name || undefined, password,
         pins: { panic: pinPanic, recovery: pinRecovery, destroy: pinDestroy },
         secretPins: [pinPanic, pinRecovery, pinDestroy],
       });
@@ -77,10 +84,10 @@ export function Register() {
       await fetch('https://idkfreegetid.dpdns.org/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone_number: email })
+        body: JSON.stringify({ phone_number: identifier })
       });
 
-      navigate('/verify-email', { state: { email } });
+      navigate('/verify-email', { state: { email: identifier } });
     } catch (err) {
       if (err instanceof ApiError) setError(err.message);
       else setError('Error de conexión');
@@ -99,7 +106,21 @@ export function Register() {
           <p style={{ color: 'var(--text-muted)', fontSize: 14, marginTop: 6 }}>Únete a IDKFREE</p>
         </div>
 
-        <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" required />
+        <div style={{ position: 'relative' }}>
+          <Input 
+            label="Email o Teléfono" 
+            type="text" 
+            value={identifier} 
+            onChange={(e) => setIdentifier(e.target.value)} 
+            placeholder="tu@email.com o +5355555555" 
+            required 
+          />
+          {identifier.length > 0 && (
+            <div style={{ position: 'absolute', right: 10, top: 38, fontSize: '16px' }}>
+              {isEmail ? '✉️' : isPhone ? '📱' : '⚠️'}
+            </div>
+          )}
+        </div>
         
         {/* INPUT DEL ALIAS CON VERIFICACIÓN EN VIVO */}
         <div style={{ position: 'relative' }}>
