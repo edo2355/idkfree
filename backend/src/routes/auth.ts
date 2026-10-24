@@ -16,7 +16,8 @@ export async function authRoutes(app: FastifyInstance) {
         warning: 'Guarda los 3 QRs y los 3 PINs del carnet AHORA. Los 3 PINs secretos no se muestran — solo tú los sabes.',
       });
     } catch (err: any) {
-      if (err.message === 'EMAIL_OR_ALIAS_TAKEN') return reply.code(409).send({ error: 'Email o alias ya está en uso' });
+      if (err.message === 'MAX_EMAIL_ACCOUNTS_REACHED') return reply.code(400).send({ error: 'Este correo ya tiene 5 cuentas registradas. Usa otro correo.' });
+      if (err.message === 'ALIAS_TAKEN') return reply.code(409).send({ error: 'El alias ya está en uso' });
       if (err.message.includes('PIN')) return reply.code(400).send({ error: err.message });
       app.log.error(err); return reply.code(500).send({ error: 'Error interno' });
     }

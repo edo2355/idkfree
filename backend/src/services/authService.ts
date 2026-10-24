@@ -34,12 +34,18 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
   const email = input.email ? input.email.toLowerCase().trim() : `${input.phone_number}@idkfree.local`;
   const alias = input.alias.toLowerCase().trim();
 
-  const existing = await query(
-    'SELECT 1 FROM users WHERE (email = $1 OR phone_number = $1) OR alias = $2',
-    [email, alias]
-  );
-  if (existing.rows.length > 0) {
+  // 1. Verificar cuántas veces está este email en user_credentials (límite 5)
+  const emailCountRes = await query('SELECT count(*) as count FROM user_credentials WHERE email = $1', [email]);
+  const emailCount = parseInt(emailCountRes.rows[0].count, 10);
+  
+  if (emailCount >= 5) {
     throw new Error('MAX_EMAIL_ACCOUNTS_REACHED');
+  }
+
+  // 2. Verificar que el alias no esté ocupado
+  const aliasCheck = await query('SELECT 1 FROM users WHERE alias = $1', [alias]);
+  if (aliasCheck.rows.length > 0) {
+    throw new Error('ALIAS_TAKEN');
   }
 
   // PINs del carnet — usar los del usuario o generar
