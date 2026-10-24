@@ -10,7 +10,10 @@ export async function verificationRoutes(app: FastifyInstance) {
     if (!phone_number) return reply.code(400).send({ error: 'Teléfono requerido' });
 
     try {
-      const userRes = await query('SELECT id FROM users WHERE phone_number = ?', [phone_number]);
+      const isEmail = phone_number.includes('@');
+      const userRes = isEmail 
+        ? await query('SELECT id FROM users WHERE email = ?', [phone_number])
+        : await query('SELECT id FROM users WHERE phone_number = ?', [phone_number]);
 
       if (userRes.rows.length === 0) return reply.code(404).send({ error: 'Teléfono no registrado en IDKFREE' });
       const userId = userRes.rows[0].id;
