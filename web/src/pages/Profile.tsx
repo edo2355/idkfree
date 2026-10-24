@@ -98,14 +98,9 @@ export function Profile() {
             {/* Botón Editar (Solo si es mi perfil) */}
             {isMe && (
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
-                <Link to="/edit-profile" className="edit-profile-btn" style={{ padding: '10px 20px', border: '1px solid #333', color: '#fff', textDecoration: 'none', fontFamily: 'monospace' }}>Editar Perfil</Link>
-                <Link to="/settings" className="settings-btn" style={{ padding: '10px 20px', border: '1px solid #00E5FF', color: '#00E5FF', textDecoration: 'none', fontFamily: 'monospace' }}>[ AJUSTES ]</Link>
-                <button
-                  onClick={() => navigate(`/catalog/${alias || 'me'}`)}
-                  style={{ padding: '10px 20px', backgroundColor: 'transparent', border: '1px solid #fff', color: '#fff', fontFamily: 'monospace', cursor: 'pointer', textTransform: 'uppercase' }}
-                >
-                  [ VER CATÁLOGO ]
-                </button>
+                <Link to="/edit-profile" className="btn-tactical" style={{ textDecoration: 'none' }}>Editar Perfil</Link>
+                <Link to="/settings" className="btn-tactical" style={{ textDecoration: 'none', borderColor: '#00E5FF', color: '#00E5FF' }}>[ AJUSTES ]</Link>
+                <Link to="/catalog/me" className="btn-tactical" style={{ textDecoration: 'none', borderColor: '#fff', color: '#fff' }}>[ VER CATÁLOGO ]</Link>
               </div>
             )}
           </div>
