@@ -18,7 +18,7 @@ export async function adminRoutes(app: FastifyInstance) {
       const res = await query(`
         SELECT id, alias, name, email, account_type, role, created_at,
         (SELECT COUNT(*) FROM posts WHERE author_id = users.id) as posts_count
-        FROM users WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 50
+        FROM users WHERE deleted_at IS NULL AND is_test = 0 ORDER BY created_at DESC LIMIT 50
       `);
       return reply.send({ users: res.rows });
     } catch (err) {
@@ -29,8 +29,8 @@ export async function adminRoutes(app: FastifyInstance) {
   // GET /api/admin/stats — Métricas generales
   app.get('/admin/stats', { preHandler: [requireAuth, checkAdmin] }, async (req, reply) => {
     try {
-      const users = await query('SELECT COUNT(*) FROM users WHERE deleted_at IS NULL');
-      const posts = await query('SELECT COUNT(*) FROM posts WHERE deleted_at IS NULL');
+      const users = await query('SELECT COUNT(*) FROM users WHERE deleted_at IS NULL AND is_test = 0');
+      const posts = await query('SELECT COUNT(*) FROM posts WHERE deleted_at IS NULL AND is_test = 0');
       const messages = await query('SELECT COUNT(*) FROM direct_messages');
       return reply.send({
         total_users: Number(users.rows[0].count),
