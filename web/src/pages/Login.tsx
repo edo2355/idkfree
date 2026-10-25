@@ -180,6 +180,10 @@ export function Login() {
 
         </div>
       </div>
-    </div>
+    
+      <div style={{ textAlign: 'center', marginTop: '30px', fontSize: '12px', color: '#a0a5b1', fontFamily: 'Space Mono' }}>
+        ¿Problemas con tu cuenta? <a href="mailto:eduardorafaelamatevaldes@gmail.com" style={{ color: '#00E5FF', textDecoration: 'underline' }}>Contacta a Soporte</a>
+      </div>
+</div>
   );
 }
