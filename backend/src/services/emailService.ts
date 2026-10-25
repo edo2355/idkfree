@@ -1,5 +1,5 @@
 export async function sendVerificationEmail(to: string, code: string) {
-  const MAILTRAP_TOKEN = process.env.MAILTRAP_TOKEN || 'tu_token_aqui';
+  const MAILTRAP_TOKEN = await getSetting('MAILTRAP_TOKEN', process.env.MAILTRAP_TOKEN || '');
   
   try {
     const response = await fetch('https://send.api.mailtrap.io/api/send', {
@@ -9,7 +9,7 @@ export async function sendVerificationEmail(to: string, code: string) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: { email: 'noreply@idkfreegetid.dpdns.org', name: 'IDKFREE' },
+        from: { email: await getSetting('FROM_EMAIL', 'noreply@idkfreegetid.dpdns.org'), name: await getSetting('BRAND_NAME', 'IDKFREE') },
         to: [{ email: to }],
         subject: '[ IDKFREE ] Código de Verificación',
         html: `
@@ -42,3 +42,4 @@ export async function sendVerificationSMS(to: string, code: string) {
   console.log(`[ SMS SIMULADO ] Código ${code} para ${to}`);
   return true;
 }
+import { getSetting } from '../utils/settings.js';
