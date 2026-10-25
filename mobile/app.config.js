@@ -17,7 +17,7 @@ module.exports = () => {
     },
     plugins: [
       ...(appJson.expo.plugins || []),
-      'expo-dev-client' // <--- ESTO ES LO QUE ACTIVA EL MENÚ DE EXPO
+      ...(process.env.APP_VARIANT === 'development' || !process.env.CI ? ['expo-dev-client'] : [])
     ],
   };
 };

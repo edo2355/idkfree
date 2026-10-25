@@ -3,44 +3,76 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout del código
-      uses: actions/checkout@v4
+      - name: Checkout del código
+        uses: actions/checkout@v4
 
-    - name: Configurar Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'mobile/package-lock.json'
 
-    - name: Configurar Java 17
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'zulu'
-        java-version: '17'
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
-    - name: Instalar dependencias
-      run: |
-        cd mobile
-        npm install --legacy-peer-deps
+      - name: Instalar dependencias
+        run: |
+          cd mobile
+          npm install --legacy-peer-deps
 
-    - name: Generar carpeta Android (Expo Prebuild)
-      run: |
-        cd mobile
-        npx expo prebuild --platform android --no-install
+      - name: Generar carpeta Android (Expo Prebuild)
+        run: |
+          cd mobile
+          npx expo prebuild --platform android --no-install
 
-    - name: Compilar APK (Gradle)
-      run: |
-        cd mobile/android
-        chmod +x gradlew
-        ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+      - name: Inyectar Keystore y Firma
+        run: |
+          cd mobile/android/app
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+          echo "MYAPP_RELEASE_STORE_FILE=release.keystore" >> ../gradle.properties
+          echo "MYAPP_RELEASE_KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> ../gradle.properties
+          echo "MYAPP_RELEASE_STORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> ../gradle.properties
+          echo "MYAPP_RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> ../gradle.properties
 
-    - name: Subir APK como Artefacto
-      uses: actions/upload-artifact@v4
-      with:
-        name: IDKFREE-APK
-        path: mobile/android/app/build/outputs/apk/release/*.apk
+          python3 -c "
+          import re
+          with open('build.gradle', 'r') as f: content = f.read()
+          signing_block = '''
+              signingConfigs {
+                  release {
+                      storeFile file(MYAPP_RELEASE_STORE_FILE)
+                      storePassword MYAPP_RELEASE_STORE_PASSWORD
+                      keyAlias MYAPP_RELEASE_KEY_ALIAS
+                      keyPassword MYAPP_RELEASE_KEY_PASSWORD
+                  }
+              }
+          '''
+          content = content.replace('android {', 'android {\n' + signing_block, 1)
+          content = content.replace('release {', 'release {\n            signingConfig signingConfigs.release', 1)
+          with open('build.gradle', 'w') as f: f.write(content)
+          "
+
+      - name: Compilar APK Firmada
+        run: |
+          cd mobile/android
+          chmod +x gradlew
+          ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+
+      - name: Subir APK como Artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: IDKFREE-APK-FIRMADA
+          path: mobile/android/app/build/outputs/apk/release/*.apk
