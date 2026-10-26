@@ -87,6 +87,11 @@ export function createApi(config: ApiConfig) {
     card: {
       get: () => request<any>('/me/card'),
     },
+    kyc: {
+      status: () => request<any>('/kyc/status'),
+      submit: (d: { document_type: string; document_number: string; document_photo?: string; selfie_photo?: string }) =>
+        request<any>('/kyc/submit', { method: 'POST', body: JSON.stringify(d) }),
+    },
     profile: {
       get: (alias: string) => request<any>(`/users/${alias}`),
       suggestions: (p?: { limit?: number }) => {
