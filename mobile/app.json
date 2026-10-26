@@ -19,8 +19,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "app.idkfree.mobile",
       "infoPlist": {
-        "NSCameraUsageDescription": "IDKFREE necesita acceso a tu c\u00e1mara para transmitir en vivo y tomar fotos.",
-        "NSMicrophoneUsageDescription": "IDKFREE necesita acceso a tu micr\u00f3fono para las transmisiones en vivo.",
+        "NSCameraUsageDescription": "IDKFREE necesita acceso a tu cámara para transmitir en vivo y tomar fotos.",
+        "NSMicrophoneUsageDescription": "IDKFREE necesita acceso a tu micrófono para las transmisiones en vivo.",
         "NSPhotoLibraryUsageDescription": "IDKFREE necesita acceso a tus fotos para que puedas subir contenido."
       }
     },
@@ -64,6 +64,13 @@
           "photosPermission": "Permitir a IDKFREE acceder a tus fotos.",
           "savePhotosPermission": "Permitir a IDKFREE guardar fotos.",
           "isAccessMediaLocationEnabled": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permitir a IDKFREE acceder a tus fotos.",
+          "cameraPermission": "Permitir a IDKFREE usar la cámara para verificación de identidad."
         }
       ]
     ],
