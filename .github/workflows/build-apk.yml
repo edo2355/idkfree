@@ -38,41 +38,31 @@ jobs:
           cd mobile
           npx expo prebuild --platform android --no-install
 
-      - name: Inyectar Keystore y Firma
-        run: |
-          cd mobile/android/app
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
-          echo "MYAPP_RELEASE_STORE_FILE=release.keystore" >> ../gradle.properties
-          echo "MYAPP_RELEASE_KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> ../gradle.properties
-          echo "MYAPP_RELEASE_STORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> ../gradle.properties
-          echo "MYAPP_RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> ../gradle.properties
-
-          python3 -c "
-          import re
-          with open('build.gradle', 'r') as f: content = f.read()
-          signing_block = '''
-              signingConfigs {
-                  release {
-                      storeFile file(MYAPP_RELEASE_STORE_FILE)
-                      storePassword MYAPP_RELEASE_STORE_PASSWORD
-                      keyAlias MYAPP_RELEASE_KEY_ALIAS
-                      keyPassword MYAPP_RELEASE_KEY_PASSWORD
-                  }
-              }
-          '''
-          content = content.replace('android {', 'android {\n' + signing_block, 1)
-          content = content.replace('release {', 'release {\n            signingConfig signingConfigs.release', 1)
-          with open('build.gradle', 'w') as f: f.write(content)
-          "
-
-      - name: Compilar APK Firmada
+      - name: Compilar APK SIN Firmar (Gradle)
         run: |
           cd mobile/android
           chmod +x gradlew
           ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
 
-      - name: Subir APK como Artefacto
+      - name: Configurar Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+
+      - name: Firmar APK con apksigner
+        run: |
+          UNSIGNED_APK=$(find mobile/android/app/build/outputs/apk/release -name "*.apk" | head -n 1)
+          echo "Firmando: $UNSIGNED_APK"
+          
+          $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
+            --ks release.keystore \
+            --ks-pass "pass:${{ secrets.KEYSTORE_PASSWORD }}" \
+            --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
+            --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
+            --out app-release-signed.apk \
+            "$UNSIGNED_APK"
+
+      - name: Subir APK Firmada
         uses: actions/upload-artifact@v4
         with:
           name: IDKFREE-APK-FIRMADA
-          path: mobile/android/app/build/outputs/apk/release/*.apk
+          path: app-release-signed.apk
