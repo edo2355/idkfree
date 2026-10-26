@@ -31,6 +31,6 @@ export async function livekitRoutes(app: FastifyInstance) {
       canSubscribe: true,
     });
 
-    return reply.send({ token: await at.toJwt() });
+    return reply.send({ token: await at.toJwt(), url: process.env.LIVEKIT_URL });
   });
 }
