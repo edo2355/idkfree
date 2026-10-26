@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-// import { registerGlobals } from '@livekit/react-native';
+import { registerGlobals } from '@livekit/react-native';
 import { View, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Camera } from 'expo-camera';
