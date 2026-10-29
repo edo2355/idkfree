@@ -10,5 +10,7 @@ export const env = {
   port: parseInt(process.env.PORT ?? '3000', 10),
   jwtSecret: required('JWT_SECRET'),
   nodeEnv: process.env.NODE_ENV ?? 'development',
-  isProd: process.env.NODE_ENV === 'production',
+  isProd: process.env.NODE_ENV === 'production',opensanctionsApiKey: required('OPENSANCTIONS_API_KEY'),
+sanctionsBlockThreshold: parseFloat(process.env.SANCTIONS_THRESHOLD_BLOCK ?? '0.85'),
+sanctionsReviewThreshold: parseFloat(process.env.SANCTIONS_THRESHOLD_REVIEW ?? '0.70'),
 };
