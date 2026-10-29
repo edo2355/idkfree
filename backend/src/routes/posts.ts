@@ -49,13 +49,14 @@ export async function postRoutes(app: FastifyInstance) {
 
   // GET /api/feed
   app.get('/feed', { preHandler: [requireAuth] }, async (req, reply) => {
-    const { limit, offset, hashtag, type, action } = req.query as any;
+    const { limit, offset, hashtag, type, types, action } = req.query as any;
     try {
       const posts = await getFeed(req.userId!, {
         limit: limit ? parseInt(limit) : 50,
         offset: offset ? parseInt(offset) : 0,
         hashtag,
         type,
+        types,
         action,
       });
       return reply.send({ posts });
