@@ -17,8 +17,18 @@ const createPostSchema = z.object({
   imageUrl: z.string().max(500).nullable().optional(),
   videoUrl: z.string().max(500).nullable().optional(),
   visibility: z.enum(['public', 'followers', 'private']).default('followers'),
+  type: z.enum(['social', 'obra', 'servicio', 'necesidad', 'producto']).default('social'),
+  action_type: z.enum(['comprar', 'contratar', 'ofrecer', 'ver_mas']).nullable().optional(),
+  request_data: z.string().max(2000).nullable().optional(),
+  catalog_item_id: z.string().nullable().optional(),
 }).refine((d) => d.body || d.imageUrl || d.videoUrl, {
   message: 'El post debe tener texto o imagen',
+}).refine((d) => {
+  // Si type != social, action_type es obligatorio
+  if (d.type !== 'social' && !d.action_type) return false;
+  return true;
+}, {
+  message: 'Los posts de tipo oportunidad requieren action_type',
 });
 
 export async function postRoutes(app: FastifyInstance) {
@@ -39,12 +49,14 @@ export async function postRoutes(app: FastifyInstance) {
 
   // GET /api/feed
   app.get('/feed', { preHandler: [requireAuth] }, async (req, reply) => {
-    const { limit, offset, hashtag } = req.query as any;
+    const { limit, offset, hashtag, type, action } = req.query as any;
     try {
       const posts = await getFeed(req.userId!, {
         limit: limit ? parseInt(limit) : 50,
         offset: offset ? parseInt(offset) : 0,
         hashtag,
+        type,
+        action,
       });
       return reply.send({ posts });
     } catch (err: any) {

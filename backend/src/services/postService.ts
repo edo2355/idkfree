@@ -16,7 +16,7 @@ function extractMentions(body: string): string[] {
 
 export async function createPost(
   authorId: string,
-  data: { body?: string | null; imageUrl?: string | null; videoUrl?: string | null; visibility: string }
+  data: { body?: string | null; imageUrl?: string | null; videoUrl?: string | null; visibility: string; type?: string; request_data?: string | null; action_type?: string | null; catalog_item_id?: string | null }
 ) {
   const client = await pool.connect();
   try {
@@ -24,9 +24,10 @@ export async function createPost(
 
     const postId = uuid();
     await client.query(
-      `INSERT INTO posts (id, author_id, body, image_url, video_url, visibility)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [postId, authorId, data.body ?? null, data.imageUrl ?? null, data.videoUrl ?? null, data.visibility]
+      `INSERT INTO posts (id, author_id, body, image_url, video_url, visibility, type, request_data, action_type, catalog_item_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [postId, authorId, data.body ?? null, data.imageUrl ?? null, data.videoUrl ?? null, data.visibility,
+       data.type ?? 'social', data.request_data ?? null, data.action_type ?? null, data.catalog_item_id ?? null]
     );
 
     if (data.body) {
@@ -86,7 +87,7 @@ export async function createPost(
 
 export async function getFeed(
   viewerId: string,
-  options: { limit?: number; offset?: number; hashtag?: string }
+  options: { limit?: number; offset?: number; hashtag?: string; type?: string; action?: string }
 ) {
   const limit = Math.min(options.limit ?? 50, 100);
   const offset = options.offset ?? 0;
@@ -95,6 +96,7 @@ export async function getFeed(
     SELECT
       p.id, p.author_id, u.alias AS author_alias, u.name AS author_name,
       u.avatar_url AS author_avatar, p.body, p.image_url, p.video_url, p.visibility,
+      p.type, p.request_data, p.action_type, p.catalog_item_id,
       p.created_at,
       (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes_count,
       (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND deleted_at IS NULL) AS comments_count
@@ -112,6 +114,15 @@ export async function getFeed(
       SELECT 1 FROM post_hashtags ph JOIN hashtags h ON h.id = ph.hashtag_id
       WHERE ph.post_id = p.id AND h.tag = $${params.length}
     )`;
+  }
+
+  if (options.type) {
+    params.push(options.type);
+    sql += ` AND p.type = $${params.length}`;
+  }
+  if (options.action) {
+    params.push(options.action);
+    sql += ` AND p.action_type = $${params.length}`;
   }
 
   params.push(limit, offset);
