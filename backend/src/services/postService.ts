@@ -121,93 +121,10 @@ export async function getFeed(
     sql += ` AND p.type = $${params.length}`;
   }
   if (options.types) {
-    const arr = options.types.split(',').filter(Boolean);
+    const arr = options.types.split(",").filter(Boolean);
     if (arr.length > 0) {
-      const ph = arr.map((t) => { params.push(t); return '
-    params.push(options.action);
-    sql += ` AND p.action_type = $${params.length}`;
-  }
-
-  params.push(limit, offset);
-  sql += ` ORDER BY p.created_at DESC LIMIT $${params.length - 1} OFFSET $${params.length}`;
-
-  const res = await query(sql, params);
-  return res.rows;
-}
-
-export async function getUserPosts(userId: string) {
-  const res = await query(
-    `SELECT p.id, p.author_id, u.alias AS author_alias, u.name AS author_name,
-      u.avatar_url AS author_avatar, p.body, p.image_url, p.video_url, p.visibility,
-      p.created_at,
-      (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes_count,
-      (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND deleted_at IS NULL) AS comments_count
-     FROM posts p JOIN users u ON u.id = p.author_id
-     WHERE p.author_id = $1 AND p.deleted_at IS NULL
-     ORDER BY p.created_at DESC LIMIT 100`,
-    [userId]
-  );
-  return res.rows;
-}
-
-export async function deletePost(postId: string, userId: string) {
-  const res = await query(
-    `UPDATE posts SET deleted_at = datetime('now')
-     WHERE id = $1 AND author_id = $2 AND deleted_at IS NULL`,
-    [postId, userId]
-  );
-  return res.rowCount > 0;
-}
-
-export async function likePost(postId: string, userId: string) {
-  await query(
-    `INSERT OR IGNORE INTO post_likes (user_id, post_id) VALUES ($1, $2)`,
-    [userId, postId]
-  );
-}
-
-export async function unlikePost(postId: string, userId: string) {
-  await query(
-    `DELETE FROM post_likes WHERE user_id = $1 AND post_id = $2`,
-    [userId, postId]
-  );
-}
-
-/**
- * Devuelve posts que tienen video (reels).
- * Los ordena por más recientes.
- */
-export async function getReels(
-  viewerId: string,
-  options: { limit?: number; offset?: number }
-) {
-  const limit = Math.min(options.limit ?? 30, 100);
-  const offset = options.offset ?? 0;
-
-  const sql = `
-    SELECT
-      p.id, p.author_id, u.alias AS author_alias, u.name AS author_name,
-      u.avatar_url AS author_avatar, p.body, p.image_url, p.video_url, p.visibility,
-      p.created_at,
-      (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes_count,
-      (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND deleted_at IS NULL) AS comments_count
-    FROM posts p
-    JOIN users u ON u.id = p.author_id
-    WHERE p.video_url IS NOT NULL
-      AND p.deleted_at IS NULL
-      AND (p.visibility = 'public' OR p.author_id = $1
-           OR (p.visibility = 'followers' AND p.author_id IN (
-             SELECT followed_id FROM follows WHERE follower_id = $1
-           )))
-    ORDER BY p.created_at DESC
-    LIMIT $2 OFFSET $3
-  `;
-
-  const res = await query(sql, [viewerId, limit, offset]);
-  return { reels: res.rows, count: res.rows.length };
-}
- + params.length; }).join(',');
-      sql += ' AND p.type IN (' + ph + ')';
+      const placeholders = arr.map((t) => { params.push(t); return "$" + params.length; });
+      sql += " AND p.type IN (" + placeholders.join(",") + ")";
     }
   }
   if (options.action) {
