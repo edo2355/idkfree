@@ -3,6 +3,7 @@ import { register, verifyLogin } from '../services/authService.js';
 import { registerSchema, loginSchema } from '../utils/validation.js';
 import { query } from '../db/pool.js';
 import { screenAndRecord } from '../services/amlService.js';
+import { countryFromPhone } from '../utils/countryFromPhone.js';
 
 export async function authRoutes(app: FastifyInstance) {
     app.post('/auth/register', async (req, reply) => {
@@ -13,6 +14,17 @@ export async function authRoutes(app: FastifyInstance) {
     }
     try {
       const result = await register(parsed.data as any);
+
+      const detectedCountry = countryFromPhone(parsed.data.phone_number) ?? 'CU';
+      const isDiaspora = detectedCountry !== 'CU' ? 1 : 0;
+      try {
+        await query(
+          'UPDATE users SET country_code = $1, is_diaspora = $2 WHERE id = $3',
+          [detectedCountry, isDiaspora, result.userId]
+        );
+      } catch (e) {
+        app.log.error({ err: e, userId: result.userId }, 'COUNTRY_UPDATE_FAILED');
+      }
 
       // Screening OFAC: NO bloquea cuenta. Solo restringe servicios financieros.
       const screenName = (parsed.data as any).name || (parsed.data as any).alias;
