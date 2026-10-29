@@ -24,6 +24,9 @@ import { Chat } from './pages/Chat';
 import { Search } from './pages/Search';
 import { Create } from './pages/Create';
 import { Reels } from './pages/Reels';
+import { Suppliers } from './pages/Suppliers';
+import { SupplierDetail } from './pages/SupplierDetail';
+import { SupplierRegister } from './pages/SupplierRegister';
 
 export default function App() {
   const { isLoading, token } = useAuth();
@@ -62,6 +65,9 @@ export default function App() {
                     <Route path="golive" element={<GoLive />} />
           <Route path="catalog/:userId" element={<CatalogPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
+          <Route path="suppliers" element={<Suppliers />} />
+          <Route path="suppliers/:id" element={<SupplierDetail />} />
+          <Route path="suppliers/me" element={<SupplierRegister />} />
         </Route>
       
       
