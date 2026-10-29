@@ -5,7 +5,7 @@ import { query } from '../db/pool.js';
 import { screenAndRecord } from '../services/amlService.js';
 
 export async function authRoutes(app: FastifyInstance) {
-  app.post('/auth/register', async (req, reply) => {
+    app.post('/auth/register', async (req, reply) => {
     const parsed = registerSchema.safeParse(req.body);
     if (!parsed.success) {
       app.log.error({ zodErrors: parsed.error.flatten() }, 'REGISTER VALIDATION FAILED');
@@ -14,6 +14,7 @@ export async function authRoutes(app: FastifyInstance) {
     try {
       const result = await register(parsed.data as any);
 
+      // Screening OFAC: NO bloquea cuenta. Solo restringe servicios financieros.
       const screenName = (parsed.data as any).name || (parsed.data as any).alias;
       const screening = await screenAndRecord({
         userId: result.userId,
@@ -22,14 +23,7 @@ export async function authRoutes(app: FastifyInstance) {
         nationality: 'CU',
       });
 
-      if (screening.verdict === 'blocked') {
-        await query('UPDATE users SET is_locked = TRUE WHERE id = $1', [result.userId]);
-        return reply.code(403).send({
-          error: 'SCREENING_BLOCKED',
-          message: 'Tu cuenta requiere revisión. Contacta a soporte.',
-          screeningId: screening.screeningId,
-        });
-      }
+      const compliance_restricted = screening.verdict === 'blocked';
 
       const accessToken = app.jwt.sign(
         { sub: result.userId, alias: result.alias },
@@ -38,8 +32,10 @@ export async function authRoutes(app: FastifyInstance) {
       return reply.code(201).send({
         ...result,
         accessToken,
-        screening_verdict: screening.verdict,
-        warning: 'Guarda los 3 QRs y los 3 PINs del carnet AHORA.',
+        compliance_restricted,
+        warning: compliance_restricted
+          ? 'Tu cuenta está activa para comunidad. Los servicios financieros (wallet, diáspora, marketplace con pago, KYC) requieren revisión de compliance. Contacta a soporte.'
+          : 'Guarda los 3 QRs y los 3 PINs del carnet AHORA.',
       });
     } catch (err: any) {
       if (err.message === 'MAX_EMAIL_ACCOUNTS_REACHED') {
