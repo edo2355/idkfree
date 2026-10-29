@@ -30,7 +30,7 @@ export async function influencerRoutes(app: FastifyInstance) {
     return reply.send({ influencers: r.rows, total: r.rows.length });
   });
 
-  app.get('/influencers/:id', async (req, reply) => {
+  app.get('/influencers/:id', async (req: any, reply) => {
     const { id } = req.params;
     const r = await query('SELECT * FROM influencer_profiles WHERE id = $1', [id]);
     if (r.rows.length === 0) return reply.code(404).send({ error: 'Influencer no encontrado' });
