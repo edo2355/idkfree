@@ -1,3 +1,4 @@
+import { OpportunityCard } from "./OpportunityCard";
 import { useState, useRef } from 'react';
 import { api } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
@@ -168,4 +169,13 @@ export function PostCard({ post, onComment, onShare }: PostCardProps) {
       </div>
     </div>
   );
+}
+
+
+// __wrapper_applied
+export function PostCardSwitch({ post, onComment, onShare }: PostCardProps) {
+  if (post.type && post.type !== "social") {
+    return <OpportunityCard post={post} />;
+  }
+  return <PostCard post={post} onComment={onComment} onShare={onShare} />;
 }

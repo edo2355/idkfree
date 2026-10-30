@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
-import { PostCard } from '../components/PostCard';
+import { PostCardSwitch as PostCard } from '../components/PostCard';
 import { NotesRow } from '../components/NotesRow';
 import { useAuthStore } from '../stores/authStore';
 import './Feed.css';
@@ -14,10 +14,15 @@ export function Feed() {
   // Estados para el compositor
   const [newPostText, setNewPostText] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
+  const [tab, setTab] = useState<'oportunidades' | 'ofertas' | 'comunidad' | 'todo'>('oportunidades');
 
   async function loadFeed() {
     try {
-      const res = await api.posts.feed({ limit: 20 });
+      const params: any = { limit: 20 };
+      if (tab === 'oportunidades') params.types = ['necesidad', 'producto', 'servicio', 'obra'];
+      else if (tab === 'ofertas') params.types = ['producto', 'servicio'];
+      else if (tab === 'comunidad') params.type = 'social';
+      const res = await api.posts.feed(params);
       setPosts(res.posts);
       setError(null);
     } catch (err: any) {
@@ -28,8 +33,9 @@ export function Feed() {
   }
 
   useEffect(() => {
+    setLoading(true);
     loadFeed();
-  }, []);
+  }, [tab]);
 
   async function handlePublish() {
     if (!newPostText.trim() || isPublishing) return;
@@ -63,7 +69,13 @@ export function Feed() {
           
           {/* Header del Feed */}
           <div className="feed-header">
-            <h1>Inicio</h1>
+            <h1>Cross-Border</h1>
+            <nav className="feed-tabs">
+              <button className={tab === 'oportunidades' ? 'active' : ''} onClick={() => setTab('oportunidades')}>Transfronterizo</button>
+              <button className={tab === 'ofertas' ? 'active' : ''} onClick={() => setTab('ofertas')}>Ofertas</button>
+              <button className={tab === 'comunidad' ? 'active' : ''} onClick={() => setTab('comunidad')}>Comunidad</button>
+              <button className={tab === 'todo' ? 'active' : ''} onClick={() => setTab('todo')}>Todo</button>
+            </nav>
           </div>
 
           {/* Compositor Funcional */}
@@ -73,7 +85,7 @@ export function Feed() {
             </div>
             <input 
               type="text" 
-              placeholder="¿Qué está pasando en el pueblo?" 
+              placeholder="Publica una oportunidad comercial, buscas proveedor, ofreces servicio..." 
               value={newPostText}
               onChange={(e) => setNewPostText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handlePublish()}

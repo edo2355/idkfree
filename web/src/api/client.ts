@@ -55,10 +55,14 @@ export const api = {
     suggestions: (limit = 10) => request<any>(`/users/suggestions?limit=${limit}`),
   },
   posts: {
-    feed: (p?: { limit?: number }) => {
+    feed: (p?: { limit?: number; type?: string; types?: string[]; action?: string }) => {
       const q = new URLSearchParams();
       if (p?.limit) q.set('limit', String(p.limit));
-      return request<any>(`/feed?${q}`);
+      if (p?.type) q.set('type', p.type);
+      if (p?.types && p.types.length) q.set('types', p.types.join(','));
+      if (p?.action) q.set('action', p.action);
+      const qs = q.toString();
+      return request<any>(`/feed${qs ? '?' + qs : ''}`);
     },
     create: (d: any) => request<any>('/posts', { method: 'POST', body: JSON.stringify(d) }),
     userPosts: (id: string) => request<any>(`/users/${id}/posts`),
