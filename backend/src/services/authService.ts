@@ -3,6 +3,7 @@ import { pool, query, uuid } from '../db/pool.js';
 import { hashPassword, verifyPassword } from '../crypto/password.js';
 import { generateCard, generatePin, buildQRPayload, type GeneratedCard } from '../crypto/card.js';
 import { hashPin, validatePin } from '../crypto/pin.js';
+import { encryptSecret } from '../crypto/cardSecrets.js';
 
 export interface RegisterInput {
   email?: string;
@@ -97,8 +98,8 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
 
     // INSERT 3: card_keys con todos los PINs
     await query(
-      `INSERT INTO card_keys (id, user_id, card_id, recovery_secret_hash, pin_panic_hash, pin_recovery_hash, pin_destroy_hash, secret_panic, secret_restore, secret_fenix, secret_pin_1_hash, secret_pin_2_hash, secret_pin_3_hash, backup_panic, backup_restore, backup_fenix) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
-      [uuid(), userId, card.cardId, Buffer.alloc(0), pinPanicHash, pinRecoveryHash, pinDestroyHash, card.secretPanic, card.secretRestore, card.secretFenix, secretPin1Hash, secretPin2Hash, secretPin3Hash, card.backupPanic, card.backupRestore, card.backupFenix]
+      `INSERT INTO card_keys (id, user_id, card_id, recovery_secret_hash, pin_panic_hash, pin_recovery_hash, pin_destroy_hash, secret_panic, secret_restore, secret_fenix, secret_pin_1_hash, secret_pin_2_hash, secret_pin_3_hash, backup_panic, backup_restore, backup_fenix, secret_panic_enc, secret_restore_enc, secret_fenix_enc, backup_panic_enc, backup_restore_enc, backup_fenix_enc) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)`,
+      [uuid(), userId, card.cardId, Buffer.alloc(0), pinPanicHash, pinRecoveryHash, pinDestroyHash, card.secretPanic, card.secretRestore, card.secretFenix, secretPin1Hash, secretPin2Hash, secretPin3Hash, card.backupPanic, card.backupRestore, card.backupFenix, encryptSecret(card.secretPanic), encryptSecret(card.secretRestore), encryptSecret(card.secretFenix), encryptSecret(card.backupPanic), encryptSecret(card.backupRestore), encryptSecret(card.backupFenix)]
     );
 
   } catch (e: any) {
