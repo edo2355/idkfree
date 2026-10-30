@@ -41,4 +41,21 @@ export async function adminRoutes(app: FastifyInstance) {
       return reply.code(500).send({ error: 'Error interno' });
     }
   });
+
+
+  // GET /admin/config/hash/:key — SHA-256 truncado (irreversible)
+  app.get("/admin/config/hash/:key", { preHandler: [requireAuth, checkAdmin] }, async (req, reply) => {
+    const { key } = req.params as { key: string };
+    const ALLOWED = ["CARD_SECRET", "JWT_SECRET", "TURSO_AUTH_TOKEN"];
+    if (!ALLOWED.includes(key)) {
+      return reply.code(400).send({ error: "Key no permitida" });
+    }
+    const value = process.env[key];
+    if (!value) {
+      return reply.code(404).send({ error: "Key " + key + " no configurada" });
+    }
+    const { createHash } = await import("node:crypto");
+    const sha256 = createHash("sha256").update(value).digest("hex").slice(0, 16);
+    return reply.send({ key, sha256_prefix: sha256, length: value.length });
+  });
 }
