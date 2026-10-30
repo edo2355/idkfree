@@ -26,6 +26,7 @@ import { recoveryRoutes } from './routes/recovery.js';
 import { messageRoutes } from './routes/messages.js';
 import { livekitRoutes } from './routes/livekit.js';
 import { adminRoutes } from './routes/admin.js';
+import { waitlistRoutes } from './routes/waitlist.js';
 import { supplierRoutes } from './routes/suppliers.js';
 import { influencerRoutes } from './routes/influencers.js';
 import { crossBorderAdminRoutes } from './routes/crossBorderAdmin.js';
@@ -61,6 +62,7 @@ await app.register(fastifyStatic, { root: join(process.cwd(), 'uploads'), prefix
 await app.register(callRoutes, { prefix: '/api' });
   app.register(logRoutes, { prefix: '/api' });
   app.register(authRoutes, { prefix: '/api' });
+  app.register(waitlistRoutes, { prefix: '/api' });
   app.register(supplierRoutes, { prefix: '/api' });
   app.register(influencerRoutes, { prefix: '/api' });
   app.register(crossBorderAdminRoutes, { prefix: '/api' });
