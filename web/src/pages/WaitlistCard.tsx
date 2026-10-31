@@ -92,14 +92,14 @@ export default function WaitlistCard() {
         {data.next_milestone && (
           <div className="milestone-block">
             <div className="milestone-text">
-              🎯 Traé <strong>{data.next_milestone.remaining}</strong> {data.next_milestone.remaining === 1 ? 'amigo más' : 'amigos más'} para llegar a <strong>{data.next_milestone.at} referidos</strong>
+              🎯 Traé <strong>{data.next_milestone.remaining}</strong> {data.next_milestone.remaining === 1 ? 'amigo más' : 'amigos más'} para llegar a <strong>{data.next_milestone.at} {data.next_milestone.at === 1 ? 'referido' : 'referidos'}</strong>
               <span className="milestone-bonus">+{data.next_milestone.bonus_positions} posiciones de boost</span>
             </div>
             <div className="progress-bar">
               <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
             </div>
             <div className="progress-label">
-              {data.next_milestone.at - data.next_milestone.remaining} / {data.next_milestone.at} referidos
+              {data.next_milestone.at - data.next_milestone.remaining} / {data.next_milestone.at} {data.next_milestone.at === 1 ? 'referido' : 'referidos'}
             </div>
           </div>
         )}
