@@ -91,12 +91,34 @@ export function LiveStreamReal({ route }: any) {
   return (
     <LiveKitRoom
       token={token}
-      serverUrl={serverUrl}
-      options={roomOptions}
+      serverUrl={url}
       connect={true}
-      audio={isHost}
-      video={isHost}
-      onDisconnected={() => navigation.goBack()}
+      video={true}
+      audio={true}
+      options={{
+        dynacast: true,
+        adaptiveStream: true,
+        publishDefaults: {
+          simulcast: true,
+          videoCodec: 'h264', // H.264 usa hardware (ahorra batería)
+          videoSimulcastLayers: [
+            { width: 320, height: 240, bitrate: 150000 },
+            { width: 640, height: 480, bitrate: 500000 },
+          ],
+          videoEncoding: {
+            maxBitrate: 800000, // Máx 800 kbps (evita consumo de datos masivo)
+            maxFramerate: 24,   // 24 fps es más que suficiente
+          },
+        },
+        videoCaptureDefaults: {
+          resolution: { width: 640, height: 480 }, // Evita grabar en 4K
+        },
+        // Fuerza TURN en redes restrictivas (Cuba)
+        rtcConfig: {
+          iceTransportPolicy: 'relay',
+        },
+      }}
+    > navigation.goBack()}
     >
       <RoomView roomName={roomName} isHost={isHost} />
     </LiveKitRoom>
