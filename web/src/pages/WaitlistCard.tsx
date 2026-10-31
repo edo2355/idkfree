@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { toPng } from 'html-to-image';
 import './WaitlistCard.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://idkfreegetid.dpdns.org/api';
@@ -23,6 +24,8 @@ export default function WaitlistCard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+const [downloading, setDownloading] = useState(false);
+const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!code) return;
@@ -52,6 +55,27 @@ export default function WaitlistCard() {
     } catch {}
   }
 
+async function downloadPng() {
+  if (!cardRef.current || !data) return;
+  setDownloading(true);
+  try {
+    const dataUrl = await toPng(cardRef.current, {
+      pixelRatio: 2,
+      backgroundColor: '#050505',
+      cacheBust: true,
+    });
+    const link = document.createElement('a');
+    link.download = `IDKfree-pase-${data.referral_code}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (err) {
+    console.error('Error generando PNG:', err);
+    alert('No se pudo generar la imagen. Intenta de nuevo.');
+  } finally {
+    setDownloading(false);
+  }
+}
+
   if (loading) return <div className="waitlist-card-page"><div className="loading">Cargando pase…</div></div>;
   if (error || !data) return <div className="waitlist-card-page"><div className="form-error">{error || 'Pase no encontrado'}</div></div>;
 
@@ -61,7 +85,7 @@ export default function WaitlistCard() {
 
   return (
     <div className="waitlist-card-page">
-      <div className="pass-card">
+      <div className="pass-card" ref={cardRef}>
         <div className="pass-header">
           <span className="pass-brand">IDKFREE</span>
           <span className="pass-type">ACCESO ANTICIPADO</span>
@@ -128,6 +152,13 @@ export default function WaitlistCard() {
       <button className="share-btn" onClick={shareWhatsApp}>
         Compartir por WhatsApp
       </button>
+<button
+  className="download-btn"
+  onClick={downloadPng}
+  disabled={downloading}
+>
+  {downloading ? '⏳ Generando imagen...' : '📥 Descargar imagen del pase'}
+</button>
       <p className="pass-hint">
         Cada amigo que entre con tu código te sube 2 posiciones. Los primeros 25 acceden 15 días antes.
       </p>
