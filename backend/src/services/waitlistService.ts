@@ -78,7 +78,7 @@ export async function joinWaitlist(alias: string, email?: string, referredBy?: s
   // Enviar correo de bienvenida con Resend
   if (email) {
     // Asíncrono para no bloquear la respuesta al usuario
-    sendWaitlistEmail(email, alias, newPosition, referralCode).catch(err => {
+    sendWaitlistEmail(email, alias, nextPosition, referralCode).catch(err => {
       console.error("Fallo asíncrono al enviar correo:", err);
     });
   }
