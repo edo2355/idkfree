@@ -1,16 +1,23 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
+// Configuramos el transportador de Gmail
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
 
 // ==========================================
 // 1. Funciones de Verificación (Restauradas)
 // ==========================================
 export async function sendVerificationEmail(toEmail: string, code: string) {
-  if (!process.env.RESEND_API_KEY) return;
+  if (!process.env.GMAIL_USER) return;
   try {
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'IDKfree <onboarding@resend.dev>',
-      to: [toEmail],
+    await transporter.sendMail({
+      from: `"IDKfree" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
       subject: 'Tu código de verificación - IDKfree',
       html: `<h2>Tu código es: <strong>${code}</strong></h2>`
     });
@@ -28,18 +35,17 @@ export async function sendVerificationSMS(phone: string, code: string) {
 // 2. Función de Waitlist (Nueva)
 // ==========================================
 export async function sendWaitlistEmail(toEmail: string, alias: string, position: number, code: string) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("⚠️ RESEND_API_KEY no configurada. Saltando envío.");
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.warn("⚠️ Credenciales de Gmail no configuradas. Saltando envío.");
     return;
   }
 
   const passUrl = `https://www.idkfreegetid.dpdns.org/waitlist/card/${code}`;
-  const fromEmail = process.env.RESEND_FROM_EMAIL || "IDKfree <onboarding@resend.dev>";
 
   try {
-    const response: any = await resend.emails.send({
-      from: fromEmail,
-      to: [toEmail],
+    const info = await transporter.sendMail({
+      from: `"IDKfree" <${process.env.GMAIL_USER}>`,
+      to: toEmail,
       subject: `🚀 ¡Estás en la lista de IDKfree, @${alias}!`,
       html: `
         <div style="background-color: #050505; color: #ffffff; font-family: sans-serif; padding: 40px 20px; text-align: center;">
@@ -61,13 +67,8 @@ export async function sendWaitlistEmail(toEmail: string, alias: string, position
         </div>
       `
     });
-    
-    if (response.error) {
-      console.error("❌ Resend error:", response.error);
-    } else {
-      console.log(`✅ Correo enviado a ${toEmail}: ID ${response.data?.id}`);
-    }
+    console.log(`✅ Correo enviado a ${toEmail}: ${info.messageId}`);
   } catch (error) {
-    console.error("❌ Error enviando correo:", error);
+    console.error("❌ Error enviando correo con Nodemailer:", error);
   }
 }
