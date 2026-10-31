@@ -36,7 +36,7 @@ export async function joinWaitlist(alias: string, email?: string) {
   // Calcular posición
   const countRes = await query('SELECT COUNT(*) as c FROM waitlist');
   const nextPosition = (countRes.rows[0].c as number) + 1;
-  const isEarlyAccess = nextPosition <= 20 ? 1 : 0;
+  const isEarlyAccess = nextPosition <= 25 ? 1 : 0;
   const referralCode = generateReferralCode();
   const id = uuid();
 
@@ -58,6 +58,6 @@ export async function getWaitlistStats() {
   const total = res.rows[0].c as number;
   return {
     total,
-    early_access_spots_left: Math.max(0, 20 - total),
+    early_access_spots_left: Math.max(0, 25 - total),
   };
 }

@@ -62,7 +62,7 @@ export default function Waitlist() {
       <div className="waitlist-hero">
         <h1>Acceso anticipado</h1>
         <p className="waitlist-subtitle">
-          IDKfree abre pronto. Los primeros 20 acceden <strong>15 días antes</strong> que el resto.
+          IDKfree abre pronto. Los primeros 25 acceden <strong>15 días antes</strong> que el resto.
         </p>
         {stats && (
           <div className="waitlist-counter">
