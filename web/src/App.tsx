@@ -7,6 +7,8 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { CatalogPage } from './pages/CatalogPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { Login } from './pages/Login';
+import Waitlist from './pages/Waitlist';
+import WaitlistCard from './pages/WaitlistCard';
 import { RecoveryPage } from './pages/RecoveryPage';
 import { VerifyEmailPage } from './pages/VerifyEmailPage';
 import { Landing } from './pages/Landing';
@@ -44,6 +46,8 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+<Route path="/waitlist" element={<Waitlist />} />
+<Route path="/waitlist/card/:code" element={<WaitlistCard />} />
       <Route path="/register" element={<Register />} />
       <Route path="/recovery" element={<RecoveryPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
