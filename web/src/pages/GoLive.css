@@ -1,0 +1,40 @@
+/* Sobrescribir variables de LiveKit para que use el tema de IDKfree */
+.lk-room-container {
+  --lk-bg: #050505;
+  --lk-fg: var(--text-main, #ffffff);
+  --lk-accent-bg: var(--accent, #00e5ff);
+  --lk-accent-fg: #050505;
+  --lk-border-radius: 12px;
+  --lk-control-bar-height: 60px;
+  background-color: #050505;
+}
+
+/* Personalizar la barra de controles */
+.lk-control-bar {
+  background: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+.lk-button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  color: white !important;
+  transition: all 0.2s;
+}
+
+.lk-button:hover {
+  background: rgba(0, 229, 255, 0.2) !important;
+}
+
+/* Botón de desconectar (rojo) */
+.lk-disconnect-button {
+  background: #ff4444 !important;
+  color: white !important;
+}
+
+/* Panel de participantes / chat */
+.lk-chat {
+  background: #0a0a0a !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+}
