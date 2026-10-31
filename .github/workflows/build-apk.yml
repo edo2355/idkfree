@@ -5,64 +5,65 @@ on:
     branches: [ main ]
     paths:
       - 'mobile/**'
-      - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout del código
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: 'npm'
-          cache-dependency-path: 'mobile/package-lock.json'
+          node-version: '20'
 
-      - name: Configurar Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Instalar dependencias
+      - name: Install dependencies
         run: |
           cd mobile
           npm install --legacy-peer-deps
 
-      - name: Generar carpeta Android (Expo Prebuild)
+      - name: Generate native Android folder
         run: |
           cd mobile
-          npx expo prebuild --platform android --no-install
+          npx expo prebuild --platform android --clean
 
-      - name: Compilar APK SIN Firmar (Gradle)
+      - name: Build APK
         run: |
           cd mobile/android
           chmod +x gradlew
-          ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+          ./gradlew assembleRelease
 
-      - name: Configurar Keystore
+      - name: Decode Keystore
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+          echo $ENCODED_STRING | base64 -d > mobile/android/app/idkfree-release.keystore
 
-      - name: Firmar APK con apksigner
+      - name: Sign APK
         run: |
-          UNSIGNED_APK=$(find mobile/android/app/build/outputs/apk/release -name "*.apk" | head -n 1)
+          UNSIGNED_APK=$(find mobile/android/app/build/outputs/apk/release -name "*.apk" | grep -v "signed" | head -n 1)
           echo "Firmando: $UNSIGNED_APK"
           
           $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
-            --ks release.keystore \
-            --ks-pass "pass:${{ secrets.KEYSTORE_PASSWORD }}" \
-            --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
-            --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
-            --out app-release-signed.apk \
+            --ks mobile/android/app/idkfree-release.keystore \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
+            --ks-key-alias ${{ secrets.KEY_ALIAS }} \
+            --key-pass pass:${{ secrets.KEY_PASSWORD }} \
+            --out mobile/android/app/build/outputs/apk/release/IDKfree-Signed.apk \
             "$UNSIGNED_APK"
 
-      - name: Subir APK Firmada
+      - name: Upload Signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: IDKFREE-APK-FIRMADA
-          path: app-release-signed.apk
+          name: IDKfree-APK
+          path: mobile/android/app/build/outputs/apk/release/IDKfree-Signed.apk
+          retention-days: 7

@@ -61,3 +61,6 @@ _trash/
 *.zip
 *.apk
 *.aab
+mobile/*.keystore
+mobile/*.b64
+mobile/*.jks
