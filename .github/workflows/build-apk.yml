@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'  # Actualizado a 22 para evitar el warning
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -35,7 +35,25 @@ jobs:
       - name: Remove dev-client for production
         run: |
           cd mobile
+          # 1. Desinstalar el paquete (sin fallar si no existe)
           npm uninstall expo-dev-client || true
+          
+          # 2. Limpiar el plugin del app.json
+          node -e "
+            const fs = require('fs');
+            const p = 'app.json';
+            let data = JSON.parse(fs.readFileSync(p, 'utf8'));
+            if (data.expo && data.expo.plugins) {
+              data.expo.plugins = data.expo.plugins.filter(plugin => {
+                const name = typeof plugin === 'string' ? plugin : (Array.isArray(plugin) ? plugin[0] : '');
+                return name !== 'expo-dev-client';
+              });
+              fs.writeFileSync(p, JSON.stringify(data, null, 2));
+              console.log('✅ expo-dev-client eliminado de app.json');
+            } else {
+              console.log('⚠️ No se encontró la sección plugins en app.json');
+            }
+          "
 
       - name: Generate native Android folder
         run: |
