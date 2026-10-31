@@ -1,45 +1,55 @@
-export async function sendVerificationEmail(to: string, code: string) {
-  const MAILTRAP_TOKEN = await getSetting('MAILTRAP_TOKEN', process.env.MAILTRAP_TOKEN || '');
-  
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export async function sendWaitlistEmail(toEmail: string, alias: string, position: number, code: string) {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('⚠️ RESEND_API_KEY no configurada. Saltando envío de correo.');
+    return;
+  }
+
+  const passUrl = `https://www.idkfreegetid.dpdns.org/waitlist/card/${code}`;
+  // Si tenés un dominio verificado en Resend, cambialo abajo (ej: hola@idkfree.app)
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'IDKfree <onboarding@resend.dev>';
+
   try {
-    const response = await fetch('https://send.api.mailtrap.io/api/send', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${MAILTRAP_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: { email: await getSetting('FROM_EMAIL', 'noreply@idkfreegetid.dpdns.org'), name: await getSetting('BRAND_NAME', 'IDKFREE') },
-        to: [{ email: to }],
-        subject: '[ IDKFREE ] Código de Verificación',
-        html: `
-          <div style="font-family: monospace; background: #0a0a0a; color: #fff; padding: 20px; border: 1px solid #333; max-width: 500px; margin: 0 auto;">
-            <h2 style="color: #00E5FF; border-bottom: 1px solid #333; padding-bottom: 10px;">[ IDKFREE SYSTEM ]</h2>
-            <p>Tu código de verificación es:</p>
-            <h1 style="font-size: 32px; letter-spacing: 5px; color: #fff; background: #111; padding: 10px; display: inline-block; border: 1px dashed #00E5FF;">${code}</h1>
-            <p>Este código expira en 10 minutos.</p>
-            <p style="color: #666; font-size: 12px; margin-top: 30px;">Si no solicitaste este código, ignora este mensaje.</p>
+    const data = await resend.emails.send({
+      from: fromEmail,
+      to: [toEmail],
+      subject: `🚀 ¡Estás en la lista de IDKfree, @${alias}!`,
+      html: `
+        <div style="background-color: #050505; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 40px 20px; text-align: center;">
+          <h1 style="color: #00e5ff; margin-bottom: 10px;">IDKfree.OS</h1>
+          <p style="font-size: 16px; color: #a0a0a0;">La red social de la Soberanía Digital</p>
+          
+          <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,229,255,0.3); border-radius: 16px; padding: 30px; max-width: 500px; margin: 30px auto; text-align: left;">
+            <h2 style="color: #ffffff; margin-top: 0;">¡Hola @${alias}!</h2>
+            <p style="font-size: 15px; line-height: 1.6; color: #d0d0d0;">
+              Te has unido exitosamente al acceso anticipado. Estás en la posición <strong>#${position}</strong> de la lista.
+            </p>
+            
+            <div style="background: #000; border-radius: 8px; padding: 15px; text-align: center; margin: 20px 0; border: 1px dashed #00e5ff;">
+              <span style="font-size: 12px; color: #a0a0a0; letter-spacing: 1px;">TU CÓDIGO DE REFERIDO</span><br/>
+              <strong style="font-size: 24px; color: #00e5ff; font-family: monospace;">${code}</strong>
+            </div>
+            
+            <p style="font-size: 14px; color: #d0d0d0;">
+              Compartí tu código con amigos. Por cada amigo que se una usando tu código, subirás <strong>2 posiciones</strong> automáticamente.
+            </p>
+            
+            <a href="${passUrl}" style="display: block; background: #00e5ff; color: #050505; text-decoration: none; font-weight: bold; padding: 14px; border-radius: 8px; text-align: center; margin-top: 25px;">
+              Ver mi Pase de Acceso
+            </a>
           </div>
-        `
-      })
+          
+          <p style="font-size: 12px; color: #666; margin-top: 30px;">
+            Si no te registraste en IDKfree, podés ignorar este correo.
+          </p>
+        </div>
+      `
     });
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      throw new Error(`Mailtrap Error: ${errorData}`);
-    }
-
-    console.log(`✅ Correo enviado a ${to} vía Mailtrap`);
-    return true;
+    console.log(`✅ Correo enviado a ${toEmail}: ID ${data.id}`);
   } catch (error) {
-    console.error('❌ Error enviando correo:', error);
-    return false;
+    console.error('❌ Error enviando correo con Resend:', error);
   }
 }
-
-export async function sendVerificationSMS(to: string, code: string) {
-  // Aquí integraremos zdSMS o Plivo más adelante.
-  console.log(`[ SMS SIMULADO ] Código ${code} para ${to}`);
-  return true;
-}
-import { getSetting } from '../utils/settings.js';

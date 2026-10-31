@@ -1,5 +1,5 @@
 import { query, uuid } from '../db/pool.js';
-
+import { sendWaitlistEmail } from './emailService.js';
 const REFERRAL_BOOST_PER_FRIEND = 2; // +2 posiciones por referido
 const EARLY_ACCESS_LIMIT = 25;
 const MILESTONES = [1, 3, 5, 10, 20]; // Cada hito desbloquea "achievement"
@@ -74,7 +74,16 @@ export async function joinWaitlist(alias: string, email?: string, referredBy?: s
     [id, normalizedAlias, email || null, referralCode, nextPosition, isEarlyAccess, referredById, referredByCode]
   );
 
-  return {
+  
+  // Enviar correo de bienvenida con Resend
+  if (email) {
+    // Asíncrono para no bloquear la respuesta al usuario
+    sendWaitlistEmail(email, alias, newPosition, referralCode).catch(err => {
+      console.error("Fallo asíncrono al enviar correo:", err);
+    });
+  }
+
+return {
     position: nextPosition,
     referral_code: referralCode,
     is_early_access: Boolean(isEarlyAccess),
