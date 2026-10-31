@@ -1,11 +1,22 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { ScreenBackground } from '../components/ScreenBackground';
 import './Landing.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://idkfreegetid.dpdns.org/api';
+
 export function Landing() {
+  const [stats, setStats] = useState<{ total: number; early_access_spots_left: number } | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/waitlist/stats`)
+      .then(r => r.json())
+      .then(setStats)
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="landing-container">
-      {/* Fondo con gradientes de color */}
       <div className="landing-bg-glow"></div>
       <ScreenBackground variant="neural" opacity={0.2} />
 
@@ -16,8 +27,25 @@ export function Landing() {
         <Link to="/login" className="landing-login-btn">Entrar</Link>
       </header>
 
+      {/* Banner waitlist */}
+      <div className="waitlist-banner">
+        <div className="waitlist-banner-content">
+          <span className="waitlist-banner-emoji">🚀</span>
+          <div className="waitlist-banner-text">
+            <strong>Acceso anticipado abierto</strong>
+            <span>
+              {stats
+                ? `${stats.total} ${stats.total === 1 ? 'persona' : 'personas'} ya reservó · Solo ${stats.early_access_spots_left} spots de acceso anticipado`
+                : 'Los primeros 25 acceden 15 días antes que el resto'}
+            </span>
+          </div>
+        </div>
+        <Link to="/waitlist" className="waitlist-banner-btn">
+          Reservar mi lugar →
+        </Link>
+      </div>
+
       <main className="landing-hero">
-        {/* Textos principales */}
         <h1 className="landing-title">
           La red social de la <br />
           <span className="text-gradient">Soberanía Digital</span>
@@ -26,7 +54,6 @@ export function Landing() {
           No lo sé, gratis o libre. Un lugar para pensar en voz alta, conectar con otros y ser dueño de tus datos.
         </p>
 
-        {/* Botones */}
         <div className="landing-actions">
           <a href="#" className="landing-btn primary">
             📱 Descargar para Android
@@ -36,7 +63,6 @@ export function Landing() {
           </button>
         </div>
 
-        {/* Mockup visual (Aquí luego puedes poner una foto real) */}
         <div className="landing-mockup-container">
           <div className="mockup-glow"></div>
           <div className="mockup-screen">
@@ -46,7 +72,6 @@ export function Landing() {
           </div>
         </div>
 
-        {/* Tarjetas de características */}
         <div className="landing-features">
           <div className="feature-card">
             <h3>🔒 Privacidad Real</h3>
@@ -58,14 +83,10 @@ export function Landing() {
           </div>
           <div className="feature-card">
             <h3>🎨 Tu Espacio</h3>
-            <p>Comparte posts, historias, notas y dibujos sin algoritmos.</p>
+            <p>Personaliza tu perfil y controla quién puede contactarte.</p>
           </div>
         </div>
       </main>
-
-      <footer className="landing-footer">
-        <span>© 2026 IDKFREE · from / edo amate</span>
-      </footer>
     </div>
   );
 }

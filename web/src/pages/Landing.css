@@ -242,3 +242,100 @@
   .landing-header { padding: 16px 20px; }
   .mockup-screen { width: 220px; height: 440px; transform: none; }
 }
+
+/* Banner waitlist */
+.waitlist-banner {
+  background: linear-gradient(90deg, rgba(0,229,255,0.12), rgba(74,222,128,0.12));
+  border: 1px solid rgba(0,229,255,0.35);
+  border-radius: 14px;
+  padding: 16px 22px;
+  margin: 20px auto 32px;
+  max-width: 760px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0,229,255,0.08);
+  animation: bannerGlow 3s ease-in-out infinite;
+}
+
+@keyframes bannerGlow {
+  0%, 100% { box-shadow: 0 8px 32px rgba(0,229,255,0.08); }
+  50% { box-shadow: 0 8px 32px rgba(0,229,255,0.20); }
+}
+
+.waitlist-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.waitlist-banner-emoji {
+  font-size: 28px;
+  line-height: 1;
+  animation: bannerPulse 2s ease-in-out infinite;
+}
+
+@keyframes bannerPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.15) rotate(-5deg); }
+}
+
+.waitlist-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.waitlist-banner-text strong {
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.waitlist-banner-text span {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.waitlist-banner-btn {
+  padding: 11px 20px;
+  background: var(--accent);
+  color: #050505;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.waitlist-banner-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .waitlist-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 18px 16px;
+  }
+  .waitlist-banner-content {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .waitlist-banner-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+  }
+  .waitlist-banner-text span {
+    font-size: 12px;
+  }
+}
