@@ -13,7 +13,7 @@ export default function GoLive() {
     setLoading(true);
     setError(null);
     try {
-      const roomName = `live-${Date.now()}`; // Sala única por transmisión
+      const roomName = `live-${Date.now()}`;
       const res = await api.livekit.getToken(roomName, true);
       
       if (!res.token || !res.url) throw new Error('Token o URL inválidos');
@@ -34,10 +34,10 @@ export default function GoLive() {
 
   if (!token || !url) {
     return (
-      <div style={{ padding: 40, textAlign: 'center' }}>
+      <div style={{ padding: 40, textAlign: 'center', color: 'white' }}>
         <h1>Transmisión en Vivo</h1>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button onClick={startStream} disabled={loading} style={{ padding: '10px 20px', fontSize: 16 }}>
+        {error && <p style={{ color: '#ff4444' }}>{error}</p>}
+        <button onClick={startStream} disabled={loading} style={{ padding: '12px 24px', fontSize: 16, background: '#ff4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
           {loading ? 'Conectando...' : '🔴 Iniciar Transmisión'}
         </button>
       </div>
@@ -65,9 +65,9 @@ export default function GoLive() {
             publishDefaults: {
               simulcast: true,
             },
+            // @ts-ignore - rtcConfig es válido en LiveKit pero falta en los tipos de React
             rtcConfig: {
-              // 🔥 FUERZA EL USO DE TURN/TCP 443 (Evita la VPN en Cuba) 🔥
-              iceTransportPolicy: 'relay', 
+              iceTransportPolicy: 'relay', // Evita VPN en Cuba
             },
           }}
         >

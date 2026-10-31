@@ -11,6 +11,7 @@ export default function WebLayout() {
     { path: '/search', name: 'BUSCAR', icon: '⌕' },
     { path: '/chats', name: 'MENSAJES', icon: '✉' },
     { path: '/reels', name: 'REELS', icon: '▶' },
+{ path: '/golive', name: 'TRANSMITIR', icon: '🔴' },
     { path: `/u/${user?.alias}`, name: 'PERFIL', icon: '◉' },
     { path: '/settings', name: 'AJUSTES', icon: '⚙' },
   ];
