@@ -243,19 +243,21 @@
   .mockup-screen { width: 220px; height: 440px; transform: none; }
 }
 
-/* Banner waitlist */
+
+/* Banner waitlist (Corregido) */
 .waitlist-banner {
   background: linear-gradient(90deg, rgba(0,229,255,0.12), rgba(74,222,128,0.12));
   border: 1px solid rgba(0,229,255,0.35);
   border-radius: 14px;
   padding: 16px 22px;
   margin: 20px auto 32px;
+  width: 100%;
   max-width: 760px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  flex-wrap: wrap;
   backdrop-filter: blur(12px);
   box-shadow: 0 8px 32px rgba(0,229,255,0.08);
   animation: bannerGlow 3s ease-in-out infinite;
@@ -292,27 +294,30 @@
 }
 
 .waitlist-banner-text strong {
-  color: var(--accent);
+  color: var(--accent, #00e5ff); /* Fallback por si falla la variable */
   font-size: 15px;
   font-weight: 700;
 }
 
 .waitlist-banner-text span {
-  color: var(--text-muted);
+  color: var(--text-muted, #a0a0a0); /* Fallback */
   font-size: 13px;
   line-height: 1.4;
 }
 
 .waitlist-banner-btn {
   padding: 11px 20px;
-  background: var(--accent);
-  color: #050505;
+  background: var(--accent, #00e5ff); /* Fallback azul brillante */
+  color: #050505 !important; /* Forzar texto oscuro */
   border-radius: 8px;
   text-decoration: none;
   font-weight: 700;
   font-size: 14px;
   white-space: nowrap;
   transition: opacity 0.15s, transform 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .waitlist-banner-btn:hover {
@@ -325,6 +330,7 @@
     flex-direction: column;
     text-align: center;
     padding: 18px 16px;
+    gap: 16px;
   }
   .waitlist-banner-content {
     flex-direction: column;
