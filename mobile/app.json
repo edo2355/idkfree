@@ -42,10 +42,8 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-dev-client",
       "expo-video",
       "expo-camera",
-      "@livekit/react-native-expo-plugin",
       "expo-font",
       "expo-secure-store",
       "expo-status-bar",
@@ -71,6 +69,13 @@
         {
           "photosPermission": "Permitir a IDKFREE acceder a tus fotos.",
           "cameraPermission": "Permitir a IDKFREE usar la cámara para verificación de identidad."
+        }
+      ],
+      [
+        "@livekit/react-native-expo-plugin",
+        {
+          "cameraPermission": "IDKfree necesita acceso a tu cámara para transmitir en vivo.",
+          "microphonePermission": "IDKfree necesita acceso a tu micrófono para el audio."
         }
       ]
     ],
