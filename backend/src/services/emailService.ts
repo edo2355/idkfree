@@ -72,3 +72,66 @@ export async function sendWaitlistEmail(toEmail: string, alias: string, position
     console.error("❌ Error enviando correo con Nodemailer:", error);
   }
 }
+
+export async function sendParentalConsentEmail(parentEmail: string, minorAlias: string, token: string) {
+  if (!process.env.SMTP_USER) return;
+  const consentUrl = `https://www.idkfreegetid.dpdns.org/verify-parent?token=${token}`;
+  
+  try {
+    await transporter.sendMail({
+      from: `"IDKfree Seguridad" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      to: parentEmail,
+      subject: `👨‍👩‍👧 Acción requerida: Tutela de cuenta para @${minorAlias}`,
+      html: `
+        <div style="background-color: #050505; color: #fff; padding: 20px; font-family: sans-serif;">
+          <h2>Hola, tutor legal</h2>
+          <p>El usuario @${minorAlias} ha solicitado unirse a IDKfree y ha indicado que es menor de edad.</p>
+          <p>Por seguridad, su cuenta está en modo restringido y no puede interactuar con adultos.</p>
+          <p>Para autorizar su cuenta, por favor haz clic en el siguiente enlace:</p>
+          <a href="${consentUrl}" style="background: #00e5ff; color: #000; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 5px; display: inline-block; margin-top: 15px;">Autorizar cuenta de mi hijo/a</a>
+          <p style="color: #666; font-size: 12px; margin-top: 20px;">Si no reconoces este registro, ignora este correo.</p>
+        </div>
+      `
+    });
+  } catch (error) { console.error("Error enviando correo a tutor:", error); }
+}
+
+export async function sendParentalConsentEmail(parentEmail: string, minorAlias: string, token: string) {
+  if (!process.env.SMTP_USER) {
+    console.warn("⚠️ SMTP no configurado. No se envió correo al tutor.");
+    return;
+  }
+
+  const consentUrl = `https://www.idkfreegetid.dpdns.org/verify-parent?token=${token}`;
+
+  try {
+    await transporter.sendMail({
+      from: `"IDKfree Seguridad" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      to: parentEmail,
+      subject: `👨‍👩‍👧 Acción requerida: Autorizar cuenta de @${minorAlias}`,
+      html: `
+        <div style="background-color: #050505; color: #fff; padding: 40px 20px; font-family: sans-serif; text-align: center;">
+          <h1 style="color: #00e5ff;">IDKfree.OS</h1>
+          <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,229,255,0.3); border-radius: 16px; padding: 30px; max-width: 500px; margin: 30px auto; text-align: left;">
+            <h2>Hola, tutor legal</h2>
+            <p style="color: #d0d0d0; line-height: 1.6;">
+              El usuario <strong>@${minorAlias}</strong> ha solicitado unirse a IDKfree y ha indicado que es menor de edad.
+            </p>
+            <p style="color: #d0d0d0; line-height: 1.6;">
+              Por seguridad, su cuenta está en <strong>Modo Protegido</strong>. No podrá interactuar con adultos ni ver su contenido.
+            </p>
+            <p style="color: #d0d0d0; line-height: 1.6;">
+              Para autorizar su cuenta y que pueda chatear con otros menores, por favor hacé clic en el botón:
+            </p>
+            <a href="${consentUrl}" style="display: block; background: #00e5ff; color: #050505; text-decoration: none; font-weight: bold; padding: 14px; border-radius: 8px; text-align: center; margin-top: 25px;">
+              Autorizar cuenta de mi hijo/a
+            </a>
+          </div>
+        </div>
+      `
+    });
+    console.log(`✅ Correo de tutela enviado a ${parentEmail}`);
+  } catch (error) {
+    console.error("❌ Error enviando correo a tutor:", error);
+  }
+}

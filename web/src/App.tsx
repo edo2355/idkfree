@@ -1,3 +1,4 @@
+import VerifyParent from './pages/VerifyParent';
 import GoLive from './pages/GoLive';
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
@@ -45,6 +46,7 @@ export default function App() {
 
   return (
     <Routes>
+          <Route path="/verify-parent" element={<VerifyParent />} />
       <Route path="/login" element={<Login />} />
 <Route path="/waitlist" element={<Waitlist />} />
 <Route path="/waitlist/card/:code" element={<WaitlistCard />} />

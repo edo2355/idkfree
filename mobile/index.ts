@@ -1,9 +1,13 @@
-import { registerGlobals } from '@livekit/react-native';
-import { AppRegistry } from 'react-native';
+import { registerRootComponent } from 'expo';
 import App from './App';
-import { name as appName } from './app.json';
 
-// 🔥 ESTO ES OBLIGATORIO PARA QUE LIVeKIT FUNCIONE EN MÓVIL 🔥
-registerGlobals();
+// ⚠️ LIVEKIT DESACTIVADO TEMPORALMENTE PARA PRUEBAS EN EXPO
+// try {
+//   const { registerGlobals } = require('@livekit/react-native');
+//   registerGlobals();
+//   console.log("✅ LiveKit Globals registrados");
+// } catch (error) {
+//   console.warn("⚠️ LiveKit no disponible");
+// }
 
-AppRegistry.registerComponent(appName, () => App);
+registerRootComponent(App);

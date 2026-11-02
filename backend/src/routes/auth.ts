@@ -1,3 +1,4 @@
+import { sendParentalConsentEmail } from '../services/emailService.js';
 import type { FastifyInstance } from 'fastify';
 import { register, verifyLogin } from '../services/authService.js';
 import { registerSchema, loginSchema } from '../utils/validation.js';
@@ -70,7 +71,43 @@ export async function authRoutes(app: FastifyInstance) {
     try {
       const { userId, alias } = await verifyLogin(parsed.data.email, parsed.data.password);
       const accessToken = app.jwt.sign({ sub: userId, alias }, { expiresIn: '30d' });
-      return reply.send({ userId, alias, accessToken });
+      
+    // 🔥 LÓGICA DE MENOR DE EDAD 🔥
+    try {
+      const birthdateStr = (req.body as any).birthdate;
+      const parentEmail = (req.body as any).parent_email;
+      
+      if (birthdateStr) {
+        const birthdate = new Date(birthdateStr);
+        const age = Math.floor((Date.now() - birthdate.getTime()) / 31557600000);
+        
+        if (age < 18) {
+          const { randomUUID } = await import('crypto');
+          const parentToken = randomUUID();
+          
+          // Actualizar el usuario a menor de edad
+          await db.execute({
+            sql: "UPDATE users SET is_minor = 1, birthdate = ?, parent_email = ?, parent_token = ? WHERE email = ?",
+            args: [birthdateStr, parentEmail, parentToken, (req.body as any).email]
+          });
+          
+          if (parentEmail) {
+            sendParentalConsentEmail(parentEmail, (req.body as any).alias, parentToken).catch(console.error);
+          }
+        } else {
+          // Es mayor de edad, guardamos la fecha por estadística
+          await db.execute({
+            sql: "UPDATE users SET birthdate = ? WHERE email = ?",
+            args: [birthdateStr, (req.body as any).email]
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Error en minor safety:", err);
+    }
+    // 🔥 FIN LÓGICA DE MENOR 🔥
+    
+return reply.send({ userId, alias, accessToken });
     } catch (err: any) {
       if (err.message === 'MAX_EMAIL_ACCOUNTS_REACHED') {
         return reply.code(400).send({ error: 'Límite alcanzado' });
@@ -151,3 +188,24 @@ export async function authRoutes(app: FastifyInstance) {
     }
   });
 }
+
+// Ruta para verificar la tutela del menor
+app.get('/auth/verify-parent', async (req, reply) => {
+  const { token } = req.query as { token: string };
+  if (!token) return reply.code(400).send({ error: 'Token faltante' });
+
+  try {
+    const result = await db.execute({
+      sql: "UPDATE users SET parent_verified = 1, parent_token = NULL WHERE parent_token = ? RETURNING id",
+      args: [token]
+    });
+
+    if (result.rows.length === 0) {
+      return reply.code(400).send({ error: 'Token inválido o ya utilizado' });
+    }
+
+    return reply.send({ success: true, message: 'Tutoría autorizada correctamente' });
+  } catch (error) {
+    return reply.code(500).send({ error: 'Error interno' });
+  }
+});
