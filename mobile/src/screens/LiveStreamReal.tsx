@@ -7,34 +7,15 @@ export default function LiveStreamReal() {
       <Text style={styles.icon}>🚧</Text>
       <Text style={styles.title}>Transmisión en Vivo</Text>
       <Text style={styles.subtitle}>
-        Esta función está desactivada temporalmente mientras actualizamos el sistema de video.
+        Esta función está desactivada temporalmente en esta versión de prueba.
       </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#050505',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  icon: {
-    fontSize: 60,
-    marginBottom: 20,
-  },
-  title: {
-    color: '#00e5ff',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  subtitle: {
-    color: '#a0a0a0',
-    fontSize: 16,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
+  container: { flex: 1, backgroundColor: '#050505', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  icon: { fontSize: 60, marginBottom: 20 },
+  title: { color: '#00e5ff', fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
+  subtitle: { color: '#a0a0a0', fontSize: 16, textAlign: 'center', lineHeight: 24 },
 });
