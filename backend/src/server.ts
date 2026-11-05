@@ -1,3 +1,4 @@
+import helmet from '@fastify/helmet';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
@@ -40,6 +41,13 @@ import { pool } from './db/pool.js';
 const app = Fastify({ logger: true });
 
 await app.register(cors, { origin: ['http://localhost:5173', 'https://www.idkfreegetid.dpdns.org', 'https://idkfreegetid.dpdns.org'], credentials: true });
+
+// 🛡️ Cabeceras de seguridad HTTP
+await app.register(helmet, {
+  contentSecurityPolicy: false, // Lo manejaremos en Cloudflare o Frontend
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true }
+});
 await app.register(rateLimit, {
   max: 100,
   timeWindow: '1 minute',
