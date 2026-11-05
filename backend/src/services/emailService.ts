@@ -1,22 +1,20 @@
 import nodemailer from 'nodemailer';
 
-// Configuramos el transportador de Gmail
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+  port: Number(process.env.SMTP_PORT) || 587,
+  secure: false,
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
 
-// ==========================================
-// 1. Funciones de Verificación (Restauradas)
-// ==========================================
 export async function sendVerificationEmail(toEmail: string, code: string) {
-  if (!process.env.GMAIL_USER) return;
+  if (!process.env.SMTP_USER) return;
   try {
     await transporter.sendMail({
-      from: `"IDKfree" <${process.env.GMAIL_USER}>`,
+      from: `"IDKfree" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
       to: toEmail,
       subject: 'Tu código de verificación - IDKfree',
       html: `<h2>Tu código es: <strong>${code}</strong></h2>`
@@ -27,16 +25,12 @@ export async function sendVerificationEmail(toEmail: string, code: string) {
 }
 
 export async function sendVerificationSMS(phone: string, code: string) {
-  // Stub temporal (reemplazar por tu proveedor real de SMS si lo tenés)
   console.log(`[SMS MOCK] Código ${code} enviado a ${phone}`);
 }
 
-// ==========================================
-// 2. Función de Waitlist (Nueva)
-// ==========================================
 export async function sendWaitlistEmail(toEmail: string, alias: string, position: number, code: string) {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.warn("⚠️ Credenciales de Gmail no configuradas. Saltando envío.");
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.warn("⚠️ Credenciales SMTP no configuradas. Saltando envío.");
     return;
   }
 
@@ -44,7 +38,7 @@ export async function sendWaitlistEmail(toEmail: string, alias: string, position
 
   try {
     const info = await transporter.sendMail({
-      from: `"IDKfree" <${process.env.GMAIL_USER}>`,
+      from: `"IDKfree" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
       to: toEmail,
       subject: `🚀 ¡Estás en la lista de IDKfree, @${alias}!`,
       html: `
@@ -69,31 +63,8 @@ export async function sendWaitlistEmail(toEmail: string, alias: string, position
     });
     console.log(`✅ Correo enviado a ${toEmail}: ${info.messageId}`);
   } catch (error) {
-    console.error("❌ Error enviando correo con Nodemailer:", error);
+    console.error("❌ Error enviando correo:", error);
   }
-}
-
-export async function sendParentalConsentEmail(parentEmail: string, minorAlias: string, token: string) {
-  if (!process.env.SMTP_USER) return;
-  const consentUrl = `https://www.idkfreegetid.dpdns.org/verify-parent?token=${token}`;
-  
-  try {
-    await transporter.sendMail({
-      from: `"IDKfree Seguridad" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
-      to: parentEmail,
-      subject: `👨‍👩‍👧 Acción requerida: Tutela de cuenta para @${minorAlias}`,
-      html: `
-        <div style="background-color: #050505; color: #fff; padding: 20px; font-family: sans-serif;">
-          <h2>Hola, tutor legal</h2>
-          <p>El usuario @${minorAlias} ha solicitado unirse a IDKfree y ha indicado que es menor de edad.</p>
-          <p>Por seguridad, su cuenta está en modo restringido y no puede interactuar con adultos.</p>
-          <p>Para autorizar su cuenta, por favor haz clic en el siguiente enlace:</p>
-          <a href="${consentUrl}" style="background: #00e5ff; color: #000; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 5px; display: inline-block; margin-top: 15px;">Autorizar cuenta de mi hijo/a</a>
-          <p style="color: #666; font-size: 12px; margin-top: 20px;">Si no reconoces este registro, ignora este correo.</p>
-        </div>
-      `
-    });
-  } catch (error) { console.error("Error enviando correo a tutor:", error); }
 }
 
 export async function sendParentalConsentEmail(parentEmail: string, minorAlias: string, token: string) {
@@ -119,9 +90,6 @@ export async function sendParentalConsentEmail(parentEmail: string, minorAlias: 
             </p>
             <p style="color: #d0d0d0; line-height: 1.6;">
               Por seguridad, su cuenta está en <strong>Modo Protegido</strong>. No podrá interactuar con adultos ni ver su contenido.
-            </p>
-            <p style="color: #d0d0d0; line-height: 1.6;">
-              Para autorizar su cuenta y que pueda chatear con otros menores, por favor hacé clic en el botón:
             </p>
             <a href="${consentUrl}" style="display: block; background: #00e5ff; color: #050505; text-decoration: none; font-weight: bold; padding: 14px; border-radius: 8px; text-align: center; margin-top: 25px;">
               Autorizar cuenta de mi hijo/a

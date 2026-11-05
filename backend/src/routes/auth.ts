@@ -1,3 +1,4 @@
+import { db } from '../db.js';
 import { sendParentalConsentEmail } from '../services/emailService.js';
 import type { FastifyInstance } from 'fastify';
 import { register, verifyLogin } from '../services/authService.js';
@@ -190,9 +191,7 @@ return reply.send({ userId, alias, accessToken });
 }
 
 // Ruta para verificar la tutela del menor
-app.get('/auth/verify-parent', async (req, reply) => {
-  const { token } = req.query as { token: string };
-  if (!token) return reply.code(400).send({ error: 'Token faltante' });
+
 
   try {
     const result = await db.execute({
@@ -208,4 +207,25 @@ app.get('/auth/verify-parent', async (req, reply) => {
   } catch (error) {
     return reply.code(500).send({ error: 'Error interno' });
   }
+
+  // Ruta para verificar la tutela del menor (Agregada correctamente adentro)
+  app.get("/auth/verify-parent", async (req: any, reply: any) => {
+    const { token } = req.query as { token: string };
+    if (!token) return reply.code(400).send({ error: "Token faltante" });
+
+    try {
+      const result = await db.execute({
+        sql: "UPDATE users SET parent_verified = 1, parent_token = NULL WHERE parent_token = ? RETURNING id",
+        args: [token]
+      });
+
+      if (result.rows.length === 0) {
+        return reply.code(400).send({ error: "Token inválido o ya utilizado" });
+      }
+
+      return reply.send({ success: true, message: "Tutoría autorizada correctamente" });
+    } catch (error) {
+      return reply.code(500).send({ error: "Error interno" });
+    }
+  });
 });
