@@ -1,3 +1,6 @@
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import Contact from './pages/Contact';
 import VerifyParent from './pages/VerifyParent';
 import GoLive from './pages/GoLive';
 import { useState, useEffect } from 'react';
@@ -46,6 +49,9 @@ export default function App() {
 
   return (
     <Routes>
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/contact" element={<Contact />} />
           <Route path="/verify-parent" element={<VerifyParent />} />
       <Route path="/login" element={<Login />} />
 <Route path="/waitlist" element={<Waitlist />} />

@@ -87,6 +87,14 @@ export function Landing() {
           </div>
         </div>
       </main>
+
+      <footer style={{ marginTop: "60px", padding: "20px", borderTop: "1px solid rgba(255,255,255,0.1)", textAlign: "center", fontSize: "14px", color: "#a0a0a0", display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
+        <span>© 2026 IDKfree. Todos los derechos reservados.</span>
+        <Link to="/privacy" style={{ color: "var(--accent)", textDecoration: "none" }}>Política de Privacidad</Link>
+        <Link to="/terms" style={{ color: "var(--accent)", textDecoration: "none" }}>Términos de Uso</Link>
+        <Link to="/contact" style={{ color: "var(--accent)", textDecoration: "none" }}>Contacto</Link>
+      </footer>
+
     </div>
   );
 }
