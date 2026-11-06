@@ -13,8 +13,8 @@ export async function sendMessage(input: SendInput) {
   if (!body || body.length > 2000) throw new Error('INVALID_BODY');
 
   const receiverRes = await query<{ id: string }>(
-    'SELECT id FROM users WHERE alias = $1',
-    [input.receiverAlias.toLowerCase().trim()]
+    'SELECT id FROM users WHERE alias = $1 COLLATE NOCASE',
+    [input.receiverAlias.trim()]
   );
   if (receiverRes.rows.length === 0) throw new Error('USER_NOT_FOUND');
 
@@ -36,8 +36,8 @@ export async function sendMessage(input: SendInput) {
 
 export async function getConversation(userId: string, otherAlias: string, limit: number = 50) {
   const otherRes = await query<{ id: string; alias: string; name: string | null; avatar_url: string | null }>(
-    'SELECT id, alias, name, avatar_url FROM users WHERE alias = $1',
-    [otherAlias.toLowerCase().trim()]
+    'SELECT id, alias, name, avatar_url FROM users WHERE alias = $1 COLLATE NOCASE',
+    [otherAlias.trim()]
   );
   if (otherRes.rows.length === 0) throw new Error('USER_NOT_FOUND');
   const other = otherRes.rows[0];
