@@ -1,9 +1,8 @@
-import { db } from '../db.js';
+import { query } from '../db/pool.js';
 import { sendParentalConsentEmail } from '../services/emailService.js';
 import type { FastifyInstance } from 'fastify';
 import { register, verifyLogin } from '../services/authService.js';
 import { registerSchema, loginSchema } from '../utils/validation.js';
-import { query } from '../db/pool.js';
 import { screenAndRecord } from '../services/amlService.js';
 import { countryFromPhone } from '../utils/countryFromPhone.js';
 
@@ -87,20 +86,14 @@ export async function authRoutes(app: FastifyInstance) {
           const parentToken = randomUUID();
           
           // Actualizar el usuario a menor de edad
-          await db.execute({
-            sql: "UPDATE users SET is_minor = 1, birthdate = ?, parent_email = ?, parent_token = ? WHERE email = ?",
-            args: [birthdateStr, parentEmail, parentToken, (req.body as any).email]
-          });
+          await query(`UPDATE users SET is_minor = 1, birthdate = $1, parent_email = $2, parent_token = $3 WHERE email = $4`, [birthdateStr, parentEmail, parentToken, (req.body as any).email]);
           
           if (parentEmail) {
             sendParentalConsentEmail(parentEmail, (req.body as any).alias, parentToken).catch(console.error);
           }
         } else {
           // Es mayor de edad, guardamos la fecha por estadística
-          await db.execute({
-            sql: "UPDATE users SET birthdate = ? WHERE email = ?",
-            args: [birthdateStr, (req.body as any).email]
-          });
+          await query(`UPDATE users SET birthdate = $1 WHERE email = $2`, [birthdateStr, (req.body as any).email]);
         }
       }
     } catch (err) {
@@ -188,36 +181,14 @@ return reply.send({ userId, alias, accessToken });
       return reply.code(500).send({ error: 'Error al verificar alias' });
     }
   });
-}
 
-// Ruta para verificar la tutela del menor
-
-
-  try {
-    const result = await db.execute({
-      sql: "UPDATE users SET parent_verified = 1, parent_token = NULL WHERE parent_token = ? RETURNING id",
-      args: [token]
-    });
-
-    if (result.rows.length === 0) {
-      return reply.code(400).send({ error: 'Token inválido o ya utilizado' });
-    }
-
-    return reply.send({ success: true, message: 'Tutoría autorizada correctamente' });
-  } catch (error) {
-    return reply.code(500).send({ error: 'Error interno' });
-  }
-
-  // Ruta para verificar la tutela del menor (Agregada correctamente adentro)
+  // Ruta para verificar la tutela del menor
   app.get("/auth/verify-parent", async (req: any, reply: any) => {
     const { token } = req.query as { token: string };
     if (!token) return reply.code(400).send({ error: "Token faltante" });
 
     try {
-      const result = await db.execute({
-        sql: "UPDATE users SET parent_verified = 1, parent_token = NULL WHERE parent_token = ? RETURNING id",
-        args: [token]
-      });
+      const result = await query(`UPDATE users SET parent_verified = 1, parent_token = NULL WHERE parent_token = $1 RETURNING id`, [token]);
 
       if (result.rows.length === 0) {
         return reply.code(400).send({ error: "Token inválido o ya utilizado" });
@@ -228,4 +199,4 @@ return reply.send({ userId, alias, accessToken });
       return reply.code(500).send({ error: "Error interno" });
     }
   });
-});
+}

@@ -24,7 +24,8 @@
     "livekit-server-sdk": "^2.19.1",
     "resend": "latest",
     "zod": "^3.23.8",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "@fastify/helmet": "^13.0.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
