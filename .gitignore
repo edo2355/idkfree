@@ -64,3 +64,4 @@ _trash/
 mobile/*.keystore
 mobile/*.b64
 mobile/*.jks
+*.backup*
