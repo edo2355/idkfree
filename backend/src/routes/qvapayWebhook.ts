@@ -13,7 +13,12 @@ export async function qvapayWebhookRoutes(app: FastifyInstance) {
     // En Fastify, esto se hace con el content-type parser correspondiente.
     // Si no lo tienes configurado, puedes usar JSON.stringify(req.body) como aproximación,
     // pero lo ideal es usar el raw body.
-    const rawBody = JSON.stringify(req.body); // Aproximación segura si no hay raw body
+    const rawBody = (req as any).rawBody as string;
+
+    if (!rawBody) {
+      app.log.error('❌ Webhook sin rawBody. Verificar el content-type parser.');
+      return reply.code(500).send({ error: 'Error de configuración interna' });
+    }
     const appSecret = process.env.QVAPAY_APP_SECRET!;
 
     // 3. Calcular HMAC-SHA256
@@ -22,7 +27,11 @@ export async function qvapayWebhookRoutes(app: FastifyInstance) {
     const calculatedSignature = hmac.digest('hex');
 
     // 4. Comparar firmas
-    if (calculatedSignature !== signature) {
+    const sigBuf = Buffer.from(signature, "hex");
+    const calcBuf = Buffer.from(calculatedSignature, "hex");
+    const isValid = sigBuf.length === calcBuf.length && crypto.timingSafeEqual(sigBuf, calcBuf);
+
+    if (!isValid) {
       app.log.warn('❌ Firma de QvaPay inválida');
       return reply.code(401).send({ error: 'Firma inválida' });
     }

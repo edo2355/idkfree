@@ -76,7 +76,26 @@ await app.register(callRoutes, { prefix: '/api' });
   app.register(crossBorderAdminRoutes, { prefix: '/api' });
   app.register(verificationRoutes, { prefix: '/api' });
   app.register(catalogRoutes, { prefix: '/api' });
-  app.register(qvapayWebhookRoutes, { prefix: '/api' });
+  
+// ============================================================
+// RAW BODY PARSER (solo para webhooks que necesitan HMAC)
+// ============================================================
+app.addContentTypeParser(
+  'application/json',
+  { parseAs: 'string', bodyLimit: 1024 * 100 },
+  function (req, body, done) {
+    try {
+      // Guardamos el raw body como string en un símbolo
+      (req as any).rawBody = body;
+      const parsed = body.length === 0 ? {} : JSON.parse(body);
+      done(null, parsed);
+    } catch (err: any) {
+      done(err, undefined);
+    }
+  }
+);
+
+app.register(qvapayWebhookRoutes, { prefix: '/api' });
 await app.register(postRoutes, { prefix: '/api' });
   app.register(storyRoutes, { prefix: '/api' });
   app.register(repostRoutes, { prefix: '/api' });
