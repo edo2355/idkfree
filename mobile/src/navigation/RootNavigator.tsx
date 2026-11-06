@@ -1,3 +1,4 @@
+import { ContactScreen } from '../screens/ContactScreen';
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AppTabs } from './AppTabs';
@@ -53,6 +54,7 @@ export function RootNavigator() {
           <Stack.Screen name="MyData" component={MyDataScreen} />
           <Stack.Screen name="Terms" component={TermsScreen} />
           <Stack.Screen name="Privacy" component={PrivacyScreen} />
+          <Stack.Screen name="Contact" component={ContactScreen} />
           <Stack.Screen name="About" component={AboutScreen} />
           <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
           <Stack.Screen name="EditProfile" component={EditProfileScreen} />

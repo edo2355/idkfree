@@ -208,6 +208,7 @@ export function SettingsScreen() {
         {/* ============ GRUPO 04 · LEGAL ============ */}
         <Group title="LEGAL" code="[04]">
           <Row label="Términos y Condiciones" onPress={() => navigation.navigate('Terms')} />
+          <Row label="Contacto y Soporte" onPress={() => navigation.navigate('Contact')} />
         </Group>
 
         {/* ============ GRUPO 05 · CONEXIÓN ============ */}
