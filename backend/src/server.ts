@@ -85,9 +85,14 @@ app.addContentTypeParser(
   { parseAs: 'string', bodyLimit: 1024 * 100 },
   function (req, body, done) {
     try {
-      // Guardamos el raw body como string en un símbolo
-      (req as any).rawBody = body;
-      const parsed = body.length === 0 ? {} : JSON.parse(body);
+      // Convertir a string siempre (body puede ser string o Buffer)
+      const rawBodyStr = typeof body === 'string' ? body : body.toString('utf8');
+      
+      // Guardar raw body para HMAC de webhooks
+      (req as any).rawBody = rawBodyStr;
+      
+      // Parsear JSON
+      const parsed = rawBodyStr.length === 0 ? {} : JSON.parse(rawBodyStr);
       done(null, parsed);
     } catch (err: any) {
       done(err, undefined);
