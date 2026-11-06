@@ -1,4 +1,5 @@
 import { query } from '../db/pool.js';
+import { requireAuth } from '../middleware/auth.js';
 import { sendParentalConsentEmail } from '../services/emailService.js';
 import type { FastifyInstance } from 'fastify';
 import { register, verifyLogin } from '../services/authService.js';
