@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
-import { LiveStreamReal } from './LiveStreamReal'; // Reutilizamos la misma UI por ahora
+import LiveStreamReal from './LiveStreamReal'; // Reutilizamos la misma UI por ahora
 
 export function CallScreen(props: any) {
   const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
