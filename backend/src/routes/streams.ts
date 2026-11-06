@@ -4,6 +4,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { startStream, endStream, getActiveStreams, getStream } from '../services/streamService.js';
+import { query } from '../db/pool.js';
 import { requireAuth } from '../middleware/auth.js';
 import { requireAlive } from '../middleware/requireAlive.js';
 
@@ -46,6 +47,23 @@ export async function streamRoutes(app: FastifyInstance) {
     try {
       const result = await getActiveStreams(req.userId!, limit ? parseInt(limit) : 20);
       return reply.send(result);
+    } catch (err: any) {
+      app.log.error(err);
+      return reply.code(500).send({ error: 'Error interno' });
+    }
+  });
+
+}
+
+  // POST /api/streams/:id/like
+  app.post('/streams/:id/like', { preHandler: [requireAuth] }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    try {
+      const res = await query(
+        'UPDATE streams SET likes_count = likes_count + 1 WHERE id = $1 RETURNING likes_count',
+        [id]
+      );
+      return reply.send({ ok: true, likes: (res.rows[0] as any)?.likes_count ?? 0 });
     } catch (err: any) {
       app.log.error(err);
       return reply.code(500).send({ error: 'Error interno' });

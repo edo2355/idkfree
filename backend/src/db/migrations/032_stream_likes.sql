@@ -1,0 +1,1 @@
+ALTER TABLE streams ADD COLUMN likes_count INTEGER DEFAULT 0;
