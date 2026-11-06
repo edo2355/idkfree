@@ -14,7 +14,7 @@ export async function qvapayWebhookRoutes(app: FastifyInstance) {
     // Si no lo tienes configurado, puedes usar JSON.stringify(req.body) como aproximación,
     // pero lo ideal es usar el raw body.
     const rawBody = JSON.stringify(req.body); // Aproximación segura si no hay raw body
-    const appSecret = process.env.QVAPAY_APP_SECRET || 'tu_app_secret';
+    const appSecret = process.env.QVAPAY_APP_SECRET!;
 
     // 3. Calcular HMAC-SHA256
     const hmac = crypto.createHmac('sha256', appSecret);

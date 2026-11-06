@@ -114,7 +114,7 @@ return reply.send({ userId, alias, accessToken });
     }
   });
 
-  app.get('/auth/me', async (req, reply) => {
+  app.get('/auth/me', { preHandler: [requireAuth] }, async (req, reply) => {
     try {
       const payload = await req.jwtVerify<{ sub: string; alias: string }>();
       const res = await query('SELECT id, alias, name, bio, avatar_url, created_at FROM users WHERE id = $1', [payload.sub]);

@@ -9,7 +9,7 @@ dotenv.config();
 const app = Fastify({ logger: true, trustProxy: true });
 
 app.register(cors, { origin: true });
-app.register(jwt, { secret: process.env.JWT_SECRET || 'auth_secret_3002' });
+app.register(jwt, { secret: process.env.JWT_SECRET! });
 
 // RUTA 1: ENVIAR CÓDIGO OTP
 app.post('/api/auth/send-otp', async (req, reply) => {
