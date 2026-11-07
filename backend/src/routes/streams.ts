@@ -53,9 +53,7 @@ export async function streamRoutes(app: FastifyInstance) {
     }
   });
 
-}
-
-  // POST /api/streams/:id/like
+    // POST /api/streams/:id/like
   app.post('/streams/:id/like', { preHandler: [requireAuth] }, async (req, reply) => {
     const { id } = req.params as { id: string };
     try {
