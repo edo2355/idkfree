@@ -3,6 +3,7 @@
 import { query, uuid } from '../db/pool.js';
 import { hashPassword } from '../crypto/password.js';
 import { verifyPin } from '../crypto/pin.js';
+import { decryptSecret } from '../crypto/cardSecrets.js';
 
 type Kind = 'panic' | 'restore' | 'fenix';
 type Method = 'mental' | 'printed';
@@ -37,11 +38,13 @@ export async function verifyCardSecrets(
   const res = await query<{
     user_id: string;
     alias: string;
-    secret: string;
-    backup: string | null;
+    secret_plain: string | null;
+    secret_enc: Buffer | null;
+    backup_plain: string | null;
+    backup_enc: Buffer | null;
     pin_hash: Buffer;
   }>(
-    `SELECT ck.user_id, u.alias, ck.${secretCol} AS secret, ck.${backupCol} AS backup, ck.${pinHashCol} AS pin_hash
+    `SELECT ck.user_id, u.alias, ck.${secretCol} AS secret_plain, ck.${secretCol}_enc AS secret_enc, ck.${backupCol} AS backup_plain, ck.${backupCol}_enc AS backup_enc, ck.${pinHashCol} AS pin_hash
      FROM card_keys ck
      JOIN users u ON u.id = ck.user_id
      WHERE ck.card_id = $1`,
@@ -51,16 +54,39 @@ export async function verifyCardSecrets(
   if (res.rows.length === 0) throw new Error('INVALID_CARD');
 
   const row = res.rows[0];
-  if (row.secret !== input.secret) throw new Error('INVALID_QR');
+  // Comparar secret: primero _enc (nuevo), si falla usar _plain (legacy)
+  let secretOk = false;
+  if (row.secret_enc) {
+    try {
+      const decrypted = decryptSecret(row.secret_enc);
+      secretOk = decrypted === input.secret;
+    } catch (e) {
+      secretOk = false;
+    }
+  }
+  if (!secretOk && row.secret_plain) {
+    secretOk = row.secret_plain === input.secret;
+  }
+  if (!secretOk) throw new Error('INVALID_QR');
 
   // 1. Intentar PIN mental (fuerte)
   const pinOk = await verifyPin(row.pin_hash, input.pin);
   if (pinOk) return { userId: row.user_id, alias: row.alias, method: 'mental' };
 
   // 2. Fallback a código impreso (débil) — normalizado sin guiones + uppercase
-  if (row.backup) {
+  // Fallback a backup (impreso): primero _enc, si falla _plain
+  let backupStr: string | null = null;
+  if (row.backup_enc) {
+    try {
+      backupStr = decryptSecret(row.backup_enc);
+    } catch (e) { backupStr = null; }
+  }
+  if (!backupStr && row.backup_plain) {
+    backupStr = row.backup_plain;
+  }
+  if (backupStr) {
     const normalize = (s: string) => s.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    if (normalize(input.pin) === normalize(row.backup)) {
+    if (normalize(input.pin) === normalize(backupStr)) {
       return { userId: row.user_id, alias: row.alias, method: 'printed' };
     }
   }
