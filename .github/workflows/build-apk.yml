@@ -42,30 +42,84 @@ jobs:
           cd mobile
           npx expo prebuild --platform android --clean
 
-      - name: Build APK
-        run: |
-          cd mobile/android
-          chmod +x gradlew
-          ./gradlew assembleRelease
-
+      # 🔑 CLAVE: Decodificar el keystore ANTES de compilar
       - name: Decode Keystore
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
           echo "$ENCODED_STRING" | tr -d ' \n\r\t' | base64 -d > mobile/android/app/idkfree-release.keystore
+          ls -la mobile/android/app/idkfree-release.keystore
 
-      - name: Sign APK
+      # 🔑 CLAVE: Configurar signingConfigs.release en build.gradle
+      - name: Configure release signing
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          UNSIGNED_APK=$(find mobile/android/app/build/outputs/apk/release -name "*.apk" | grep -v "signed" | head -n 1)
-          echo "Firmando: $UNSIGNED_APK"
+          cd mobile/android/app
           
-          $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
-            --ks mobile/android/app/idkfree-release.keystore \
-            --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
-            --ks-key-alias ${{ secrets.KEY_ALIAS }} \
-            --key-pass pass:${{ secrets.KEY_PASSWORD }} \
-            --out mobile/android/app/build/outputs/apk/release/IDKfree-Signed.apk \
-            "$UNSIGNED_APK"
+          # Hacer backup del build.gradle original
+          cp build.gradle build.gradle.bak
+          
+          # Insertar signingConfigs.release después de "signingConfigs {"
+          python3 -c "
+import re, os
+path = 'build.gradle'
+with open(path, 'r') as f:
+    content = f.read()
+
+# Bloque signingConfigs.release
+signing_block = '''
+        release {
+            if (System.getenv('KEYSTORE_PASSWORD') != null) {
+                storeFile file('idkfree-release.keystore')
+                storePassword System.getenv('KEYSTORE_PASSWORD')
+                keyAlias System.getenv('KEY_ALIAS')
+                keyPassword System.getenv('KEY_PASSWORD')
+            }
+        }
+'''
+
+# Insertar después de 'signingConfigs {'
+content = content.replace('signingConfigs {', 'signingConfigs {' + signing_block, 1)
+
+# Cambiar signingConfig debug por release en buildTypes.release
+content = re.sub(
+    r'(buildTypes\s*\{[\s\S]*?release\s*\{[^}]*?signingConfig)\s+signingConfigs\.debug',
+    r'\1 signingConfigs.release',
+    content
+)
+
+with open(path, 'w') as f:
+    f.write(content)
+
+print('✅ signingConfigs.release configurado en build.gradle')
+"
+          
+          # Verificar que el cambio se aplicó
+          echo '=== Verificando signingConfigs ==='
+          grep -A 6 "signingConfigs {" build.gradle | head -20
+          echo '=== Verificando buildTypes.release ==='
+          grep -A 3 "release {" build.gradle | head -10
+
+      - name: Build APK (signed)
+        run: |
+          cd mobile/android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Verify APK signature
+        run: |
+          APK=$(find mobile/android/app/build/outputs/apk/release -name "app-release.apk" | head -n 1)
+          echo "Verificando firma de: $APK"
+          $ANDROID_HOME/build-tools/34.0.0/apksigner verify --print-certs "$APK" | head -20
+
+      - name: Rename APK
+        run: |
+          APK=$(find mobile/android/app/build/outputs/apk/release -name "app-release.apk" | head -n 1)
+          cp "$APK" mobile/android/app/build/outputs/apk/release/IDKfree-Signed.apk
+          ls -la mobile/android/app/build/outputs/apk/release/
 
       - name: Upload Signed APK
         uses: actions/upload-artifact@v4
