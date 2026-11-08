@@ -13,10 +13,28 @@ export async function hashPin(pin: string): Promise<Buffer> {
   return Buffer.from(hash, 'utf-8');
 }
 
-export async function verifyPin(hash: Buffer, pin: string): Promise<boolean> {
+/**
+ * Verifica un PIN contra un hash almacenado.
+ * Acepta Buffer, Uint8Array (como devuelve libSQL) o string.
+ */
+export async function verifyPin(hash: any, pin: string): Promise<boolean> {
   try {
-    return await bcrypt.compare(pin, hash.toString('utf-8'));
-  } catch {
+    let hashStr: string;
+    
+    if (Buffer.isBuffer(hash)) {
+      hashStr = hash.toString('utf-8');
+    } else if (hash instanceof Uint8Array) {
+      hashStr = Buffer.from(hash).toString('utf-8');
+    } else if (typeof hash === 'string') {
+      hashStr = hash;
+    } else {
+      console.warn('[verifyPin] Tipo de hash desconocido:', typeof hash);
+      return false;
+    }
+    
+    return await bcrypt.compare(pin, hashStr);
+  } catch (e) {
+    console.error('[verifyPin] Error:', e);
     return false;
   }
 }
