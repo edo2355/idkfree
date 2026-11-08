@@ -5,18 +5,19 @@ export class PaymentRouter {
   private providers: Record<string, PaymentProvider> = {};
 
   constructor() {
-    // Solo registramos QvaPay para este ejemplo. Stripe iría aquí también.
-    this.providers['qvapay'] = new QvaPayProvider(
-      process.env.QVAPAY_APP_ID || 'app_id_fake',
-      process.env.QVAPAY_APP_SECRET!
-    );
+    const appId = process.env.QVAPAY_APP_ID;
+    const appSecret = process.env.QVAPAY_APP_SECRET;
+
+    if (!appId || !appSecret) {
+      throw new Error('[PaymentRouter] Faltan QVAPAY_APP_ID o QVAPAY_APP_SECRET en las variables de entorno');
+    }
+
+    this.providers['qvapay'] = new QvaPayProvider(appId, appSecret);
   }
 
   getProvider(countryCode: string): PaymentProvider {
-    if (countryCode === 'CU') {
-      return this.providers['qvapay'];
-    }
-    // Por defecto, por ahora usamos QvaPay
+    // Por ahora, todos los países usan QvaPay
+    // Futuro: agregar Stripe, MercadoPago, etc.
     return this.providers['qvapay'];
   }
 }
