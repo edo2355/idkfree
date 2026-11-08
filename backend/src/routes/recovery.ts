@@ -1,3 +1,4 @@
+import { query } from '../db/pool.js';
 import { decryptSecret } from '../crypto/cardSecrets.js';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
