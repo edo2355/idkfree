@@ -67,7 +67,18 @@ export async function verifyCardSecrets(
   if (!secretOk && row.secret_plain) {
     secretOk = row.secret_plain === input.secret;
   }
-  if (!secretOk) throw new Error('INVALID_QR');
+  if (!secretOk) {
+    console.log("[RECOVERY-DEBUG] INVALID_QR", {
+      kind,
+      cardId: input.cardId,
+      input_secret_len: input.secret.length,
+      has_secret_enc: !!row.secret_enc,
+      has_secret_plain: !!row.secret_plain,
+      decrypt_failed: !secretDecrypted && !!row.secret_enc,
+      decrypted_len: secretDecrypted ? secretDecrypted.length : 0,
+    });
+    throw new Error('INVALID_QR');
+  }
 
   // 1. Intentar PIN mental (fuerte)
   const pinOk = await verifyPin(row.pin_hash, input.pin);
@@ -91,6 +102,14 @@ export async function verifyCardSecrets(
     }
   }
 
+  console.log("[RECOVERY-DEBUG] INVALID_PIN", {
+    kind,
+    cardId: input.cardId,
+    pin_len: input.pin.length,
+    has_pin_hash: !!row.pin_hash,
+    pin_verified: pinOk,
+    has_backup: !!row.backup_plain || !!row.backup_enc,
+  });
   throw new Error('INVALID_PIN');
 }
 
