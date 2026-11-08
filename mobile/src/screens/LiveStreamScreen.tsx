@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
-import { LiveStreamReal } from './LiveStreamReal';
+import LiveStreamReal from './LiveStreamReal';
 
 export function LiveStreamScreen(props: any) {
   // Detectar si estamos en Expo Go
