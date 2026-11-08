@@ -1,5 +1,4 @@
 import { query } from '../db/pool.js';
-import { decryptSecret } from '../crypto/cardSecrets.js';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { panicRecover, restoreRecover, fenixRecover, overridePendingDeletion, getRecoveryAudit, verifyCardSecrets } from '../services/recoveryService.js';
@@ -118,32 +117,4 @@ export async function recoveryRoutes(app: FastifyInstance) {
     } catch (err: any) {
       return reply.code(500).send({ error: 'Error interno' });
     }
-  });
-
-
-  // ⚠️ TEMPORAL: Debug endpoint (eliminar en próxima limpieza)
-  app.get("/debug/card/:cardId", async (req: any, reply: any) => {
-    try {
-      const { cardId } = req.params as { cardId: string };
-      const res = await query("SELECT * FROM card_keys WHERE card_id = $1", [cardId]);
-      if (res.rows.length === 0) return reply.send({ error: "No encontrado" });
-      const row: any = res.rows[0];
-      const out: any = {};
-      for (const key of Object.keys(row)) {
-        const val = row[key];
-        if (key.endsWith("_enc") && val) {
-          try { out[key + "_decrypted"] = decryptSecret(val); }
-          catch (e: any) { out[key + "_error"] = e.message; }
-          out[key + "_len"] = val?.length || 0;
-        } else if (val instanceof Uint8Array) {
-          out[key + "_bytes"] = val.length;
-        } else {
-          out[key] = val;
-        }
-      }
-      return reply.send(out);
-    } catch (err: any) {
-      return reply.code(500).send({ error: err.message });
-    }
-  });
-}
+  });}
