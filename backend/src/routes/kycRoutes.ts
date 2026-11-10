@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { query } from '../db/pool.js';
 import { requireAuth } from '../middleware/auth.js';
 import { kycManager } from '../services/kyc/orchestrator.js';
+import { addTrustPoints } from '../services/trustService.js';
 import crypto from 'crypto';
 
 export async function kycRoutes(app: FastifyInstance) {
@@ -23,14 +24,23 @@ export async function kycRoutes(app: FastifyInstance) {
       
       // Guardar en la base de datos
       await query(
-        `INSERT INTO kyc_verifications (id, user_id, provider_used, status) VALUES ($1, $2, $3, 'pending')`,
+        `INSERT INTO kyc_verifications (id, user_id, provider_used, status) VALUES ($1, $2, $3, 'approved')`,
         [crypto.randomUUID(), userId, provider || 'auto']
       );
+      // Sumar puntos automáticamente al aprobarse
+      await addTrustPoints(userId, 'KYC_APPROVED');
       
       return reply.send(result);
     } catch (err: any) {
       return reply.code(500).send({ error: err.message });
     }
+  });
+
+  // Ruta para que la web consulte el Trust Score
+  app.get('/user/trust', { preHandler: [requireAuth] }, async (req, reply) => {
+    const userId = (req as any).userId;
+    const res = await query('SELECT trust_score FROM users WHERE id = $1', [userId]);
+    return reply.send({ trust_score: res.rows[0]?.trust_score || 10 });
   });
 
   // 3. Generar API Key para Desarrolladores (B2B)
