@@ -3,6 +3,8 @@ import TermsOfService from './pages/TermsOfService';
 import Contact from './pages/Contact';
 import VerifyParent from './pages/VerifyParent';
 import GoLive from './pages/GoLive';
+import KycSelect from './pages/KycSelect';
+import DeveloperApi from './pages/DeveloperApi';
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
@@ -75,6 +77,8 @@ export default function App() {
           <Route path="settings" element={<SettingsPage />} />
           <Route path="kyc" element={<KycPage />} />
                     <Route path="golive" element={<GoLive />} />
+                    <Route path="kyc" element={<KycSelect />} />
+                    <Route path="developer/api" element={<DeveloperApi />} />
           <Route path="catalog/:userId" element={<CatalogPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
           <Route path="suppliers" element={<Suppliers />} />
