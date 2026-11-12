@@ -33,7 +33,7 @@ import { supplierRoutes } from './routes/suppliers.js';
 import { influencerRoutes } from './routes/influencers.js';
 import { crossBorderAdminRoutes } from './routes/crossBorderAdmin.js';
 import { uploadRoutes } from './routes/uploads.js';
-import { kycRoutes } from './routes/kyc.js';
+import { kycRoutes } from './routes/kycRoutes.js';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import { join } from 'path';
@@ -121,7 +121,7 @@ await app.register(adminRoutes, { prefix: '/api' });
   app.register(livekitRoutes, { prefix: '/api' });
   app.register(messageRoutes, { prefix: '/api' });
 await app.register(uploadRoutes, { prefix: '/api' });
-  app.register(kycRoutes, { prefix: '/api' });
+await app.register(kycRoutes, { prefix: '/api' });
 
 // Capturar tiempo de arranque para calcular uptime
 const _startedAt = Date.now();
