@@ -1,134 +1,101 @@
-// ============================================================
-// emailService.ts — Envío de correos vía API HTTP de Resend
-// ============================================================
-import { Resend } from 'resend';
+// Servicio de Correos usando la API HTTP de Mailjet (Puerto 443)
+// Render bloquea SMTP, por lo que usamos fetch nativo.
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'IDKfree <onboarding@resend.dev>';
+const MAILJET_API_KEY = process.env.MAILJET_API_KEY || '';
+const MAILJET_SECRET_KEY = process.env.MAILJET_SECRET_KEY || '';
+const FROM_EMAIL = 'IDKfree <no-reply@idkfreegetid.dpdns.org>';
 
-interface SendEmailOptions {
-  to: string;
-  subject: string;
-  html: string;
-}
+const getAuthHeader = () => {
+  const credentials = Buffer.from(`${MAILJET_API_KEY}:${MAILJET_SECRET_KEY}`).toString('base64');
+  return { 'Authorization': `Basic ${credentials}`, 'Content-Type': 'application/json' };
+};
 
-async function sendEmail(options: SendEmailOptions): Promise<{ success: boolean; id?: string; error?: string }> {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn('⚠️ RESEND_API_KEY no configurado. Saltando envío.');
-    return { success: false, error: 'RESEND_API_KEY no configurado' };
-  }
-
+async function sendMailjetEmail(payload: any) {
   try {
-    const response = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: [options.to],
-      subject: options.subject,
-      html: options.html,
+    const response = await fetch('https://api.mailjet.com/v3.1/send', {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(payload)
     });
-
-    if (response.error) {
-      console.error(`❌ Resend error:`, response.error);
-      return { success: false, error: response.error.message };
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('❌ Error de Mailjet:', response.status, errorData);
+      throw new Error(`Mailjet error: ${response.status}`);
     }
-
-    console.log(`✅ Correo enviado a ${options.to} (ID: ${response.data?.id})`);
-    return { success: true, id: response.data?.id };
-  } catch (error: any) {
-    console.error('❌ Error en API Resend:', error.message);
-    return { success: false, error: error.message };
+    console.log('✅ Correo enviado por Mailjet exitosamente');
+  } catch (error) {
+    console.error('❌ Fallo al enviar correo:', error);
+    throw error;
   }
 }
 
-// ============================================================
-// 1. Email de verificación (código OTP)
-// ============================================================
+// 1. Verificación de correo (Código de 6 dígitos)
 export async function sendVerificationEmail(toEmail: string, code: string) {
-  return sendEmail({
-    to: toEmail,
-    subject: 'Tu código de verificación - IDKfree',
-    html: `
-      <div style="background:#050505;color:#fff;font-family:sans-serif;padding:40px 20px;text-align:center;">
-        <h1 style="color:#00e5ff;">IDKfree.OS</h1>
-        <p style="font-size:16px;color:#a0a0a0;">Tu código de verificación es:</p>
-        <div style="background:#000;border-radius:8px;padding:20px;margin:20px auto;max-width:300px;border:1px dashed #00e5ff;">
-          <strong style="font-size:32px;color:#00e5ff;font-family:monospace;letter-spacing:4px;">${code}</strong>
+  const payload = {
+    Messages: [{
+      From: { Email: FROM_EMAIL.split('<')[1].replace('>', ''), Name: 'IDKfree' },
+      To: [{ Email: toEmail }],
+      Subject: 'Tu código de verificación - IDKfree',
+      HTMLPart: `
+        <div style="background: #0f172a; color: #fff; padding: 20px; font-family: sans-serif; text-align: center;">
+          <h2>Verifica tu cuenta</h2>
+          <p>Tu código de verificación es:</p>
+          <h1 style="font-size: 32px; letter-spacing: 5px; color: #fff; background: #111; padding: 10px; display: inline-block; border: 1px dashed #00E5FF;">${code}</h1>
+          <p>Este código expira en 10 minutos.</p>
         </div>
-        <p style="font-size:12px;color:#666;">Si no solicitaste este código, ignora este correo.</p>
-      </div>
-    `,
-  });
+      `
+    }]
+  };
+  await sendMailjetEmail(payload);
 }
 
-// ============================================================
-// 2. SMS mock (no implementado aún)
-// ============================================================
+// 2. Verificación SMS (Nota: Mailjet no envía SMS, se deja un log para no romper)
 export async function sendVerificationSMS(phone: string, code: string) {
-  console.log(`[SMS MOCK] Código ${code} enviado a ${phone}`);
+  console.log(`[SMS SIMULADO] Enviando código ${code} al teléfono ${phone}`);
+  // Aquí podrías integrar Twilio o QvaPay SMS en el futuro.
 }
 
-// ============================================================
-// 3. Email de bienvenida a la waitlist (con pase)
-// ============================================================
+// 3. Correo de Bienvenida a la Waitlist (El que incluye el Pase)
 export async function sendWaitlistEmail(toEmail: string, alias: string, position: number, code: string) {
-  const passUrl = `https://www.idkfreegetid.dpdns.org/waitlist/card/${code}`;
-
-  return sendEmail({
-    to: toEmail,
-    subject: `🚀 ¡Estás en la lista de IDKfree, @${alias}!`,
-    html: `
-      <div style="background-color:#050505;color:#ffffff;font-family:sans-serif;padding:40px 20px;text-align:center;">
-        <h1 style="color:#00e5ff;margin-bottom:10px;">IDKfree.OS</h1>
-        <p style="font-size:16px;color:#a0a0a0;">La red social de la Soberanía Digital</p>
-        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(0,229,255,0.3);border-radius:16px;padding:30px;max-width:500px;margin:30px auto;text-align:left;">
-          <h2 style="color:#ffffff;margin-top:0;">¡Hola @${alias}!</h2>
-          <p style="font-size:15px;line-height:1.6;color:#d0d0d0;">
-            Te has unido exitosamente al acceso anticipado. Estás en la posición <strong>#${position}</strong>.
-          </p>
-          <div style="background:#000;border-radius:8px;padding:15px;text-align:center;margin:20px 0;border:1px dashed #00e5ff;">
-            <span style="font-size:12px;color:#a0a0a0;letter-spacing:1px;">TU CÓDIGO DE REFERIDO</span><br/>
-            <strong style="font-size:24px;color:#00e5ff;font-family:monospace;">${code}</strong>
-          </div>
-          <p style="font-size:14px;color:#d0d0d0;">
-            Compartí tu código con amigos. Por cada amigo que se una usando tu código, subirás <strong>2 posiciones</strong>.
-          </p>
-          <a href="${passUrl}" style="display:block;background:#00e5ff;color:#050505;text-decoration:none;font-weight:bold;padding:14px;border-radius:8px;text-align:center;margin-top:25px;">
-            Ver mi Pase de Acceso
-          </a>
+  const payload = {
+    Messages: [{
+      From: { Email: FROM_EMAIL.split('<')[1].replace('>', ''), Name: 'IDKfree' },
+      To: [{ Email: toEmail, Name: alias }],
+      Subject: '¡Bienvenido al Acceso Anticipado de IDKfree!',
+      HTMLPart: `
+        <div style="background: #0f172a; color: #fff; padding: 30px; font-family: sans-serif; text-align: center; border-radius: 10px;">
+          <h2 style="color: #00E5FF;">IDKfree.OS</h2>
+          <p>La red social de la Soberanía Digital</p>
+          <hr style="border-color: #333;" />
+          <p>¡Hola <b>@${alias}</b>!</p>
+          <p>Te has unido exitosamente al acceso anticipado. Estás en la posición <b>#${position}</b>.</p>
+          <p style="margin-top: 20px; color: #888;">TU CÓDIGO DE REFERIDO</p>
+          <h1 style="color: #00E5FF; letter-spacing: 2px;">${code}</h1>
+          <p>Compartí tu código con amigos. Por cada amigo que se una usando tu código, subirás 2 posiciones.</p>
+          <a href="https://www.idkfreegetid.dpdns.org/waitlist/card/${code}" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background: #00E5FF; color: #000; text-decoration: none; font-weight: bold; border-radius: 5px;">Ver mi Pase de Acceso</a>
         </div>
-        <p style="font-size:12px;color:#666;margin-top:20px;">Si no te registraste en IDKfree, ignora este correo.</p>
-      </div>
-    `,
-  });
+      `
+    }]
+  };
+  await sendMailjetEmail(payload);
 }
 
-// ============================================================
-// 4. Email de consentimiento parental (menores de edad)
-// ============================================================
+// 4. Consentimiento Parental (Para menores de edad)
 export async function sendParentalConsentEmail(parentEmail: string, minorAlias: string, token: string) {
-  const consentUrl = `https://www.idkfreegetid.dpdns.org/verify-parent?token=${token}`;
-
-  return sendEmail({
-    to: parentEmail,
-    subject: `👨‍👩‍👧 Acción requerida: Autorizar cuenta de @${minorAlias}`,
-    html: `
-      <div style="background-color:#050505;color:#fff;padding:40px 20px;font-family:sans-serif;text-align:center;">
-        <h1 style="color:#00e5ff;">IDKfree.OS</h1>
-        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(0,229,255,0.3);border-radius:16px;padding:30px;max-width:500px;margin:30px auto;text-align:left;">
-          <h2>Hola, tutor legal</h2>
-          <p style="color:#d0d0d0;line-height:1.6;">
-            El usuario <strong>@${minorAlias}</strong> ha solicitado unirse a IDKfree y ha indicado que es menor de edad.
-          </p>
-          <p style="color:#d0d0d0;line-height:1.6;">
-            Por seguridad, su cuenta está en <strong>Modo Protegido</strong>. No podrá interactuar con adultos ni ver su contenido.
-          </p>
-          <p style="color:#d0d0d0;line-height:1.6;">
-            Para autorizar su cuenta y que pueda chatear con otros menores, hacé clic en el botón:
-          </p>
-          <a href="${consentUrl}" style="display:block;background:#00e5ff;color:#050505;text-decoration:none;font-weight:bold;padding:14px;border-radius:8px;text-align:center;margin-top:25px;">
-            Autorizar cuenta de mi hijo/a
-          </a>
+  const payload = {
+    Messages: [{
+      From: { Email: FROM_EMAIL.split('<')[1].replace('>', ''), Name: 'IDKfree' },
+      To: [{ Email: parentEmail }],
+      Subject: 'Autorización requerida para menor - IDKfree',
+      HTMLPart: `
+        <div style="background: #0f172a; color: #fff; padding: 20px; font-family: sans-serif;">
+          <h2>Autorización Parental</h2>
+          <p>Hemos recibido una solicitud de registro para el menor <b>@${minorAlias}</b>.</p>
+          <p>Para autorizar su cuenta, haz clic en el siguiente enlace:</p>
+          <a href="https://www.idkfreegetid.dpdns.org/consent/${token}" style="color: #00E5FF;">Autorizar cuenta</a>
         </div>
-      </div>
-    `,
-  });
+      `
+    }]
+  };
+  await sendMailjetEmail(payload);
 }
