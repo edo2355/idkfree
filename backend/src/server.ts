@@ -1,4 +1,5 @@
 import helmet from '@fastify/helmet';
+import { qvapayRoutes } from './routes/qvapayRoutes.js';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
@@ -122,6 +123,7 @@ await app.register(adminRoutes, { prefix: '/api' });
   app.register(messageRoutes, { prefix: '/api' });
 await app.register(uploadRoutes, { prefix: '/api' });
 await app.register(kycRoutes, { prefix: '/api' });
+await app.register(qvapayRoutes, { prefix: '/api' });
 
 // Capturar tiempo de arranque para calcular uptime
 const _startedAt = Date.now();

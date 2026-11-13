@@ -1,0 +1,41 @@
+import { query } from '../db/pool.js';
+import crypto from 'crypto';
+
+const QVAPAY_APP_ID = process.env.QVAPAY_APP_ID || '';
+const QVAPAY_API_URL = 'https://api.qvapay.com/v2';
+
+export async function createInvoice(userId: string, amount: number, description: string) {
+  const remoteId = `IDK-${Date.now()}-${userId.slice(0, 5)}`;
+
+  try {
+    const response = await fetch(`${QVAPAY_API_URL}/create_invoice`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${QVAPAY_APP_ID}` },
+      body: JSON.stringify({ amount, description, remote_id: remoteId })
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Error creando factura');
+
+    await query(
+      `INSERT INTO transactions (id, user_id, amount, status, provider, remote_id, payment_url)
+       VALUES ($1, $2, $3, 'pending', 'qvapay', $4, $5)`,
+      [crypto.randomUUID(), userId, amount, remoteId, data.url]
+    );
+
+    return { success: true, url: data.url, remoteId };
+  } catch (error) {
+    console.error('❌ Error en QvaPay createInvoice:', error);
+    throw error;
+  }
+}
+
+export async function handleWebhook(payload: any) {
+  const { status, remote_id } = payload;
+  if (status === 'paid' || status === 'completed') {
+    await query(`UPDATE transactions SET status = 'completed' WHERE remote_id = $1`, [remote_id]);
+    console.log(`✅ Pago completado para: ${remote_id}`);
+    return true;
+  }
+  return false;
+}
