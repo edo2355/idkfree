@@ -39,7 +39,6 @@ export async function waitlistRoutes(app: FastifyInstance) {
       alias: z.string().min(3).max(30),
       email: z.string().email().optional().or(z.literal('')),
       referred_by_code: z.string().optional(),
-      referred_by_code: z.string().optional(),
       referred_by: z.string().optional(),
     });
     const parsed = schema.safeParse(req.body);
@@ -50,7 +49,7 @@ export async function waitlistRoutes(app: FastifyInstance) {
       const result = await joinWaitlist(
         parsed.data.alias,
         parsed.data.email || undefined,
-        parsed.data.referred_by_code || parsed.data.referred_by_code || parsed.data.referred_by || undefined
+        parsed.data.referred_by_code || parsed.data.referred_by || undefined
       );
       return reply.code(201).send(result);
     } catch (err: any) {
