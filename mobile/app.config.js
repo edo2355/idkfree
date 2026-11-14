@@ -4,6 +4,14 @@ module.exports = () => {
   const isDev = process.env.APP_VARIANT === 'development';
 
   return {
+    plugins: [
+      "expo-router",
+      "expo-sharing",
+      "expo-splash-screen",
+      "expo-image",
+      "expo-sqlite",
+    "expo-web-browser"
+    ],
     ...appJson.expo,
     name: isDev ? 'IDKFREE DEV' : appJson.expo.name,
     slug: isDev ? 'idkfree-dev' : appJson.expo.slug,

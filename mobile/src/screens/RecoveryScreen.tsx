@@ -89,7 +89,7 @@ export function RecoveryScreen({ navigation, route }: any) {
           <Text style={styles.subtitle}>Restablecimiento de credenciales de carnet.</Text>
         </View>
 
-        <TouchableOpacity style={styles.scanButton} onPress={() => navigation.navigate('Scanner')}>
+        <TouchableOpacity style={styles.scanButton} onPress={() => alert('El escáner QR estará disponible próximamente')}>
           <Text style={styles.scanButtonText}>[ ESCANEAR QR DE RESTAURACIÓN ]</Text>
         </TouchableOpacity>
 

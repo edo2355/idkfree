@@ -634,7 +634,7 @@ export function renderScannerButton(navigation: any) {
         alignItems: 'center',
         borderRadius: 4,
       }}
-      onPress={() => navigation.navigate('Scanner')}
+      onPress={() => alert('El escáner QR estará disponible próximamente')}
     >
       <Text style={{ fontFamily: 'monospace', fontSize: 11, color: '#32D3EE', fontWeight: 'bold', letterSpacing: 1 }}>
         [ [CAM] ABRIR ESCÁNER DE CÁMARA ]
