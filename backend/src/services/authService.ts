@@ -36,7 +36,6 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
   const alias = input.alias.toLowerCase().trim();
 
   // 1. Verificar cuántas veces está este email en user_credentials (límite 5)
-  const UNLIMITED_EMAILS = ['eduardorafaelamatevaldes@gmail.com'];
   const isUnlimited = UNLIMITED_EMAILS.includes(email.toLowerCase());
 
   const emailCountRes = await query('SELECT count(*) as count FROM user_credentials WHERE email = $1', [email]);
