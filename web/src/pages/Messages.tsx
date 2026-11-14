@@ -1,59 +1,54 @@
+import { useState } from 'react';
 import { Search, Send } from 'lucide-react';
+import { useDataStore } from '../stores/dataStore';
 
 export default function Messages() {
+  const [input, setInput] = useState('');
+  const { messages, addMessage } = useDataStore();
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    addMessage(input, 'Yo');
+    setInput('');
+  };
+
   return (
-    <div className="h-[calc(100vh-8rem)] flex border border-brand-border rounded-lg overflow-hidden bg-brand-panel animate-in fade-in duration-500">
-      
-      {/* Lista de Chats */}
-      <div className="w-1/3 border-r border-brand-border flex flex-col hidden md:flex">
-        <div className="p-4 border-b border-brand-border">
-          <h2 className="text-white font-bold font-mono">MENSAJES</h2>
-        </div>
-        <div className="p-2">
-          <div className="flex items-center bg-[#000] border border-brand-border rounded px-2 py-1">
-            <Search size={14} className="text-gray-500 mr-2" />
-            <input type="text" placeholder="Buscar..." className="bg-transparent border-none outline-none text-xs text-white w-full" />
-          </div>
-        </div>
+    <div className="h-[calc(100vh-8rem)] flex border border-gray-200 dark:border-brand-border rounded-lg overflow-hidden bg-white dark:bg-brand-panel">
+      <div className="w-1/3 border-r border-gray-200 dark:border-brand-border flex flex-col hidden md:flex">
+        <div className="p-4 border-b border-gray-200 dark:border-brand-border"><h2 className="text-gray-900 dark:text-white font-bold font-mono">CHATS</h2></div>
+        <div className="p-2"><div className="flex items-center bg-gray-100 dark:bg-[#000] border border-gray-300 dark:border-brand-border rounded px-2 py-1"><Search size={14} className="text-gray-500 mr-2" /><input type="text" placeholder="Buscar..." className="bg-transparent outline-none text-xs text-gray-900 dark:text-white w-full" /></div></div>
         <div className="flex-1 overflow-y-auto">
-          {[1,2,3].map((i) => (
-            <div key={i} className={`p-4 border-b border-brand-border cursor-pointer hover:bg-brand-border/30 transition-colors ${i === 1 ? 'bg-brand-border/50 border-l-2 border-l-brand-blue' : ''}`}>
-              <div className="flex justify-between items-center mb-1">
-                <h3 className="text-white font-bold text-sm">Creador_{i}</h3>
-                <span className="text-[10px] text-gray-500 font-mono">12:30</span>
-              </div>
-              <p className="text-xs text-gray-400 truncate">Hola, ¿cómo va el proyecto?</p>
-            </div>
-          ))}
+          <div className="p-4 border-b border-gray-200 dark:border-brand-border bg-gray-50 dark:bg-brand-border/30 border-l-2 border-l-brand-blue cursor-pointer">
+            <h3 className="text-gray-900 dark:text-white font-bold text-sm">Creador_1</h3>
+            <p className="text-xs text-gray-500 truncate">Hola, ¿cómo va el proyecto?</p>
+          </div>
         </div>
       </div>
 
-      {/* Ventana de Chat */}
-      <div className="flex-1 flex flex-col bg-[#050505]">
-        <div className="p-4 border-b border-brand-border flex items-center gap-3">
+      <div className="flex-1 flex flex-col bg-gray-50 dark:bg-[#050505]">
+        <div className="p-4 border-b border-gray-200 dark:border-brand-border flex items-center gap-3">
           <div className="w-8 h-8 bg-brand-blue/20 border border-brand-blue rounded-full flex items-center justify-center text-xs font-bold text-brand-blue">C</div>
-          <h3 className="text-white font-bold text-sm">Creador_1</h3>
+          <h3 className="text-gray-900 dark:text-white font-bold text-sm">Creador_1</h3>
         </div>
         
         <div className="flex-1 p-4 overflow-y-auto space-y-4">
-          <div className="flex justify-start">
-            <div className="bg-brand-panel border border-brand-border p-3 rounded-lg rounded-tl-none max-w-[80%]">
-              <p className="text-sm text-gray-300">Hola, ¿cómo va el proyecto?</p>
+          {messages.map((msg) => (
+            <div key={msg.id} className={`flex ${msg.sender === 'Yo' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`p-3 rounded-lg max-w-[80%] ${msg.sender === 'Yo' ? 'bg-brand-blue text-white rounded-tr-none' : 'bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border text-gray-700 dark:text-gray-300 rounded-tl-none'}`}>
+                <p className="text-sm">{msg.text}</p>
+                <span className="text-[10px] opacity-50 block mt-1 text-right">{msg.time}</span>
+              </div>
             </div>
-          </div>
-          <div className="flex justify-end">
-            <div className="bg-brand-blue p-3 rounded-lg rounded-tr-none max-w-[80%]">
-              <p className="text-sm text-white">¡Todo marcha perfecto! Ya estamos en producción.</p>
-            </div>
-          </div>
+          ))}
         </div>
 
-        <div className="p-4 border-t border-brand-border">
-          <div className="flex items-center bg-brand-panel border border-brand-border rounded-full px-4 py-2">
-            <input type="text" placeholder="Escribe un mensaje..." className="bg-transparent border-none outline-none text-sm text-white w-full" />
-            <button className="text-brand-blue hover:text-white transition-colors"><Send size={18} /></button>
+        <form onSubmit={handleSend} className="p-4 border-t border-gray-200 dark:border-brand-border">
+          <div className="flex items-center bg-white dark:bg-brand-panel border border-gray-300 dark:border-brand-border rounded-full px-4 py-2">
+            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Escribe un mensaje..." className="bg-transparent outline-none text-sm text-gray-900 dark:text-white w-full" />
+            <button type="submit" className="text-brand-blue hover:text-blue-400"><Send size={18} /></button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
