@@ -1,12 +1,18 @@
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Shield, CreditCard, Ticket, Code, X, Sun, Moon } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
 
+interface ModalContent {
+  title: string;
+  desc: string;
+  icon: ReactNode | null;
+}
+
 export default function Landing() {
   const { theme, toggleTheme } = useThemeStore();
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', desc: '', icon: null });
+  const [modalContent, setModalContent] = useState<ModalContent>({ title: '', desc: '', icon: null });
 
   const modules = [
     { title: 'Identidad (KYC)', desc: 'Sistema de verificación de identidad cifrado con protección contra censura y prueba de humanidad. Tu pasaporte digital para el mundo.', icon: <Shield size={32} className="text-brand-blue" /> },
@@ -55,7 +61,6 @@ export default function Landing() {
       {/* HERO SECTION */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden pt-16">
         <div className="absolute inset-0 z-0">
-          {/* La imagen cambia de opacidad según el tema */}
           <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2000&auto=format&fit=crop" alt="Creator" className={`w-full h-full object-cover object-top grayscale contrast-125 transition-opacity duration-300 ${theme === 'dark' ? 'opacity-30' : 'opacity-10'}`} />
           <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-brand-dark via-white/80 dark:via-brand-dark/80 to-transparent transition-colors"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-white dark:from-brand-dark via-transparent to-white dark:to-brand-dark transition-colors"></div>
@@ -90,15 +95,7 @@ export default function Landing() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {modules.map((mod, i) => (
-              <button 
-                key={i} 
-                onClick={() => { 
-                  // Aseguramos que se guarde el contenido y se abra el modal
-                  setModalContent(mod); 
-                  setModalOpen(true); 
-                }} 
-                className="group text-left border border-gray-200 dark:border-white/5 bg-white dark:bg-gradient-to-b dark:from-white/5 dark:to-transparent p-6 hover:border-brand-blue dark:hover:border-brand-blue transition-all duration-300 rounded-lg shadow-sm hover:shadow-md"
-              >
+              <button key={i} onClick={() => { setModalContent(mod); setModalOpen(true); }} className="group text-left border border-gray-200 dark:border-white/5 bg-white dark:bg-gradient-to-b dark:from-white/5 dark:to-transparent p-6 hover:border-brand-blue dark:hover:border-brand-blue transition-all duration-300 rounded-lg shadow-sm hover:shadow-md">
                 <div className="mb-6 group-hover:scale-110 transition-transform">{mod.icon}</div>
                 <h3 className="text-lg font-bold mb-2 font-mono text-gray-900 dark:text-white">{mod.title}</h3>
                 <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">{mod.desc}</p>
