@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Search, Bell, Sun, Moon, Home, Ticket, MessageSquare, User, Zap } from 'lucide-react';
+import { LogOut, Search, Bell, Sun, Moon, Home, Ticket, MessageSquare, User, Zap, ShoppingBag } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useThemeStore } from '../stores/themeStore';
 
@@ -12,6 +12,7 @@ export default function WebLayout() {
   const navItems = [
     { path: '/feed', label: 'TIMELINE' },
     { path: '/buzz', label: 'EVENT BUZZ' },
+    { path: '/shop', label: 'SHOP' },
     { path: '/ticketera', label: 'EVENTOS' },
     { path: '/dashboard', label: 'DASHBOARD' },
     { path: '/integrations', label: 'INTEGRACIONES' },
@@ -22,6 +23,7 @@ export default function WebLayout() {
     { path: '/feed', icon: Home },
     { path: '/buzz', icon: Zap },
     { path: '/ticketera', icon: Ticket },
+    { path: '/shop', icon: ShoppingBag },
     { path: '/messages', icon: MessageSquare },
     { path: '/profile', icon: User },
   ];
