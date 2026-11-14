@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Shield, CreditCard, Ticket, Code, X } from 'lucide-react';
 
+interface ModalContent {
+  title: string;
+  desc: string;
+  icon: ReactNode | null;
+}
+
 export default function Landing() {
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', desc: '', icon: null });
+  const [modalContent, setModalContent] = useState<ModalContent>({ title: '', desc: '', icon: null });
 
   const modules = [
     { title: 'Identidad (KYC)', desc: 'Sistema de verificación de identidad cifrado con protección contra censura y prueba de humanidad.', icon: <Shield size={32} className="text-brand-blue" /> },
