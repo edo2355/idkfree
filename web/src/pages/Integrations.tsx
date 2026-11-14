@@ -27,7 +27,7 @@ export default function Integrations() {
       {/* Categoría: Redes Sociales */}
       <section className="space-y-4">
         <div className="flex items-center gap-2 border-b border-gray-800 pb-2">
-          <LinkIcon size={16} className="text-orange-500" />
+          <LinkIcon size={16} className="text-brand-blue" />
           <h2 className="text-sm font-mono text-white tracking-widest uppercase">Redes Sociales</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

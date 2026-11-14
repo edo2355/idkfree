@@ -18,7 +18,7 @@ export default function Ticketera() {
           <p className="text-gray-500 font-mono text-xs mt-1">SISTEMA DE GESTIÓN DE EVENTOS Y AFORO</p>
         </div>
         {view !== 'dashboard' && (
-          <button onClick={() => setView('dashboard')} className="text-xs font-mono text-orange-500 hover:text-white transition-colors">
+          <button onClick={() => setView('dashboard')} className="text-xs font-mono text-brand-blue hover:text-white transition-colors">
             &lt; VOLVER AL PANEL
           </button>
         )}
@@ -29,7 +29,7 @@ export default function Ticketera() {
         <div className="space-y-4">
           <button 
             onClick={() => setView('create-venue')}
-            className="w-full border border-dashed border-gray-700 p-6 flex flex-col items-center justify-center gap-2 hover:border-orange-500 hover:bg-orange-500/5 transition-all text-gray-400 hover:text-orange-500"
+            className="w-full border border-dashed border-gray-700 p-6 flex flex-col items-center justify-center gap-2 hover:border-brand-blue hover:bg-brand-blue/5 transition-all text-gray-400 hover:text-brand-blue"
           >
             <Plus size={24} />
             <span className="font-mono text-sm">CREAR NUEVO VENUE / EVENTO</span>
@@ -61,23 +61,23 @@ export default function Ticketera() {
           <div className="space-y-4">
             <div>
               <label className="text-xs font-mono text-gray-500 block mb-1">NOMBRE DEL RECINTO</label>
-              <input type="text" className="w-full bg-[#0a0a0a] border border-gray-800 p-3 text-white focus:outline-none focus:border-orange-500 transition-colors" placeholder="Ej. Estadio Monumental" />
+              <input type="text" className="w-full bg-[#0a0a0a] border border-gray-800 p-3 text-white focus:outline-none focus:border-brand-blue transition-colors" placeholder="Ej. Estadio Monumental" />
             </div>
             <div>
               <label className="text-xs font-mono text-gray-500 block mb-1">UBICACIÓN</label>
-              <input type="text" className="w-full bg-[#0a0a0a] border border-gray-800 p-3 text-white focus:outline-none focus:border-orange-500 transition-colors" placeholder="Ej. Santiago de Cuba" />
+              <input type="text" className="w-full bg-[#0a0a0a] border border-gray-800 p-3 text-white focus:outline-none focus:border-brand-blue transition-colors" placeholder="Ej. Santiago de Cuba" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-mono text-gray-500 block mb-1">FILAS</label>
-                <input type="number" className="w-full bg-[#0a0a0a] border border-gray-800 p-3 text-white focus:outline-none focus:border-orange-500" defaultValue={5} />
+                <input type="number" className="w-full bg-[#0a0a0a] border border-gray-800 p-3 text-white focus:outline-none focus:border-brand-blue" defaultValue={5} />
               </div>
               <div>
                 <label className="text-xs font-mono text-gray-500 block mb-1">ASIENTOS POR FILA</label>
-                <input type="number" className="w-full bg-[#0a0a0a] border border-gray-800 p-3 text-white focus:outline-none focus:border-orange-500" defaultValue={10} />
+                <input type="number" className="w-full bg-[#0a0a0a] border border-gray-800 p-3 text-white focus:outline-none focus:border-brand-blue" defaultValue={10} />
               </div>
             </div>
-            <button className="w-full py-3 bg-orange-600 text-black font-bold font-mono text-sm hover:bg-orange-500 transition-colors">
+            <button className="w-full py-3 bg-brand-blue text-black font-bold font-mono text-sm hover:bg-brand-blue transition-colors">
               GUARDAR RECINTO EN TURSO
             </button>
           </div>

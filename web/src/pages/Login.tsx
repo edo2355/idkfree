@@ -25,10 +25,10 @@ export default function Login() {
 
       <div className="w-full max-w-md border border-gray-800 bg-[#0a0a0a] p-8 relative">
         {/* Cruz de calibración */}
-        <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-orange-500"></div>
-        <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-orange-500"></div>
-        <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-orange-500"></div>
-        <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-orange-500"></div>
+        <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-brand-blue"></div>
+        <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-brand-blue"></div>
+        <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-brand-blue"></div>
+        <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-brand-blue"></div>
 
         <div className="flex items-center gap-3 mb-8 text-white">
           <Terminal size={24} className="text-orange-500" />
@@ -38,7 +38,7 @@ export default function Login() {
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
             <label className="text-xs text-gray-500 mb-1 block">NODE_ID / EMAIL</label>
-            <div className="flex items-center border border-gray-700 bg-black p-2 focus-within:border-orange-500 transition-colors">
+            <div className="flex items-center border border-gray-700 bg-black p-2 focus-within:border-brand-blue transition-colors">
               <User size={16} className="text-gray-500 mr-2" />
               <input 
                 type="text" required value={email} onChange={e => setEmail(e.target.value)}
@@ -50,7 +50,7 @@ export default function Login() {
 
           <div>
             <label className="text-xs text-gray-500 mb-1 block">PASSKEY</label>
-            <div className="flex items-center border border-gray-700 bg-black p-2 focus-within:border-orange-500 transition-colors">
+            <div className="flex items-center border border-gray-700 bg-black p-2 focus-within:border-brand-blue transition-colors">
               <Lock size={16} className="text-gray-500 mr-2" />
               <input 
                 type="password" required value={password} onChange={e => setPassword(e.target.value)}
