@@ -1,4 +1,5 @@
 import helmet from '@fastify/helmet';
+import { businessRoutes } from './routes/businessRoutes.js';
 import { qvapayRoutes } from './routes/qvapayRoutes.js';
 import { ticketingRoutes } from './routes/ticketingRoutes.js';
 import Fastify from 'fastify';
@@ -170,7 +171,9 @@ setTimeout(() => {
   setInterval(cleanupFenix, 3600_000);
 }, 5 * 60_000);
 
-await app.listen({ port: env.port, host: '0.0.0.0' });
+await await app.register(businessRoutes, { prefix: '/api' });
+
+app.listen({ port: env.port, host: '0.0.0.0' });
   console.log(`OK Aldea v2.0 escuchando en el puerto ${env.port}`);
 } catch (err) { app.log.error(err); process.exit(1); }
 
