@@ -65,7 +65,7 @@ export async function sendWaitlistEmail(toEmail: string, alias: string, position
       HTMLPart: `
         <div style="background: #0f172a; color: #fff; padding: 30px; font-family: sans-serif; text-align: center; border-radius: 10px;">
           <h2 style="color: #00E5FF;">IDKfree.OS</h2>
-          <p>La red social de la Soberanía Digital</p>
+          <p>La red social de la libertad Digital</p>
           <hr style="border-color: #333;" />
           <p>¡Hola <b>@${alias}</b>!</p>
           <p>Te has unido exitosamente al acceso anticipado. Estás en la posición <b>#${position}</b>.</p>
