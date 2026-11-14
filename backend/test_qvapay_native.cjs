@@ -1,18 +1,15 @@
 const crypto = require('crypto');
-
-// Usamos el JWT_SECRET real que configuramos en Render
 const JWT_SECRET = 'DZE/NvgYaoVWmigR+orRimhcqWCrS+qtH6fT8ru768sUB9G8w+icRcON9IZVpA6k';
 
 function base64url(source) {
   return Buffer.from(source).toString('base64url');
 }
 
-// 1. Generar Token JWT a mano
 const header = { alg: 'HS256', typ: 'JWT' };
 const encodedHeader = base64url(JSON.stringify(header));
 
 const payload = { 
-  userId: 'test-user-qvapay-123',
+  sub: 'test-user-qvapay-123', // <-- CAMBIADO A "sub" PARA QUE COINCIDA CON EL MIDDLEWARE
   iat: Math.floor(Date.now() / 1000),
   exp: Math.floor(Date.now() / 1000) + 3600 
 };
@@ -25,8 +22,6 @@ const signature = crypto.createHmac('sha256', JWT_SECRET)
 const token = `${encodedHeader}.${encodedPayload}.${signature}`;
 console.log('🔑 Token generado con éxito.');
 
-// 2. Hacer la petición a Render
-console.log('⏳ Creando factura en QvaPay a través de Render...');
 fetch('https://idkfree.onrender.com/api/qvapay/create-invoice', {
   method: 'POST',
   headers: {
