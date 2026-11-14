@@ -1,15 +1,14 @@
 import { useState } from 'react';
-import { Instagram, Twitter, Youtube, Twitch, Video, MessageCircle, Heart, ExternalLink } from 'lucide-react';
+import { Camera, MessageSquare, PlaySquare, Video, MessageCircle, Heart, ExternalLink } from 'lucide-react';
 
 export default function EventBuzz() {
   const [activeFilter, setActiveFilter] = useState('all');
 
-  // Simulamos los posts traídos de otras redes
   const buzzFeed = [
     {
       id: 1,
       source: 'instagram',
-      sourceIcon: <Instagram size={14} className="text-pink-500" />,
+      sourceIcon: <Camera size={14} className="text-pink-500" />,
       author: '@el_creador',
       content: '¡La energía en el concierto de #IDKfreeUnderground es increíble! 🔥🎸',
       likes: '2.4K',
@@ -19,7 +18,7 @@ export default function EventBuzz() {
     {
       id: 2,
       source: 'twitter',
-      sourceIcon: <Twitter size={14} className="text-blue-400" />,
+      sourceIcon: <MessageSquare size={14} className="text-blue-400" />,
       author: '@fan_de_idk',
       content: 'No puedo creer que estoy viendo esto en vivo desde Cuba gracias a @idkfree. #IDKfreeUnderground',
       likes: '890',
@@ -42,7 +41,6 @@ export default function EventBuzz() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 max-w-4xl mx-auto">
-      
       {/* Header del Evento */}
       <div className="bg-brand-panel border border-brand-border p-6 rounded-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-brand-blue/10 blur-2xl"></div>
@@ -68,8 +66,8 @@ export default function EventBuzz() {
       {/* Filtros de Redes Sociales */}
       <div className="flex flex-wrap gap-2 border-b border-brand-border pb-4">
         <button onClick={() => setActiveFilter('all')} className={`px-4 py-2 text-xs font-mono rounded-md transition-colors ${activeFilter === 'all' ? 'bg-white text-black' : 'bg-brand-panel text-gray-400 hover:text-white'}`}>TODO</button>
-        <button onClick={() => setActiveFilter('instagram')} className={`px-4 py-2 text-xs font-mono rounded-md flex items-center gap-2 transition-colors ${activeFilter === 'instagram' ? 'bg-pink-500/20 text-pink-500 border border-pink-500/50' : 'bg-brand-panel text-gray-400 hover:text-white'}`}><Instagram size={14} /> INSTAGRAM</button>
-        <button onClick={() => setActiveFilter('twitter')} className={`px-4 py-2 text-xs font-mono rounded-md flex items-center gap-2 transition-colors ${activeFilter === 'twitter' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/50' : 'bg-brand-panel text-gray-400 hover:text-white'}`}><Twitter size={14} /> X / TWITTER</button>
+        <button onClick={() => setActiveFilter('instagram')} className={`px-4 py-2 text-xs font-mono rounded-md flex items-center gap-2 transition-colors ${activeFilter === 'instagram' ? 'bg-pink-500/20 text-pink-500 border border-pink-500/50' : 'bg-brand-panel text-gray-400 hover:text-white'}`}><Camera size={14} /> INSTAGRAM</button>
+        <button onClick={() => setActiveFilter('twitter')} className={`px-4 py-2 text-xs font-mono rounded-md flex items-center gap-2 transition-colors ${activeFilter === 'twitter' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/50' : 'bg-brand-panel text-gray-400 hover:text-white'}`}><MessageSquare size={14} /> X / TWITTER</button>
         <button onClick={() => setActiveFilter('tiktok')} className={`px-4 py-2 text-xs font-mono rounded-md flex items-center gap-2 transition-colors ${activeFilter === 'tiktok' ? 'bg-white/20 text-white border border-white/50' : 'bg-brand-panel text-gray-400 hover:text-white'}`}><Video size={14} /> TIKTOK</button>
       </div>
 
@@ -97,7 +95,6 @@ export default function EventBuzz() {
           </div>
         ))}
       </div>
-
     </div>
   );
 }
