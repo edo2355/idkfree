@@ -1,12 +1,13 @@
-import { useState, ReactNode } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Shield, CreditCard, Ticket, Code, X, Sun, Moon } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
 
+// Tipo explícito para evitar errores de inferencia
 interface ModalContent {
   title: string;
   desc: string;
-  icon: ReactNode | null;
+  icon: any; 
 }
 
 export default function Landing() {
