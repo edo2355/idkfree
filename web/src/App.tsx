@@ -7,6 +7,7 @@ import Ticketera from './pages/Ticketera';
 import Integrations from './pages/Integrations';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import KycPage from './pages/KycPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import SplashScreen from './pages/SplashScreen';
 
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/ticketera" element={<Ticketera />} />
             <Route path="/integrations" element={<Integrations />} />
+            <Route path="/kyc" element={<KycPage />} />
           </Route>
         </Route>
 

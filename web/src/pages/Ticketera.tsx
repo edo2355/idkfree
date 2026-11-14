@@ -93,7 +93,7 @@ export default function Ticketera() {
               <p className="text-xs font-mono text-gray-500">TOTAL A PAGAR</p>
               <p className="text-2xl font-bold text-white">$25.00 USD</p>
             </div>
-            <button className="bg-cyan-600 hover:bg-cyan-500 text-black font-bold font-mono px-8 py-3 text-sm transition-colors">
+            <button className="bg-brand-blue hover:bg-blue-600 text-white font-bold font-mono px-8 py-3 text-sm transition-colors">
               PAGAR CON QVAPAY
             </button>
           </div>
