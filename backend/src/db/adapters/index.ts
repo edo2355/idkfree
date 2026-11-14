@@ -6,6 +6,12 @@ import type { DBAdapter, QueryResult } from './types.js';
 
 const MAX_FAILS = 3;
 
+function getEngine(): string {
+  if (process.env.TURSO_DATABASE_URL) return 'turso';
+  return process.env.DB_ENGINE ?? 'sqlite';
+}
+
+
 let _primary: DBAdapter | null = null;
 let _fallback: DBAdapter | null | undefined = undefined;  // undefined = no cargado aún
 let _failCount = 0;
@@ -22,7 +28,7 @@ async function loadAdapter(engine: string): Promise<DBAdapter> {
 
 export async function getAdapter(): Promise<DBAdapter> {
   if (_primary) return _primary;
-  const engine = process.env.DB_ENGINE ?? 'sqlite';
+  const engine = getEngine();
   _primary = await loadAdapter(engine);
   return _primary;
 }
@@ -88,7 +94,7 @@ export async function execWithFailover(sql: string): Promise<void> {
 }
 
 export async function getDBStatus() {
-  const engine = process.env.DB_ENGINE ?? 'sqlite';
+  const engine = getEngine();
   const fallback = process.env.DB_FALLBACK ?? 'none';
   let status: 'connected' | 'fallback-active' | 'disconnected' = 'disconnected';
   let latency = 0;
