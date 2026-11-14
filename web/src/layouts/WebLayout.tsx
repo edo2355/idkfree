@@ -17,7 +17,7 @@ export default function WebLayout() {
     { path: '/shop', label: 'SHOP' },
     { path: '/ticketera', label: 'EVENTOS' },
     { path: '/dashboard', label: 'DASHBOARD' },
-    { path: '/integrations', label: 'API' },
+    { path: '/developer', label: 'DEVELOPER API' },
   ];
 
   const mobileNav = [

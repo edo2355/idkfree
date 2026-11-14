@@ -13,6 +13,7 @@ import Profile from './pages/Profile';
 import Messages from './pages/Messages';
 import EventBuzz from './pages/EventBuzz';
 import Shop from './pages/Shop';
+import DeveloperHub from './pages/DeveloperHub';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Contact from './pages/Contact';
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/ticketera" element={<Ticketera />} />
             <Route path="/integrations" element={<Integrations />} />
+            <Route path="/developer" element={<DeveloperHub />} />
             <Route path="/kyc" element={<KycPage />} />
           </Route>
         </Route>
