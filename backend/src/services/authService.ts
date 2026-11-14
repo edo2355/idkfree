@@ -1,3 +1,4 @@
+const UNLIMITED_EMAILS: string[] = [];
 // Lógica de registro y login
 import { pool, query, uuid } from '../db/pool.js';
 import { hashPassword, verifyPassword } from '../crypto/password.js';

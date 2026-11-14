@@ -9,7 +9,6 @@ import { env } from './config/env.js';
 import { callRoutes } from './routes/calls.js';
 import { logRoutes } from './routes/logs.js';
 import { qvapayWebhookRoutes } from './routes/qvapayWebhook.js';
-import { debugEmailRoutes } from './routes/debugEmail.js';
 import { catalogRoutes } from './routes/catalog.js';
 import { verificationRoutes } from './routes/verification.js';
 import { authRoutes } from './routes/auth.js';
@@ -103,7 +102,6 @@ app.addContentTypeParser(
   }
 );
 
-app.register(debugEmailRoutes, { prefix: '/api' });
 app.register(qvapayWebhookRoutes, { prefix: '/api' });
 await app.register(postRoutes, { prefix: '/api' });
   app.register(storyRoutes, { prefix: '/api' });
