@@ -2,12 +2,14 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut, Search, Bell, Sun, Moon, Home, Ticket, MessageSquare, User, Zap, ShoppingBag } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useThemeStore } from '../stores/themeStore';
+import { useUIStore } from '../stores/uiStore';
 
 export default function WebLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
+  const { toast } = useUIStore();
 
   const navItems = [
     { path: '/feed', label: 'TIMELINE' },
@@ -15,22 +17,31 @@ export default function WebLayout() {
     { path: '/shop', label: 'SHOP' },
     { path: '/ticketera', label: 'EVENTOS' },
     { path: '/dashboard', label: 'DASHBOARD' },
-    { path: '/integrations', label: 'INTEGRACIONES' },
-    { path: '/kyc', label: 'KYC' },
+    { path: '/integrations', label: 'API' },
   ];
 
   const mobileNav = [
     { path: '/feed', icon: Home },
     { path: '/buzz', icon: Zap },
-    { path: '/ticketera', icon: Ticket },
     { path: '/shop', icon: ShoppingBag },
-    { path: '/messages', icon: MessageSquare },
+    { path: '/ticketera', icon: Ticket },
     { path: '/profile', icon: User },
   ];
 
   return (
     <div className="min-h-screen bg-white dark:bg-brand-dark text-gray-900 dark:text-gray-300 font-sans flex flex-col transition-colors duration-300">
       
+      {/* TOAST NOTIFICATION */}
+      {toast && (
+        <div className={`fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-full font-mono text-sm shadow-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 ${
+          toast.type === 'error' ? 'bg-red-600 text-white' : 
+          toast.type === 'success' ? 'bg-green-600 text-white' : 
+          'bg-brand-blue text-white'
+        }`}>
+          {toast.message}
+        </div>
+      )}
+
       {/* TOP NAVBAR */}
       <header className="h-16 border-b border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel sticky top-0 z-50 px-4 md:px-6 transition-colors">
         <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
@@ -44,13 +55,7 @@ export default function WebLayout() {
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`px-3 py-2 rounded-md text-xs font-mono font-bold transition-colors ${
-                    isActive ? 'text-brand-blue bg-brand-blue/10' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
+                <Link key={item.path} to={item.path} className={`px-3 py-2 rounded-md text-xs font-mono font-bold transition-colors ${isActive ? 'text-brand-blue bg-brand-blue/10' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}>
                   {item.label}
                 </Link>
               );
@@ -58,11 +63,6 @@ export default function WebLayout() {
           </nav>
 
           <div className="flex items-center gap-2 md:gap-4">
-            <div className="hidden md:flex items-center bg-gray-100 dark:bg-[#000] border border-gray-300 dark:border-brand-border rounded-md px-2 py-1">
-              <Search size={14} className="text-gray-500 mr-2" />
-              <input type="text" placeholder="Buscar..." className="bg-transparent border-none outline-none text-xs text-gray-900 dark:text-white w-32 md:w-48" />
-            </div>
-            
             <button onClick={toggleTheme} className="p-2 text-gray-500 hover:text-brand-blue transition-colors">
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
@@ -83,12 +83,10 @@ export default function WebLayout() {
         </div>
       </header>
 
-      {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8 pb-20 md:pb-8">
         <Outlet />
       </main>
 
-      {/* BOTTOM NAVIGATION (Solo Móvil) */}
       <nav className="md:hidden fixed bottom-0 w-full bg-white dark:bg-brand-panel border-t border-gray-200 dark:border-brand-border flex justify-around items-center h-16 z-50 transition-colors">
         {mobileNav.map((item) => {
           const isActive = location.pathname === item.path;
