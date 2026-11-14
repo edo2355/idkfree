@@ -2,6 +2,7 @@ import { query } from '../db/pool.js';
 import { randomUUID } from 'crypto';
 
 const QVAPAY_APP_ID = process.env.QVAPAY_APP_ID || '';
+const QVAPAY_APP_SECRET = process.env.QVAPAY_APP_SECRET || '';
 const QVAPAY_API_URL = 'https://api.qvapay.com/v2';
 
 export async function createInvoice(userId: string, amount: number, description: string) {
@@ -10,12 +11,16 @@ export async function createInvoice(userId: string, amount: number, description:
   try {
     const response = await fetch(`${QVAPAY_API_URL}/create_invoice`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${QVAPAY_APP_ID}` },
+      headers: { 
+        'Content-Type': 'application/json',
+        'app-id': QVAPAY_APP_ID,          // Credenciales como headers
+        'app-secret': QVAPAY_APP_SECRET
+      },
       body: JSON.stringify({ amount, description, remote_id: remoteId })
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Error creando factura');
+    if (!response.ok) throw new Error(data.error || 'Error creando factura');
 
     await query(
       `INSERT INTO transactions (id, user_id, amount, status, provider, remote_id, payment_url)
