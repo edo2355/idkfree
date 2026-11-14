@@ -1,198 +1,102 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import './Waitlist.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'https://idkfreegetid.dpdns.org/api';
+import { useState } from 'react';
+import { Users, Ticket, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export default function Waitlist() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [alias, setAlias] = useState('');
   const [email, setEmail] = useState('');
-  const [referredBy, setReferredBy] = useState('');
-  const [checkingAlias, setCheckingAlias] = useState(false);
-  const [checkingRef, setCheckingRef] = useState(false);
-  const [aliasStatus, setAliasStatus] = useState<{ available: boolean; reason?: string; suggestions?: string[] } | null>(null);
-  const [refStatus, setRefStatus] = useState<{ valid: boolean; referrer_alias?: string; reason?: string } | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<{ total: number; early_access_spots_left: number } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [successData, setSuccessData] = useState<{ position: number, code: string } | null>(null);
+  const [error, setError] = useState('');
 
-  // Detectar ?ref= en la URL
-  useEffect(() => {
-    const refFromUrl = searchParams.get('ref');
-    if (refFromUrl) {
-      setReferredBy(refFromUrl.toUpperCase());
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    fetch(`${API_URL}/waitlist/stats`).then(r => r.json()).then(setStats).catch(() => {});
-  }, []);
-
-  // Validación en vivo del alias
-  useEffect(() => {
-    if (alias.length < 3) { setAliasStatus(null); return; }
-    const timer = setTimeout(async () => {
-      setCheckingAlias(true);
-      try {
-        const res = await fetch(`${API_URL}/waitlist/check-alias?alias=${encodeURIComponent(alias)}`);
-        setAliasStatus(await res.json());
-      } catch { setAliasStatus(null); }
-      finally { setCheckingAlias(false); }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [alias]);
-
-  // Validación en vivo del código de referido
-  useEffect(() => {
-    if (!referredBy.trim()) { setRefStatus(null); return; }
-    const timer = setTimeout(async () => {
-      setCheckingRef(true);
-      try {
-        const res = await fetch(`${API_URL}/waitlist/check-referral?code=${encodeURIComponent(referredBy)}`);
-        setRefStatus(await res.json());
-      } catch { setRefStatus(null); }
-      finally { setCheckingRef(false); }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [referredBy]);
-
-  async function handleSubmit(e: React.FormEvent) {
+  const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!aliasStatus?.available || submitting) return;
-    if (referredBy.trim() && refStatus && !refStatus.valid) {
-      setError('El código de referido no es válido. Corrígelo o déjalo vacío.');
-      return;
-    }
-    setSubmitting(true);
-    setError(null);
+    setLoading(true);
+    setError('');
+
     try {
-      const res = await fetch(`${API_URL}/waitlist/join`, {
+      // Usamos la URL de producción de tu backend en Render
+      const response = await fetch('https://idkfree.onrender.com/api/waitlist/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          alias: alias.toLowerCase().trim(),
-          email: email.trim() || undefined,
-          referred_by: referredBy.trim() || undefined,
-        }),
+        body: JSON.stringify({ alias, email })
       });
-      if (!res.ok) {
-        const d = await res.json();
-        throw new Error(d.error || 'Error al registrar');
-      }
-      const data = await res.json();
-      navigate(`/waitlist/card/${data.referral_code}`, { state: { data } });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.error || 'Error al registrarse');
+
+      setSuccessData({ position: data.position, code: data.referral_code });
     } catch (err: any) {
       setError(err.message);
-    } finally { setSubmitting(false); }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (successData) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full space-y-6 text-center animate-in fade-in zoom-in duration-500">
+        <CheckCircle2 size={80} className="text-green-400" />
+        <h2 className="text-3xl font-bold text-white">¡Estás dentro!</h2>
+        <p className="text-slate-400 text-lg">Tu lugar en la lista de espera está reservado.</p>
+        
+        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl w-full max-w-md space-y-4">
+          <div>
+            <p className="text-sm text-slate-500 uppercase tracking-wider">Posición</p>
+            <p className="text-5xl font-bold text-cyan-400">#{successData.position}</p>
+          </div>
+          <div>
+            <p className="text-sm text-slate-500 uppercase tracking-wider">Tu código de referido</p>
+            <p className="text-2xl font-mono text-white bg-slate-950 p-3 rounded-lg border border-slate-800">
+              {successData.code}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="waitlist-page">
-      <div className="waitlist-hero">
-        <h1>Acceso anticipado</h1>
-        <p className="waitlist-subtitle">
-          IDKfree abre pronto. Los primeros 25 acceden <strong>15 días antes</strong> que el resto.
-          <br/><strong>Invita amigos y subí 2 posiciones por cada uno.</strong>
-        </p>
-        {stats && (
-          <div className="waitlist-counter">
-            <span className="counter-number">{stats.total}</span>
-            <span className="counter-label">personas ya reservaron su lugar</span>
-            {stats.early_access_spots_left > 0 && (
-              <span className="counter-spots">· Solo {stats.early_access_spots_left} spots de acceso anticipado</span>
-            )}
-          </div>
-        )}
+    <div className="max-w-md mx-auto mt-20 space-y-8">
+      <div className="text-center space-y-2">
+        <h1 className="text-4xl font-bold text-white">Acceso Anticipado</h1>
+        <p className="text-slate-400">Únete a la lista de espera y asegura tu lugar en IDKfree.</p>
       </div>
 
-      <form className="waitlist-form" onSubmit={handleSubmit}>
-        <label className="form-field">
-          <span className="field-label">Tu alias</span>
+      <form onSubmit={handleJoin} className="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4 shadow-2xl">
+        {error && <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg text-sm">{error}</div>}
+        
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-1">Alias (Nombre de usuario)</label>
           <input
             type="text"
-            placeholder="arquitecto_cuba"
+            required
             value={alias}
-            onChange={e => setAlias(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-            maxLength={30}
-            autoFocus
-            autoComplete="off"
-            spellCheck={false}
+            onChange={(e) => setAlias(e.target.value)}
+            className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+            placeholder="ej. el_creador"
           />
-          {alias.length >= 3 && (
-            <div className={`alias-status ${aliasStatus?.available ? 'ok' : aliasStatus ? 'err' : ''}`}>
-              {checkingAlias && '⏳ Verificando...'}
-              {!checkingAlias && aliasStatus?.available && '✅ Disponible'}
-              {!checkingAlias && aliasStatus && !aliasStatus.available && (
-                <>
-                  ❌ {aliasStatus.reason}
-                  {aliasStatus.suggestions && (
-                    <div className="suggestions">
-                      Prueba:{' '}
-                      {aliasStatus.suggestions.map(s => (
-                        <button key={s} type="button" onClick={() => setAlias(s)} className="suggestion-chip">
-                          @{s}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        </label>
+        </div>
 
-        <label className="form-field">
-          <span className="field-label">Email (opcional)</span>
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
           <input
             type="email"
-            placeholder="tu@email.com"
+            required
             value={email}
-            onChange={e => setEmail(e.target.value)}
-            autoComplete="email"
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+            placeholder="tu@correo.com"
           />
-          <span className="field-hint">Te avisamos cuando llegue tu turno. No compartimos tu email.</span>
-        </label>
-
-        <label className="form-field">
-          <span className="field-label">¿Alguien te invitó? (opcional)</span>
-          <input
-            type="text"
-            placeholder="IDK-XXXX-YYYY"
-            value={referredBy}
-            onChange={e => setReferredBy(e.target.value.toUpperCase())}
-            maxLength={20}
-            autoComplete="off"
-            spellCheck={false}
-          />
-          {referredBy.trim() && (
-            <div className={`alias-status ${refStatus?.valid ? 'ok' : refStatus ? 'err' : ''}`}>
-              {checkingRef && '⏳ Verificando código...'}
-              {!checkingRef && refStatus?.valid && `✅ Código de @${refStatus.referrer_alias} — ¡Te sube 2 posiciones!`}
-              {!checkingRef && refStatus && !refStatus.valid && `❌ ${refStatus.reason}`}
-            </div>
-          )}
-          {!referredBy.trim() && (
-            <span className="field-hint">
-              Si alguien te compartió su pase, pegá su código acá. Te suma 2 posiciones.
-            </span>
-          )}
-        </label>
-
-        {error && <div className="form-error">{error}</div>}
+        </div>
 
         <button
           type="submit"
-          className="submit-btn"
-          disabled={!aliasStatus?.available || submitting || !!(referredBy.trim() && refStatus && !refStatus.valid)}
+          disabled={loading}
+          className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50"
         >
-          {submitting ? 'Reservando...' : 'Reservar mi lugar →'}
+          {loading ? 'Procesando...' : 'Unirme a la lista'} <ArrowRight size={18} />
         </button>
-
-        <p className="form-footer">
-          Sin spam. Sin tarjeta. Sin compromiso.
-        </p>
       </form>
     </div>
   );
