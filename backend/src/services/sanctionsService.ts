@@ -42,24 +42,30 @@ function parseCsvLine(line: string): string[] {
 
 function load(): SdnEntry[] {
   if (_cache) return _cache;
-  const raw = readFileSync(SDN_PATH, 'utf8');
-  const lines = raw.split(/\r?\n/);
-  const out: SdnEntry[] = [];
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    const cols = parseCsvLine(line);
-    if (cols.length < 4) continue;
-    const [entNum, name, , program] = cols;
-    if (!name || !entNum) continue;
-    out.push({
-      entNum: entNum.trim(),
-      name: name.trim(),
-      nameNorm: normalize(name),
-      program: program.trim(),
-    });
+  try {
+    const raw = readFileSync(SDN_PATH, 'utf8');
+    const lines = raw.split(/\r?\n/);
+    const out: SdnEntry[] = [];
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      const cols = parseCsvLine(line);
+      if (cols.length < 4) continue;
+      const [entNum, name, , program] = cols;
+      if (!name || !entNum) continue;
+      out.push({
+        entNum: entNum.trim(),
+        name: name.trim(),
+        nameNorm: normalize(name),
+        program: program.trim(),
+      });
+    }
+    _cache = out;
+    return out;
+  } catch (error) {
+    console.error('⚠️ Advertencia: No se pudo cargar sdn.csv. El screening de sanciones estará desactivado.', error);
+    _cache = []; // Retornamos una lista vacía para no bloquear a nadie
+    return _cache;
   }
-  _cache = out;
-  return out;
 }
 
 function similarity(a: string, b: string): number {
