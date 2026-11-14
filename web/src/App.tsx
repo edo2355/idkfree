@@ -13,6 +13,9 @@ import Profile from './pages/Profile';
 import Messages from './pages/Messages';
 import EventBuzz from './pages/EventBuzz';
 import Shop from './pages/Shop';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import Contact from './pages/Contact';
 import ProtectedRoute from './components/ProtectedRoute';
 import SplashScreen from './pages/SplashScreen';
 
@@ -24,10 +27,15 @@ export default function App() {
   return (
     <Router>
       <Routes>
+        {/* Rutas Públicas */}
         <Route path="/" element={<Landing />} />
         <Route path="/waitlist" element={<Waitlist />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/contact" element={<Contact />} />
 
+        {/* Rutas Privadas */}
         <Route element={<ProtectedRoute />}>
           <Route element={<WebLayout />}>
             <Route path="/feed" element={<Feed />} />
