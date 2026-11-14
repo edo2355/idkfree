@@ -17,7 +17,6 @@ export default function Login() {
     setError('');
 
     try {
-      // Petición real al backend en Render
       const res = await fetch('https://idkfree.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,8 +27,16 @@ export default function Login() {
       
       if (!res.ok) throw new Error(data.error || 'Credenciales inválidas');
       
+      // 🛠️ FIX: Tu backend devuelve accessToken, userId y alias en la raíz
+      const authToken = data.accessToken;
+      const authUser = { alias: data.alias, id: data.userId };
+
+      if (!authToken) throw new Error('El servidor no devolvió un token válido');
+
       // Guardamos el token real y el usuario en Zustand
-      login(data.token, data.user);
+      login(authToken, authUser);
+      
+      // Navegamos al Feed
       navigate('/feed');
     } catch (err: any) {
       setError(err.message);
