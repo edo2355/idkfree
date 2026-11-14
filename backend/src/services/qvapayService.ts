@@ -5,15 +5,17 @@ const QVAPAY_APP_ID = process.env.QVAPAY_APP_ID || '';
 const QVAPAY_APP_SECRET = process.env.QVAPAY_APP_SECRET || '';
 const QVAPAY_API_URL = 'https://api.qvapay.com/v2';
 
-export async function createInvoice(userId: string, amount: number, description: string) {
-  const remoteId = `IDK-${Date.now()}-${userId.slice(0, 5)}`;
+export async function createInvoice(userId: string | undefined, amount: number, description: string) {
+  // 🛡️ Blindaje: Si userId llega undefined, usamos uno por defecto para no romper
+  const safeUserId = userId || 'anonymous-user';
+  const remoteId = `IDK-${Date.now()}-${safeUserId.slice(0, 5)}`;
 
   try {
     const response = await fetch(`${QVAPAY_API_URL}/create_invoice`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'app-id': QVAPAY_APP_ID,          // Credenciales como headers
+        'app-id': QVAPAY_APP_ID,
         'app-secret': QVAPAY_APP_SECRET
       },
       body: JSON.stringify({ amount, description, remote_id: remoteId })
@@ -25,7 +27,7 @@ export async function createInvoice(userId: string, amount: number, description:
     await query(
       `INSERT INTO transactions (id, user_id, amount, status, provider, remote_id, payment_url)
        VALUES ($1, $2, $3, 'pending', 'qvapay', $4, $5)`,
-      [randomUUID(), userId, amount, remoteId, data.url]
+      [randomUUID(), safeUserId, amount, remoteId, data.url]
     );
 
     return { success: true, url: data.url, remoteId };
