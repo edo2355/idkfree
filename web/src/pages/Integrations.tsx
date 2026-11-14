@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Youtube, Instagram, Send, ShieldCheck, CreditCard, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
+import { Video, Camera, Send, ShieldCheck, CreditCard, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
 
 export default function Integrations() {
   // Estado simulado de conexiones
@@ -34,7 +34,7 @@ export default function Integrations() {
           
           <div className="border border-gray-800 bg-[#0a0a0a] p-5 flex flex-col justify-between hover:border-gray-600 transition-colors">
             <div className="flex justify-between items-start mb-4">
-              <Youtube size={32} className="text-red-600" />
+              <Video size={32} className="text-red-600" />
               {connections.youtube ? <span className="text-green-500 text-xs font-mono flex items-center gap-1"><CheckCircle2 size={12}/> CONECTADO</span> : <span className="text-gray-600 text-xs font-mono">DESCONECTADO</span>}
             </div>
             <div>
@@ -48,7 +48,7 @@ export default function Integrations() {
 
           <div className="border border-gray-800 bg-[#0a0a0a] p-5 flex flex-col justify-between hover:border-gray-600 transition-colors">
             <div className="flex justify-between items-start mb-4">
-              <Instagram size={32} className="text-pink-500" />
+              <Camera size={32} className="text-pink-500" />
               {connections.instagram ? <span className="text-green-500 text-xs font-mono flex items-center gap-1"><CheckCircle2 size={12}/> CONECTADO</span> : <span className="text-gray-600 text-xs font-mono">DESCONECTADO</span>}
             </div>
             <div>
