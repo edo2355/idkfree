@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Ticket, Shield, LogOut, Network, Home, MessageSquare, User } from 'lucide-react';
+import { LogOut, User, Search, Bell } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 
 export default function WebLayout() {
@@ -7,65 +7,72 @@ export default function WebLayout() {
   const navigate = useNavigate();
   const { logout, user } = useAuthStore();
 
-  const privateNav = [
-    { path: '/feed', icon: Home, label: 'TIMELINE' },
-    { path: '/messages', icon: MessageSquare, label: 'MENSAJES' },
-    { path: '/profile', icon: User, label: 'MI PERFIL' },
-    { path: '/dashboard', icon: LayoutDashboard, label: 'DASHBOARD' },
-    { path: '/ticketera', icon: Ticket, label: 'TICKETERA' },
-    { path: '/integrations', icon: Network, label: 'SESSIONS & API' },
-    { path: '/kyc', icon: Shield, label: 'KYC / TRUST' },
+  const navItems = [
+    { path: '/feed', label: 'TIMELINE' },
+    { path: '/buzz', label: 'EVENT BUZZ' },
+    { path: '/ticketera', label: 'EVENTOS' },
+    { path: '/dashboard', label: 'DASHBOARD' },
+    { path: '/integrations', label: 'INTEGRACIONES' },
+    { path: '/kyc', label: 'KYC' },
   ];
 
   return (
-    <div className="min-h-screen bg-brand-dark flex text-gray-300 font-sans">
-      <aside className="w-64 border-r border-brand-border flex flex-col hidden md:flex bg-brand-panel">
-        <div className="h-16 flex items-center px-6 border-b border-brand-border">
-          <span className="text-white font-bold tracking-tighter text-xl">IDKFREE<span className="text-brand-blue">.OS</span></span>
-        </div>
+    <div className="min-h-screen bg-brand-dark flex flex-col text-gray-300 font-sans">
+      
+      {/* TOP NAVBAR */}
+      <header className="h-16 border-b border-brand-border bg-brand-panel sticky top-0 z-50 px-6">
+        <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
+          
+          {/* Logo */}
+          <Link to="/feed" className="text-white font-bold tracking-tighter text-xl flex items-center gap-2">
+            <div className="w-6 h-6 bg-brand-blue rounded-sm"></div>
+            IDKFREE<span className="text-brand-blue">.OS</span>
+          </Link>
 
-        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          <p className="px-3 text-[10px] text-gray-600 font-mono mb-2 mt-2 tracking-widest">SOCIAL</p>
-          {privateNav.slice(0, 3).map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link key={item.path} to={item.path} className={`flex items-center gap-4 px-3 py-2.5 rounded-md transition-all text-sm font-medium ${isActive ? 'bg-brand-blue/10 text-white border border-brand-blue/20' : 'text-gray-500 hover:text-white hover:bg-brand-border/50'}`}>
-                <item.icon size={18} className={isActive ? 'text-brand-blue' : ''} />{item.label}
+          {/* Links Centrales */}
+          <nav className="hidden lg:flex items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`px-3 py-2 rounded-md text-xs font-mono font-bold transition-colors ${
+                    isActive ? 'text-white bg-brand-blue/10' : 'text-gray-500 hover:text-white'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Buscador y Perfil */}
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center bg-[#000] border border-brand-border rounded-md px-2 py-1">
+              <Search size={14} className="text-gray-500 mr-2" />
+              <input type="text" placeholder="Buscar eventos, usuarios..." className="bg-transparent border-none outline-none text-xs text-white w-48" />
+            </div>
+            <button className="text-gray-400 hover:text-white"><Bell size={18} /></button>
+            <div className="flex items-center gap-3 border-l border-brand-border pl-4">
+              <Link to="/profile" className="flex items-center gap-2 hover:opacity-80">
+                <div className="w-8 h-8 bg-brand-blue/20 border border-brand-blue rounded-full flex items-center justify-center text-xs font-bold text-brand-blue">
+                  {user?.alias?.charAt(0) || 'U'}
+                </div>
+                <span className="text-xs font-mono hidden md:block">{user?.alias || 'USER'}</span>
               </Link>
-            );
-          })}
-
-          <p className="px-3 text-[10px] text-gray-600 font-mono mb-2 mt-6 tracking-widest">GESTIÓN</p>
-          {privateNav.slice(3).map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link key={item.path} to={item.path} className={`flex items-center gap-4 px-3 py-2.5 rounded-md transition-all text-sm font-medium ${isActive ? 'bg-brand-blue/10 text-white border border-brand-blue/20' : 'text-gray-500 hover:text-white hover:bg-brand-border/50'}`}>
-                <item.icon size={18} className={isActive ? 'text-brand-blue' : ''} />{item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-brand-border space-y-4">
-          <div className="text-xs font-mono">
-            <span className="text-gray-500">OPERADOR:</span> <span className="text-white">{user?.alias || 'GUEST'}</span>
+              <button onClick={() => { logout(); navigate('/login'); }} className="text-red-500 hover:text-red-400 ml-2">
+                <LogOut size={16} />
+              </button>
+            </div>
           </div>
-          <button onClick={() => { logout(); navigate('/login'); }} className="flex items-center gap-2 text-xs text-red-500 hover:text-red-400 transition-colors">
-            <LogOut size={14} /> CERRAR SESIÓN
-          </button>
-        </div>
-      </aside>
 
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="h-16 border-b border-brand-border flex items-center justify-between px-8 bg-brand-dark">
-          <div className="flex items-center gap-2 text-xs font-mono text-gray-500">
-            <div className="w-2 h-2 bg-brand-blue rounded-full animate-pulse"></div>
-            SISTEMA OPERATIVO
-          </div>
-        </header>
-        <div className="flex-1 overflow-y-auto p-4 md:p-8">
-          <Outlet />
         </div>
+      </header>
+
+      {/* CONTENIDO PRINCIPAL */}
+      <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8">
+        <Outlet />
       </main>
     </div>
   );
