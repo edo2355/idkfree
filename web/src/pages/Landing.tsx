@@ -128,6 +128,28 @@ export default function Landing() {
         </div>
       </section>
 
+      
+      {/* B2B / DEVELOPER SECTION */}
+      <section className="py-24 bg-white dark:bg-brand-dark border-t border-gray-200 dark:border-white/10 transition-colors">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="inline-block border border-brand-blue bg-brand-blue/10 px-4 py-1 mb-6 rounded-full">
+            <span className="text-xs font-mono tracking-[0.2em] text-brand-blue uppercase">Para Empresas y Desarrolladores</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">Construye sobre IDKfree.</h2>
+          <p className="text-gray-600 dark:text-gray-400 font-mono text-sm max-w-2xl mx-auto mb-10">
+            Integra nuestra tecnología de verificación de identidad (KYC), scoring de confianza y protección de pagos (Escrow) en tu propia plataforma con un par de líneas de código.
+          </p>
+          <div className="flex flex-col md:flex-row justify-center gap-4">
+            <Link to="/developer" className="bg-gray-900 dark:bg-white text-white dark:text-black px-8 py-4 font-bold font-mono text-sm hover:bg-brand-blue hover:text-white transition-colors">
+              IR AL DEVELOPER HUB
+            </Link>
+            <Link to="/contact" className="border border-gray-300 dark:border-white/20 px-8 py-4 font-bold font-mono text-sm hover:border-brand-blue transition-colors">
+              CONTACTAR A VENTAS
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* FOOTER LEGAL */}
       <footer className="border-t border-gray-200 dark:border-white/10 bg-white dark:bg-brand-dark py-12 transition-colors">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
