@@ -8,6 +8,9 @@ import Integrations from './pages/Integrations';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import KycPage from './pages/KycPage';
+import Feed from './pages/Feed';
+import Profile from './pages/Profile';
+import Messages from './pages/Messages';
 import ProtectedRoute from './components/ProtectedRoute';
 import SplashScreen from './pages/SplashScreen';
 
@@ -25,6 +28,9 @@ export default function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route element={<WebLayout />}>
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/messages" element={<Messages />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/ticketera" element={<Ticketera />} />
             <Route path="/integrations" element={<Integrations />} />
