@@ -1,5 +1,5 @@
 import { query } from '../db/pool.js';
-import crypto from 'crypto';
+import { randomUUID } from 'crypto';
 
 const QVAPAY_APP_ID = process.env.QVAPAY_APP_ID || '';
 const QVAPAY_API_URL = 'https://api.qvapay.com/v2';
@@ -20,7 +20,7 @@ export async function createInvoice(userId: string, amount: number, description:
     await query(
       `INSERT INTO transactions (id, user_id, amount, status, provider, remote_id, payment_url)
        VALUES ($1, $2, $3, 'pending', 'qvapay', $4, $5)`,
-      [crypto.randomUUID(), userId, amount, remoteId, data.url]
+      [randomUUID(), userId, amount, remoteId, data.url]
     );
 
     return { success: true, url: data.url, remoteId };
