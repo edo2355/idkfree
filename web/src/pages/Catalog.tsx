@@ -1,19 +1,35 @@
-import { useState } from 'react';
-import { Search, Filter, ShoppingBag, ArrowRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Filter, ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
 import { useUIStore } from '../stores/uiStore';
+
+interface Product {
+  id: string;
+  title: string;
+  price: number;
+  stock: number;
+}
 
 export default function Catalog() {
   const { showToast } = useUIStore();
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = ['Todos', 'Arte', 'Música', 'Tecnología', 'Servicios'];
-  
-  const products = [
-    { id: 1, title: 'Beat Instrumental Exclusivo', price: 50, seller: 'EL_CREADOR', category: 'Música' },
-    { id: 2, title: 'Diseño de Logo Minimalista', price: 25, seller: 'STUDIO_X', category: 'Arte' },
-    { id: 3, title: 'Consultoría Cripto 1h', price: 80, seller: 'CRYPTO_PRO', category: 'Servicios' },
-    { id: 4, title: 'Plantilla React Premium', price: 40, seller: 'DEV_MASTER', category: 'Tecnología' },
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch('https://idkfree.onrender.com/api/shop/products');
+        if (res.ok) {
+          const data = await res.json();
+          setProducts(data);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in duration-500">
@@ -30,7 +46,6 @@ export default function Catalog() {
         </button>
       </div>
 
-      {/* Filtros y Búsqueda */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1 flex items-center bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#1a1a1a] rounded-lg px-4 py-3">
           <Search size={18} className="text-gray-500 mr-3" />
@@ -41,38 +56,31 @@ export default function Catalog() {
         </button>
       </div>
 
-      {/* Categorías */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {categories.map(cat => (
-          <button 
-            key={cat} 
-            onClick={() => setActiveCategory(cat.toLowerCase())}
-            className={`px-4 py-2 rounded-full text-xs font-mono whitespace-nowrap transition-colors ${activeCategory === cat.toLowerCase() ? 'bg-brand-blue text-white' : 'bg-gray-100 dark:bg-[#111] text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Grid de Productos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {products.map(product => (
-          <div key={product.id} className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#1a1a1a] rounded-xl overflow-hidden group hover:border-brand-blue transition-colors">
-            <div className="h-40 bg-gray-100 dark:bg-[#111] flex items-center justify-center relative">
-              <ShoppingBag size={40} className="text-gray-300 dark:text-gray-700 group-hover:scale-110 transition-transform" />
-              <span className="absolute top-3 right-3 bg-brand-blue text-white text-[10px] font-mono px-2 py-1 rounded">${product.price} USD</span>
+      {loading ? (
+        <div className="flex justify-center py-20"><Loader2 className="animate-spin text-brand-blue" size={32} /></div>
+      ) : products.length === 0 ? (
+        <div className="text-center py-20 text-gray-500 font-mono border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+          No hay productos en el catálogo todavía.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {products.map(product => (
+            <div key={product.id} className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#1a1a1a] rounded-xl overflow-hidden group hover:border-brand-blue transition-colors">
+              <div className="h-40 bg-gray-100 dark:bg-[#111] flex items-center justify-center relative">
+                <ShoppingBag size={40} className="text-gray-300 dark:text-gray-700 group-hover:scale-110 transition-transform" />
+                <span className="absolute top-3 right-3 bg-brand-blue text-white text-[10px] font-mono px-2 py-1 rounded">${product.price} USD</span>
+              </div>
+              <div className="p-4">
+                <h3 className="text-gray-900 dark:text-white font-bold text-sm mb-1 truncate">{product.title}</h3>
+                <p className="text-xs text-gray-500 mb-4">Stock: {product.stock}</p>
+                <button onClick={() => showToast('Módulo de compras en desarrollo', 'info')} className="w-full bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white font-mono text-xs py-2 rounded hover:bg-brand-blue hover:text-white transition-colors flex items-center justify-center gap-2">
+                  Ver Detalles <ArrowRight size={14} />
+                </button>
+              </div>
             </div>
-            <div className="p-4">
-              <p className="text-[10px] text-brand-blue font-mono mb-1 uppercase tracking-wider">{product.category}</p>
-              <h3 className="text-gray-900 dark:text-white font-bold text-sm mb-1 truncate">{product.title}</h3>
-              <p className="text-xs text-gray-500 mb-4">Por @{product.seller}</p>
-              <button onClick={() => showToast('Módulo de compras en desarrollo', 'info')} className="w-full bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-white font-mono text-xs py-2 rounded hover:bg-brand-blue hover:text-white transition-colors flex items-center justify-center gap-2">
-                Ver Detalles <ArrowRight size={14} />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

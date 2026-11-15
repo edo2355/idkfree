@@ -1,21 +1,42 @@
-import { useState } from 'react';
-import { Wallet, ShieldCheck, Key, Lock, Activity, Megaphone, ArrowUpRight, Ticket, ShoppingBag, Terminal } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Wallet, ShieldCheck, Key, Lock, Activity, Megaphone, ArrowUpRight, Ticket, ShoppingBag, Terminal, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 
 export default function Dashboard() {
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
   const { showToast } = useUIStore();
-  const [activeTab, setActiveTab] = useState('overview');
+  
+  const [trustScore, setTrustScore] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Simulación de datos (en el futuro vendrán del backend)
-  const trustScore = 10;
+  // Consultar el Trust Score real al backend
+  useEffect(() => {
+    const fetchTrustScore = async () => {
+      if (!token) return;
+      try {
+        const res = await fetch('https://idkfree.onrender.com/api/user/trust', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setTrustScore(data.trust_score);
+        }
+      } catch (error) {
+        console.error('Error obteniendo trust score:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTrustScore();
+  }, [token]);
+
   const balance = 0.00;
   const escrowActive = 0;
   const apiKeys = 0;
 
   const modules = [
-    { id: 'kyc', name: 'KYC Identity', status: 'Pendiente', color: 'text-yellow-500', icon: ShieldCheck, action: 'Verificar' },
+    { id: 'kyc', name: 'KYC Identity', status: trustScore > 10 ? 'Verificado' : 'Pendiente', color: trustScore > 10 ? 'text-green-500' : 'text-yellow-500', icon: ShieldCheck, action: 'Verificar' },
     { id: 'wallet', name: 'QvaPay Wallet', status: 'Conectado', color: 'text-green-500', icon: Wallet, action: 'Gestionar' },
     { id: 'escrow', name: 'Escrow Deals', status: 'Activo', color: 'text-brand-blue', icon: Lock, action: 'Ver Contratos' },
     { id: 'api', name: 'Developer API', status: 'Sin Llaves', color: 'text-gray-500', icon: Key, action: 'Crear API Key' },
@@ -26,7 +47,6 @@ export default function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
       
-      {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-200 dark:border-brand-border pb-4 transition-colors">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-mono tracking-tight flex items-center gap-3">
@@ -42,9 +62,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* STATS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Wallet */}
         <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border p-5 rounded-lg relative overflow-hidden group transition-colors">
           <div className="absolute -right-4 -top-4 text-gray-100 dark:text-white/5 group-hover:text-brand-blue/10 transition-colors"><Wallet size={100} /></div>
           <p className="text-xs font-mono text-gray-500 mb-2 relative z-10">BALANCE DISPONIBLE</p>
@@ -52,15 +70,15 @@ export default function Dashboard() {
           <button onClick={() => showToast('Generando factura en QvaPay...', 'info')} className="text-xs text-brand-blue font-mono flex items-center gap-1 hover:underline relative z-10">Recargar Saldo <ArrowUpRight size={12} /></button>
         </div>
 
-        {/* Trust Score */}
         <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border p-5 rounded-lg relative overflow-hidden group transition-colors">
           <div className="absolute -right-4 -top-4 text-gray-100 dark:text-white/5 group-hover:text-brand-blue/10 transition-colors"><ShieldCheck size={100} /></div>
-          <p className="text-xs font-mono text-gray-500 mb-2 relative z-10">TRUST SCORE</p>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2 relative z-10">{trustScore} <span className="text-sm text-gray-500">/ 100</span></p>
+          <p className="text-xs font-mono text-gray-500 mb-2 relative z-10">TRUST SCORE REAL</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2 relative z-10">
+            {loading ? <Loader2 className="animate-spin inline" size={24}/> : trustScore} <span className="text-sm text-gray-500">/ 100</span>
+          </p>
           <button onClick={() => showToast('Iniciando proceso KYC...', 'info')} className="text-xs text-brand-blue font-mono flex items-center gap-1 hover:underline relative z-10">Aumentar Score <ArrowUpRight size={12} /></button>
         </div>
 
-        {/* Escrow */}
         <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border p-5 rounded-lg relative overflow-hidden group transition-colors">
           <div className="absolute -right-4 -top-4 text-gray-100 dark:text-white/5 group-hover:text-brand-blue/10 transition-colors"><Lock size={100} /></div>
           <p className="text-xs font-mono text-gray-500 mb-2 relative z-10">CONTRATOS EN GARANTÍA</p>
@@ -68,7 +86,6 @@ export default function Dashboard() {
           <button onClick={() => showToast('Cargando contratos Escrow...', 'info')} className="text-xs text-brand-blue font-mono flex items-center gap-1 hover:underline relative z-10">Ver Contratos <ArrowUpRight size={12} /></button>
         </div>
 
-        {/* API Keys */}
         <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border p-5 rounded-lg relative overflow-hidden group transition-colors">
           <div className="absolute -right-4 -top-4 text-gray-100 dark:text-white/5 group-hover:text-brand-blue/10 transition-colors"><Key size={100} /></div>
           <p className="text-xs font-mono text-gray-500 mb-2 relative z-10">API KEYS B2B</p>
@@ -77,7 +94,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* MODULES SECTION */}
       <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-lg transition-colors">
         <div className="p-4 border-b border-gray-200 dark:border-brand-border flex items-center justify-between">
           <h2 className="text-sm font-mono text-gray-900 dark:text-white tracking-widest uppercase flex items-center gap-2"><Activity size={16} className="text-brand-blue" /> Estado de los Módulos</h2>
@@ -102,7 +118,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* RECENT ACTIVITY */}
       <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-lg transition-colors">
         <div className="p-4 border-b border-gray-200 dark:border-brand-border flex items-center gap-2">
           <Megaphone size={16} className="text-brand-blue" />
