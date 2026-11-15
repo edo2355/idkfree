@@ -16,6 +16,7 @@ import Shop from './pages/Shop';
 import Catalog from './pages/Catalog';
 import DeveloperHub from './pages/DeveloperHub';
 import LiveStream from './pages/LiveStream';
+import Wallet from './pages/Wallet';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Contact from './pages/Contact';
@@ -30,7 +31,6 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Rutas Públicas */}
         <Route path="/" element={<Landing />} />
         <Route path="/waitlist" element={<Waitlist />} />
         <Route path="/login" element={<Login />} />
@@ -38,7 +38,6 @@ export default function App() {
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/contact" element={<Contact />} />
 
-        {/* Rutas Privadas */}
         <Route element={<ProtectedRoute />}>
           <Route element={<WebLayout />}>
             <Route path="/feed" element={<Feed />} />
@@ -46,6 +45,7 @@ export default function App() {
             <Route path="/buzz" element={<EventBuzz />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/catalog" element={<Catalog />} />
+            <Route path="/wallet" element={<Wallet />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/dashboard" element={<Dashboard />} />
