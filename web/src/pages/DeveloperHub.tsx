@@ -96,8 +96,8 @@ export default function DeveloperHub() {
                       </div>
                       <p className="text-xs text-gray-500 mb-3">{api.desc}</p>
                       <div className="flex items-center justify-between bg-gray-50 dark:bg-[#000] border border-gray-200 dark:border-brand-border rounded p-2">
-                        <code className="text-xs font-mono text-gray-700 dark:text-gray-300">https://idkmedia.onrender.com{api.endpoint}</code>
-                        <button onClick={() => handleCopy(`https://idkmedia.onrender.com${api.endpoint}`)} className="text-gray-400 hover:text-white"><Copy size={14} /></button>
+                        <code className="text-xs font-mono text-gray-700 dark:text-gray-300">https://idkfree.onrender.com{api.endpoint}</code>
+                        <button onClick={() => handleCopy(`https://idkfree.onrender.com${api.endpoint}`)} className="text-gray-400 hover:text-white"><Copy size={14} /></button>
                       </div>
                     </div>
                   </div>

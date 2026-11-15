@@ -15,7 +15,7 @@ export default function Waitlist() {
 
     try {
       // Usamos la URL de producción de tu backend en Render
-      const response = await fetch('https://idkmedia.onrender.com/api/waitlist/join', {
+      const response = await fetch('https://idkfree.onrender.com/api/waitlist/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ alias, email })
