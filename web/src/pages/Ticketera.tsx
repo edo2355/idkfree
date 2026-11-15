@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2 } from 'lucide-react';
-import SeatMap from '../components/SeatMap';
+import AdvancedSeatMap from '../components/AdvancedSeatMap';
 import { venueTemplates, VenueTemplate } from '../data/venueTemplates';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
@@ -156,7 +156,7 @@ export default function Ticketera() {
               USAR ESTE RECINTO
             </button>
           </div>
-          <SeatMap template={selectedTemplate} />
+          <AdvancedSeatMap />
         </div>
       )}
 
