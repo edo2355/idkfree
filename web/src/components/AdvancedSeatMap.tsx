@@ -1,77 +1,106 @@
 import { useState } from 'react';
 
-export default function AdvancedSeatMap({ venueId }: { venueId: string }) {
-  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+interface Section {
+  id: string;
+  name: string;
+  price: number;
+  color: string;
+  hoverColor: string;
+  path: string;
+}
 
-  // Configuración visual por tipo de estadio
-  const renderSVG = () => {
-    if (venueId === 'bernabeu') {
-      return (
-        <svg viewBox="0 0 800 500" className="w-full h-auto drop-shadow-xl">
-          {/* Fondo del estadio */}
-          <rect x="50" y="50" width="700" height="400" rx="80" fill="#e5e7eb" className="dark:fill-[#1f2937]" />
-          {/* Anillo Exterior */}
-          <rect x="80" y="80" width="640" height="340" rx="60" fill="#93C5FD" stroke="#60A5FA" strokeWidth="2" />
-          {/* Anillo Medio */}
-          <rect x="140" y="130" width="520" height="240" rx="40" fill="#6EE7B7" stroke="#34D399" strokeWidth="2" />
-          {/* Anillo Interior (Preferente) */}
-          <rect x="200" y="180" width="400" height="140" rx="20" fill="#FDE047" stroke="#FACC15" strokeWidth="2" />
-          {/* Césped / Cancha */}
-          <rect x="280" y="210" width="240" height="80" rx="10" fill="#22C55E" stroke="#16A34A" strokeWidth="2" />
-          <text x="400" y="255" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">CAMPO</text>
-          
-          {/* Etiquetas de Secciones */}
-          <text x="400" y="110" textAnchor="middle" fill="#1F2937" fontSize="12" fontWeight="bold">FONDO NORTE (GRAL)</text>
-          <text x="400" y="390" textAnchor="middle" fill="#1F2937" fontSize="12" fontWeight="bold">FONDO SUR (GRAL)</text>
-          <text x="400" y="155" textAnchor="middle" fill="#065F46" fontSize="12" fontWeight="bold">LATERAL ESTE</text>
-          <text x="400" y="345" textAnchor="middle" fill="#065F46" fontSize="12" fontWeight="bold">LATERAL OESTE</text>
-          <text x="400" y="205" textAnchor="middle" fill="#854D0E" fontSize="12" fontWeight="bold">PREFERENTE</text>
-        </svg>
-      );
-    }
-    if (venueId === 'coliseo_habana') {
-      return (
-        <svg viewBox="0 0 800 500" className="w-full h-auto drop-shadow-xl">
-          <circle cx="400" cy="250" r="220" fill="#e5e7eb" className="dark:fill-[#1f2937]" />
-          <circle cx="400" cy="250" r="200" fill="#D1D5DB" stroke="#9CA3AF" strokeWidth="4" />
-          <circle cx="400" cy="250" r="150" fill="#93C5FD" stroke="#60A5FA" strokeWidth="4" />
-          <circle cx="400" cy="250" r="90" fill="#FDE047" stroke="#FACC15" strokeWidth="4" />
-          {/* Cancha central */}
-          <circle cx="400" cy="250" r="50" fill="#F97316" stroke="#EA580C" strokeWidth="4" />
-          <text x="400" y="255" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold">ARENA</text>
-          
-          {/* Etiquetas */}
-          <text x="400" y="80" textAnchor="middle" fill="#4B5563" fontSize="14" fontWeight="bold">GRADA EXTERIOR</text>
-          <text x="400" y="120" textAnchor="middle" fill="#1E40AF" fontSize="14" fontWeight="bold">PALCOS VIP</text>
-        </svg>
-      );
-    }
-    // Por defecto (Teatros / Estadios genéricos)
+// Definimos las secciones de forma geométrica para el Bernabéu
+const bernabeuSections: Section[] = [
+  { id: 'fondo_norte', name: 'Fondo Norte (General)', price: 50, color: '#93C5FD', hoverColor: '#60A5FA', path: 'M 150 50 Q 400 20 650 50 L 680 90 L 120 90 Z' },
+  { id: 'fondo_sur', name: 'Fondo Sur (General)', price: 50, color: '#93C5FD', hoverColor: '#60A5FA', path: 'M 120 510 L 680 510 L 650 550 Q 400 580 150 550 Z' },
+  { id: 'lateral_este', name: 'Lateral Este (Preferente)', price: 80, color: '#6EE7B7', hoverColor: '#34D399', path: 'M 680 90 L 720 120 L 720 480 L 680 510 L 650 510 L 650 90 Z' },
+  { id: 'lateral_oeste', name: 'Lateral Oeste (Preferente)', price: 80, color: '#6EE7B7', hoverColor: '#34D399', path: 'M 120 90 L 80 120 L 80 480 L 120 510 L 150 510 L 150 90 Z' },
+  { id: 'vip', name: 'Palcos VIP (Premium)', price: 150, color: '#FDE047', hoverColor: '#FACC15', path: 'M 220 130 L 580 130 L 580 470 L 220 470 Z' },
+];
+
+export default function AdvancedSeatMap({ venueId }: { venueId: string }) {
+  const [selectedSection, setSelectedSection] = useState<Section | null>(null);
+
+  // Si el venue no es el Bernabéu, mostramos un aviso
+  if (venueId !== 'bernabeu') {
     return (
-      <svg viewBox="0 0 800 500" className="w-full h-auto drop-shadow-xl">
-        <path d="M 100 100 L 700 100 L 750 400 L 50 400 Z" fill="#D1D5DB" className="dark:fill-[#1f2937]" />
-        <path d="M 150 150 L 650 150 L 680 380 L 120 380 Z" fill="#93C5FD" stroke="#60A5FA" strokeWidth="2" />
-        <path d="M 250 220 L 550 220 L 580 350 L 220 350 Z" fill="#FDE047" stroke="#FACC15" strokeWidth="2" />
-        <rect x="300" y="80" width="200" height="40" fill="#374151" rx="4" />
-        <text x="400" y="105" textAnchor="middle" fill="#fff" fontSize="12" fontWeight="bold">ESCENARIO</text>
-      </svg>
+      <div className="p-10 text-center text-gray-500 font-mono border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+        <p>El mapa detallado para este recinto estará disponible próximamente.</p>
+        <p className="text-xs mt-2">Selecciona el Estadio Santiago Bernabéu para ver la demo.</p>
+      </div>
     );
-  };
+  }
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 md:p-8 bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-xl w-full relative">
-      <div className="w-full max-w-3xl">
-        {renderSVG()}
-      </div>
+    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-5xl mx-auto">
       
-      {/* Panel flotante para seleccionar asientos */}
-      <div className="mt-6 w-full max-w-md bg-gray-50 dark:bg-[#111] p-4 rounded-lg border border-gray-200 dark:border-[#333]">
-        <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-2 font-mono uppercase text-center">Selecciona tu Zona</h4>
-        <div className="grid grid-cols-2 gap-2">
-          <button onClick={() => setSelectedSection('vip')} className={`p-3 text-xs font-mono rounded border ${selectedSection === 'vip' ? 'bg-brand-blue text-white border-brand-blue' : 'bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-gray-600 text-gray-500'}`}>VIP / Palcos ($150)</button>
-          <button onClick={() => setSelectedSection('general')} className={`p-3 text-xs font-mono rounded border ${selectedSection === 'general' ? 'bg-brand-blue text-white border-brand-blue' : 'bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-gray-600 text-gray-500'}`}>General ($50)</button>
+      {/* MAPA SVG */}
+      <div className="flex-1 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#1a1a1a] rounded-xl p-4 flex items-center justify-center relative min-h-[400px]">
+        <svg viewBox="0 0 800 600" className="w-full h-auto drop-shadow-xl">
+          {/* Césped */}
+          <rect x="250" y="180" width="300" height="240" fill="#22C55E" stroke="#16A34A" strokeWidth="4" rx="10" />
+          <circle cx="400" cy="300" r="40" fill="none" stroke="#16A34A" strokeWidth="2" />
+          
+          {/* Secciones */}
+          {bernabeuSections.map((section) => {
+            const isSelected = selectedSection?.id === section.id;
+            return (
+              <path
+                key={section.id}
+                d={section.path}
+                fill={isSelected ? section.hoverColor : section.color}
+                stroke={isSelected ? '#2563EB' : '#9CA3AF'}
+                strokeWidth={isSelected ? 4 : 1}
+                className="cursor-pointer transition-all duration-200 hover:opacity-80"
+                onClick={() => setSelectedSection(section)}
+              >
+                <title>{section.name} - ${section.price}</title>
+              </path>
+            );
+          })}
+
+          {/* Textos sobre las secciones */}
+          <text x="400" y="80" textAnchor="middle" fill="#1F2937" fontSize="14" fontWeight="bold">FONDO NORTE</text>
+          <text x="400" y="540" textAnchor="middle" fill="#1F2937" fontSize="14" fontWeight="bold">FONDO SUR</text>
+          <text x="720" y="300" textAnchor="middle" fill="#065F46" fontSize="12" fontWeight="bold" transform="rotate(90 720 300)">LATERAL ESTE</text>
+          <text x="80" y="300" textAnchor="middle" fill="#065F46" fontSize="12" fontWeight="bold" transform="rotate(-90 80 300)">LATERAL OESTE</text>
+          <text x="400" y="300" textAnchor="middle" fill="#854D0E" fontSize="14" fontWeight="bold">PALCOS VIP</text>
+        </svg>
+      </div>
+
+      {/* PANEL DE SELECCIÓN */}
+      <div className="w-full lg:w-80 flex flex-col gap-4">
+        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#1a1a1a] rounded-xl p-6">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white font-mono mb-4">Resumen de compra</h3>
+          
+          {selectedSection ? (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 pb-2">
+                <span className="text-sm text-gray-500">Zona seleccionada:</span>
+                <span className="font-bold text-gray-900 dark:text-white">{selectedSection.name}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 pb-2">
+                <span className="text-sm text-gray-500">Precio por boleto:</span>
+                <span className="font-bold text-brand-blue">${selectedSection.price}.00</span>
+              </div>
+              <button className="w-full bg-brand-blue text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition-colors mt-4">
+                SELECCIONAR ASIENTOS
+              </button>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 text-center py-8">Toca una zona del mapa para ver los precios y disponibilidad.</p>
+          )}
         </div>
-        <p className="text-[10px] text-gray-500 text-center mt-3 font-mono">Al seleccionar una zona, podrás ver las filas y sillas exactas.</p>
+
+        {/* Leyenda */}
+        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#1a1a1a] rounded-xl p-4 flex flex-wrap gap-4 justify-center">
+          {bernabeuSections.map(s => (
+            <div key={s.id} className="flex items-center gap-2 text-xs font-mono text-gray-500">
+              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: s.color }}></div>
+              {s.name.split(' ')[0]}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
