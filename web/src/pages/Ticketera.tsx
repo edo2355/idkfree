@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2 } from 'lucide-react';
 import { realVenueTemplates, VenueTemplate } from '../data/realVenueTemplates';
 import AdvancedSeatMap from '../components/AdvancedSeatMap';
+import CustomSelect from '../components/CustomSelect';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 
@@ -15,37 +16,38 @@ export default function Ticketera() {
   const [view, setView] = useState<'catalog' | 'map' | 'create-event'>('catalog');
   const [selectedTemplate, setSelectedTemplate] = useState<VenueTemplate | null>(null);
   
-  // Estados de datos
   const [events, setEvents] = useState<any[]>([]);
   const [countriesList, setCountriesList] = useState<Country[]>([]);
   const [venueTypesList, setVenueTypesList] = useState<VenueType[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Estados del formulario
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedVenueId, setSelectedVenueId] = useState('');
 
-  // Filtrado de recintos
   const availableVenues = realVenueTemplates.filter(v => 
     (selectedCountry === '' || v.country === selectedCountry) &&
     (selectedType === '' || v.type === selectedType)
   );
 
-  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCountry(e.target.value);
+  // Convertir datos a formato de opciones para CustomSelect
+  const countryOptions = countriesList.map(c => ({ value: c.code, label: c.name }));
+  const typeOptions = venueTypesList.map(t => ({ value: t.id, label: t.name }));
+  const venueOptions = availableVenues.map(v => ({ value: v.id, label: `${v.name} (${v.city})` }));
+
+  const handleCountryChange = (value: string) => {
+    setSelectedCountry(value);
     setSelectedType('');
     setSelectedVenueId('');
   };
 
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedType(e.target.value);
+  const handleTypeChange = (value: string) => {
+    setSelectedType(value);
     setSelectedVenueId('');
   };
 
-  // Fetch de catálogos (Países y Tipos)
   useEffect(() => {
     const fetchCatalogs = async () => {
       try {
@@ -62,7 +64,6 @@ export default function Ticketera() {
     fetchCatalogs();
   }, []);
 
-  // Fetch de eventos
   const fetchEvents = async () => {
     if (!token) return;
     try {
@@ -107,6 +108,7 @@ export default function Ticketera() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Header */}
       <div className="flex justify-between items-center border-b border-gray-200 dark:border-brand-border pb-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-mono tracking-tight">
@@ -206,7 +208,7 @@ export default function Ticketera() {
 
       {view === 'create-event' && (
         <div className="max-w-xl mx-auto">
-          <form onSubmit={handleCreateEvent} className="space-y-5 bg-white dark:bg-brand-panel p-8 rounded-xl border border-gray-200 dark:border-brand-border shadow-sm">
+          <form onSubmit={handleCreateEvent} className="space-y-5 bg-white dark:bg-brand-panel p-8 rounded-xl border border-gray-200 dark:border-brand-border shadow-sm relative">
             <div>
               <label className="text-xs font-mono text-gray-500 block mb-2">NOMBRE DEL EVENTO</label>
               <input type="text" required value={eventName} onChange={e => setEventName(e.target.value)} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors" placeholder="Ej. Concierto de Primavera" />
@@ -216,37 +218,36 @@ export default function Ticketera() {
               <input type="datetime-local" required value={eventDate} onChange={e => setEventDate(e.target.value)} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors" />
             </div>
             
-            <div>
-              <label className="text-xs font-mono text-gray-500 block mb-2">PAÍS</label>
-              <select required value={selectedCountry} onChange={handleCountryChange} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors">
-                <option value="">-- Selecciona un país --</option>
-                {countriesList.map(c => (
-                  <option key={c.code} value={c.code}>{c.name}</option>
-                ))}
-              </select>
-            </div>
+            {/* SELECTOR DE PAÍS PERSONALIZADO */}
+            <CustomSelect 
+              label="País" 
+              options={countryOptions} 
+              value={selectedCountry} 
+              onChange={handleCountryChange} 
+              placeholder="-- Selecciona un país --" 
+            />
 
+            {/* SELECTOR DE TIPO PERSONALIZADO */}
             {selectedCountry && (
-              <div>
-                <label className="text-xs font-mono text-gray-500 block mb-2">TIPO DE RECINTO</label>
-                <select required value={selectedType} onChange={handleTypeChange} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors">
-                  <option value="">-- Selecciona un tipo --</option>
-                  {venueTypesList.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
-              </div>
+              <CustomSelect 
+                label="Tipo de Recinto" 
+                options={typeOptions} 
+                value={selectedType} 
+                onChange={handleTypeChange} 
+                placeholder="-- Selecciona un tipo --" 
+              />
             )}
 
+            {/* SELECTOR DE RECINTO PERSONALIZADO */}
             {selectedCountry && selectedType && (
               <div>
-                <label className="text-xs font-mono text-gray-500 block mb-2">SELECCIONA EL RECINTO</label>
-                <select required value={selectedVenueId} onChange={e => setSelectedVenueId(e.target.value)} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors">
-                  <option value="">-- Selecciona un recinto --</option>
-                  {availableVenues.map(v => (
-                    <option key={v.id} value={v.id}>{v.name} ({v.city})</option>
-                  ))}
-                </select>
+                <CustomSelect 
+                  label="Selecciona el Recinto" 
+                  options={venueOptions} 
+                  value={selectedVenueId} 
+                  onChange={setSelectedVenueId} 
+                  placeholder="-- Selecciona un recinto --" 
+                />
                 {availableVenues.length === 0 && (
                   <p className="text-xs text-red-500 mt-2">No hay recintos de este tipo en el país seleccionado.</p>
                 )}
