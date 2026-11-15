@@ -50,7 +50,7 @@ export default function WebLayout() {
     if (path.includes('/ticketera')) {
       return [
         { path: '/ticketera', label: 'Mis Eventos' },
-        { path: '/ticketera/create', label: 'Crear Evento' }, // Rutas futuras
+         // Rutas futuras
       ];
     }
     if (path.includes('/developer') || path.includes('/integrations')) {
