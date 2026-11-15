@@ -1,3 +1,4 @@
+import { encrypt } from '../utils/encryption.js';
 const UNLIMITED_EMAILS: string[] = [];
 // Lógica de registro y login
 import { pool, query, uuid } from '../db/pool.js';
