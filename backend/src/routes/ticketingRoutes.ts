@@ -1,57 +1,21 @@
 import type { FastifyInstance } from 'fastify';
-import { createVenue, getVenues, addSection, addRow, createEvent } from '../services/ticketingService.js';
+import { createEvent, getEvents, createVenue } from '../services/ticketingService.js';
 import { requireAuth } from '../middleware/auth.js';
 
 export async function ticketingRoutes(app: FastifyInstance) {
-  
-  // Obtener todos los venues del organizador
-  app.get('/ticketing/venues', { preHandler: [requireAuth] }, async (req, reply) => {
+  // Listar eventos del organizador
+  app.get('/ticketing/events', { preHandler: [requireAuth] }, async (req, reply) => {
     const organizerId = (req as any).userId;
     try {
-      const venues = await getVenues(organizerId);
-      return reply.send(venues);
+      const events = await getEvents(organizerId);
+      return reply.send(events);
     } catch (error) {
       app.log.error(error);
-      return reply.code(500).send({ error: 'Error obteniendo venues' });
+      return reply.code(500).send({ error: 'Error obteniendo eventos' });
     }
   });
 
-  // Crear un Venue
-  app.post('/ticketing/venues', { preHandler: [requireAuth] }, async (req, reply) => {
-    const { name, location } = req.body as { name: string, location: string };
-    const organizerId = (req as any).userId;
-    try {
-      const venue = await createVenue(organizerId, name, location);
-      return reply.code(201).send(venue);
-    } catch (error) {
-      app.log.error(error);
-      return reply.code(500).send({ error: 'Error creando venue' });
-    }
-  });
-
-  // El resto de rutas se mantienen igual...
-  app.post('/ticketing/sections', { preHandler: [requireAuth] }, async (req, reply) => {
-    const { venueId, name, priceMultiplier } = req.body as { venueId: string, name: string, priceMultiplier: number };
-    try {
-      const section = await addSection(venueId, name, priceMultiplier);
-      return reply.code(201).send(section);
-    } catch (error) {
-      app.log.error(error);
-      return reply.code(500).send({ error: 'Error creando sección' });
-    }
-  });
-
-  app.post('/ticketing/rows', { preHandler: [requireAuth] }, async (req, reply) => {
-    const { sectionId, rowLabel, seatCount } = req.body as { sectionId: string, rowLabel: string, seatCount: number };
-    try {
-      const row = await addRow(sectionId, rowLabel, seatCount);
-      return reply.code(201).send(row);
-    } catch (error) {
-      app.log.error(error);
-      return reply.code(500).send({ error: 'Error creando fila' });
-    }
-  });
-
+  // Crear un evento
   app.post('/ticketing/events', { preHandler: [requireAuth] }, async (req, reply) => {
     const { venueId, name, date } = req.body as { venueId: string, name: string, date: string };
     const organizerId = (req as any).userId;
@@ -61,6 +25,19 @@ export async function ticketingRoutes(app: FastifyInstance) {
     } catch (error) {
       app.log.error(error);
       return reply.code(500).send({ error: 'Error creando evento' });
+    }
+  });
+
+  // Crear un venue (por si se necesita en el futuro)
+  app.post('/ticketing/venues', { preHandler: [requireAuth] }, async (req, reply) => {
+    const { name, location } = req.body as { name: string, location: string };
+    const organizerId = (req as any).userId;
+    try {
+      const venue = await createVenue(organizerId, name, location);
+      return reply.code(201).send(venue);
+    } catch (error) {
+      app.log.error(error);
+      return reply.code(500).send({ error: 'Error creando venue' });
     }
   });
 }

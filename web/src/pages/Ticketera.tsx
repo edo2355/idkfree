@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, MapPin, Search, ArrowRight, ChevronLeft, Calendar } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2 } from 'lucide-react';
 import { realVenueTemplates, VenueTemplate } from '../data/realVenueTemplates';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
@@ -11,6 +11,10 @@ export default function Ticketera() {
   const [view, setView] = useState<'catalog' | 'map' | 'create-event'>('catalog');
   const [selectedTemplate, setSelectedTemplate] = useState<VenueTemplate | null>(null);
   const [search, setSearch] = useState('');
+  
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [selectedVenueId, setSelectedVenueId] = useState('');
@@ -19,6 +23,27 @@ export default function Ticketera() {
     t.name.toLowerCase().includes(search.toLowerCase()) || 
     t.country.toLowerCase().includes(search.toLowerCase())
   );
+
+  const fetchEvents = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('https://idkfree.onrender.com/api/ticketing/events', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setEvents(data);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, [token]);
 
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,10 +64,10 @@ export default function Ticketera() {
         showToast('Evento creado exitosamente', 'success');
         setView('catalog');
         setEventName(''); setEventDate(''); setSelectedVenueId('');
+        fetchEvents();
       } else {
         const errorData = await res.json();
         showToast(errorData.error || 'Error al crear el evento', 'error');
-        console.error('Error backend:', errorData);
       }
     } catch (error) {
       console.error(error);
@@ -52,30 +77,31 @@ export default function Ticketera() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
+      
+      {/* Header Dinámico */}
       <div className="flex justify-between items-center border-b border-gray-200 dark:border-brand-border pb-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-mono tracking-tight">
-            {view === 'catalog' && 'CATÁLOGO DE RECINTOS'}
+            {view === 'catalog' && 'GESTIÓN DE EVENTOS'}
             {view === 'map' && 'MAPA INTERACTIVO'}
             {view === 'create-event' && 'CREAR NUEVO EVENTO'}
           </h1>
           <p className="text-gray-500 font-mono text-xs mt-1">
-            {view === 'catalog' && 'Selecciona un recinto o crea un evento.'}
+            {view === 'catalog' && 'Tus eventos y recintos disponibles.'}
             {view === 'map' && `Vista previa: ${selectedTemplate?.name}`}
             {view === 'create-event' && 'Asigna un nombre, fecha y recinto a tu evento.'}
           </p>
         </div>
         {view !== 'catalog' && (
           <button onClick={() => setView('catalog')} className="text-xs font-mono text-brand-blue hover:text-blue-700 flex items-center gap-1 transition-colors">
-            <ChevronLeft size={14} /> VOLVER AL CATÁLOGO
+            <ChevronLeft size={14} /> VOLVER AL PANEL
           </button>
         )}
       </div>
 
-      {/* VISTA 1: CATÁLOGO */}
       {view === 'catalog' && (
-        <div className="space-y-6">
+        <div className="space-y-10">
+          {/* Botonera Superior */}
           <div className="flex flex-col md:flex-row gap-4">
             <button onClick={() => setView('create-event')} className="flex-1 bg-brand-blue text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors">
               <Calendar size={18} /> CREAR NUEVO EVENTO
@@ -85,26 +111,61 @@ export default function Ticketera() {
               <input type="text" placeholder="Buscar estadio, teatro o país..." value={search} onChange={(e) => setSearch(e.target.value)} className="bg-transparent border-none outline-none text-sm w-full text-gray-900 dark:text-white" />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTemplates.map((template) => (
-              <div key={template.id} className="border border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel p-6 rounded-lg hover:border-brand-blue transition-colors group cursor-pointer" onClick={() => { setSelectedTemplate(template); setView('map'); }}>
-                <div className="flex justify-between items-start mb-4">
-                  <div className="p-2 bg-brand-blue/10 rounded-lg"><MapPin size={20} className="text-brand-blue" /></div>
-                  <span className="text-[10px] font-mono bg-gray-100 dark:bg-[#111] text-gray-500 px-2 py-1 rounded">{template.capacity.toLocaleString()} CAP.</span>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{template.name}</h3>
-                <p className="text-xs text-gray-500 font-mono mb-4">{template.city}, {template.country}</p>
-                <div className="flex justify-between items-center text-xs font-mono">
-                  <span className="text-gray-500">100% Asientos</span>
-                  <span className="text-brand-blue flex items-center gap-1 group-hover:translate-x-1 transition-transform">VER MAPA <ArrowRight size={14} /></span>
-                </div>
+
+          {/* Mis Eventos Creados */}
+          <div>
+            <h2 className="text-sm font-mono text-brand-blue uppercase tracking-widest mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 bg-brand-blue rounded-full animate-pulse"></span> MIS EVENTOS ACTIVOS
+            </h2>
+            {loading ? (
+              <div className="flex justify-center py-8"><Loader2 className="animate-spin text-brand-blue" size={24} /></div>
+            ) : events.length === 0 ? (
+              <div className="text-center py-8 text-gray-500 font-mono border border-gray-200 dark:border-brand-border rounded-lg">
+                No tienes eventos creados. ¡Crea uno nuevo!
               </div>
-            ))}
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {events.map((event) => (
+                  <div key={event.id} className="border border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel p-6 rounded-lg hover:border-brand-blue transition-colors group cursor-pointer">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="p-2 bg-brand-blue/10 rounded-lg"><Calendar size={20} className="text-brand-blue" /></div>
+                      <span className="text-[10px] font-mono bg-green-500/10 text-green-500 px-2 py-1 rounded border border-green-500/20">ACTIVO</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{event.name}</h3>
+                    <p className="text-xs text-gray-500 font-mono mb-4">{new Date(event.event_date).toLocaleString()}</p>
+                    <div className="flex justify-between items-center text-xs font-mono">
+                      <span className="text-gray-500">Recinto: {event.venue_id}</span>
+                      <span className="text-brand-blue flex items-center gap-1 group-hover:translate-x-1 transition-transform">VER MAPA <ArrowRight size={14} /></span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Catálogo de Recintos */}
+          <div>
+            <h2 className="text-sm font-mono text-gray-500 uppercase tracking-widest mb-4">Recintos Disponibles</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredTemplates.map((template) => (
+                <div key={template.id} className="border border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel p-6 rounded-lg hover:border-brand-blue transition-colors group cursor-pointer" onClick={() => { setSelectedTemplate(template); setView('map'); }}>
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-2 bg-gray-100 dark:bg-[#111] rounded-lg"><MapPin size={20} className="text-gray-600 dark:text-gray-400" /></div>
+                    <span className="text-[10px] font-mono bg-gray-100 dark:bg-[#111] text-gray-500 px-2 py-1 rounded">{template.capacity.toLocaleString()} CAP.</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{template.name}</h3>
+                  <p className="text-xs text-gray-500 font-mono mb-4">{template.city}, {template.country}</p>
+                  <div className="flex justify-between items-center text-xs font-mono">
+                    <span className="text-gray-500">100% Asientos</span>
+                    <span className="text-brand-blue flex items-center gap-1 group-hover:translate-x-1 transition-transform">VER MAPA <ArrowRight size={14} /></span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* VISTA 2: MAPA SVG REALISTA */}
       {view === 'map' && selectedTemplate && (
         <div className="max-w-5xl mx-auto space-y-6">
           <div className="flex justify-between items-center bg-white dark:bg-brand-panel p-4 rounded-lg border border-gray-200 dark:border-brand-border">
@@ -114,16 +175,13 @@ export default function Ticketera() {
             </div>
             <button onClick={() => setView('create-event')} className="bg-brand-blue text-white px-6 py-2 rounded text-sm font-bold hover:bg-blue-600 transition-colors">USAR ESTE RECINTO</button>
           </div>
+          {/* Aquí va tu mapa interactivo */}
           <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-xl p-8 flex justify-center">
-            <svg viewBox="0 0 800 450" className="w-full max-w-2xl h-auto">
-              <path d={selectedTemplate.svgPath} fill="#2563EB" opacity="0.6" stroke="#1E40AF" strokeWidth="2" className="cursor-pointer hover:opacity-80 transition-opacity" />
-              <text x="400" y="225" textAnchor="middle" fill="#fff" fontSize="16" fontWeight="bold">MAPA DE ASIENTOS</text>
-            </svg>
+             <p className="text-gray-500 font-mono">Mapa SVG Interactivo (Cargando...)</p>
           </div>
         </div>
       )}
 
-      {/* VISTA 3: CREAR EVENTO */}
       {view === 'create-event' && (
         <div className="max-w-xl mx-auto">
           <form onSubmit={handleCreateEvent} className="space-y-5 bg-white dark:bg-brand-panel p-8 rounded-xl border border-gray-200 dark:border-brand-border shadow-sm">
