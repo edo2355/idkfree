@@ -15,6 +15,7 @@ import EventBuzz from './pages/EventBuzz';
 import Shop from './pages/Shop';
 import Catalog from './pages/Catalog';
 import DeveloperHub from './pages/DeveloperHub';
+import LiveStream from './pages/LiveStream';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Contact from './pages/Contact';
@@ -41,6 +42,7 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<WebLayout />}>
             <Route path="/feed" element={<Feed />} />
+            <Route path="/live" element={<LiveStream />} />
             <Route path="/buzz" element={<EventBuzz />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/catalog" element={<Catalog />} />

@@ -36,6 +36,7 @@ export default function WebLayout() {
     if (path.includes('/feed') || path.includes('/buzz') || path.includes('/messages')) {
       return [
         { path: '/feed', label: 'Timeline' },
+        { path: '/live', label: 'En Vivo' },
         { path: '/buzz', label: 'Event Buzz' },
         { path: '/messages', label: 'Mensajes' },
       ];
