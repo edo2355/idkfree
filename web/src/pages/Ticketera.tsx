@@ -9,6 +9,15 @@ import { useUIStore } from '../stores/uiStore';
 interface Country { code: string; name: string; }
 interface VenueType { id: string; name: string; }
 
+// Función para convertir código ISO (ej. 'CU') a emoji de bandera 🇨🇺
+const getFlagEmoji = (countryCode: string) => {
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
+
 export default function Ticketera() {
   const { token } = useAuthStore();
   const { showToast } = useUIStore();
@@ -32,8 +41,14 @@ export default function Ticketera() {
     (selectedType === '' || v.type === selectedType)
   );
 
-  // Convertir datos a formato de opciones para CustomSelect
-  const countryOptions = countriesList.map(c => ({ value: c.code, label: c.name }));
+  // Generar opciones con banderas y prefijos
+  const countryOptions = countriesList.map(c => ({ 
+    value: c.code, 
+    label: c.name, 
+    flag: getFlagEmoji(c.code),
+    prefix: c.code
+  }));
+  
   const typeOptions = venueTypesList.map(t => ({ value: t.id, label: t.name }));
   const venueOptions = availableVenues.map(v => ({ value: v.id, label: `${v.name} (${v.city})` }));
 
@@ -108,7 +123,6 @@ export default function Ticketera() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
       <div className="flex justify-between items-center border-b border-gray-200 dark:border-brand-border pb-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-mono tracking-tight">
@@ -181,7 +195,10 @@ export default function Ticketera() {
                     <span className="text-[10px] font-mono bg-gray-100 dark:bg-[#111] text-gray-500 px-2 py-1 rounded uppercase">{template.type}</span>
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{template.name}</h3>
-                  <p className="text-xs text-gray-500 font-mono mb-4">{template.city}, {countriesList.find(c => c.code === template.country)?.name || template.country}</p>
+                  <p className="text-xs text-gray-500 font-mono mb-4 flex items-center gap-2">
+                    <span className="text-lg">{getFlagEmoji(template.country)}</span> 
+                    {template.city}, {countriesList.find(c => c.code === template.country)?.name || template.country}
+                  </p>
                   <div className="flex justify-between items-center text-xs font-mono">
                     <span className="text-gray-500">{template.capacity.toLocaleString()} Cap.</span>
                     <span className="text-brand-blue flex items-center gap-1 group-hover:translate-x-1 transition-transform">VER MAPA <ArrowRight size={14} /></span>
@@ -218,7 +235,6 @@ export default function Ticketera() {
               <input type="datetime-local" required value={eventDate} onChange={e => setEventDate(e.target.value)} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors" />
             </div>
             
-            {/* SELECTOR DE PAÍS PERSONALIZADO */}
             <CustomSelect 
               label="País" 
               options={countryOptions} 
@@ -227,7 +243,6 @@ export default function Ticketera() {
               placeholder="-- Selecciona un país --" 
             />
 
-            {/* SELECTOR DE TIPO PERSONALIZADO */}
             {selectedCountry && (
               <CustomSelect 
                 label="Tipo de Recinto" 
@@ -238,7 +253,6 @@ export default function Ticketera() {
               />
             )}
 
-            {/* SELECTOR DE RECINTO PERSONALIZADO */}
             {selectedCountry && selectedType && (
               <div>
                 <CustomSelect 

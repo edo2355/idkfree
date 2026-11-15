@@ -4,6 +4,8 @@ import { ChevronDown, Search, Check } from 'lucide-react';
 interface Option {
   value: string;
   label: string;
+  flag?: string;   // Emoji de la bandera
+  prefix?: string; // Código del país (ej. CU)
 }
 
 interface CustomSelectProps {
@@ -19,7 +21,6 @@ export default function CustomSelect({ options, value, onChange, placeholder, la
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Cerrar al hacer clic fuera
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -30,9 +31,10 @@ export default function CustomSelect({ options, value, onChange, placeholder, la
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Filtrar opciones según búsqueda
+  // Filtrar por nombre o por código ISO
   const filteredOptions = options.filter(opt => 
-    opt.label.toLowerCase().includes(searchTerm.toLowerCase())
+    opt.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (opt.prefix && opt.prefix.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const selectedOption = options.find(opt => opt.value === value);
@@ -41,7 +43,6 @@ export default function CustomSelect({ options, value, onChange, placeholder, la
     <div className="relative w-full" ref={dropdownRef}>
       <label className="text-xs font-mono text-gray-500 block mb-2 uppercase">{label}</label>
       
-      {/* Botón que simula el Input */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -49,23 +50,23 @@ export default function CustomSelect({ options, value, onChange, placeholder, la
           isOpen ? 'border-brand-blue ring-1 ring-brand-blue/50' : 'border-gray-300 dark:border-brand-border hover:border-gray-400 dark:hover:border-gray-500'
         }`}
       >
-        <span className={`text-sm ${selectedOption ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>
+        <span className={`text-sm flex items-center gap-2 ${selectedOption ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>
+          {selectedOption?.flag && <span className="text-lg leading-none">{selectedOption.flag}</span>}
           {selectedOption ? selectedOption.label : placeholder}
+          {selectedOption?.prefix && <span className="text-xs font-mono text-gray-500">({selectedOption.prefix})</span>}
         </span>
         <ChevronDown size={16} className={`text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
-      {/* Lista Desplegable */}
       {isOpen && (
         <div className="absolute z-50 w-full mt-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           
-          {/* Buscador */}
           <div className="p-2 border-b border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#0a0a0a]">
             <div className="flex items-center bg-white dark:bg-[#000] border border-gray-300 dark:border-gray-700 rounded px-2 py-1.5">
               <Search size={14} className="text-gray-500 mr-2" />
               <input
                 type="text"
-                placeholder="Buscar..."
+                placeholder="Buscar por nombre o código..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="bg-transparent border-none outline-none text-xs text-gray-900 dark:text-white w-full"
@@ -74,7 +75,6 @@ export default function CustomSelect({ options, value, onChange, placeholder, la
             </div>
           </div>
 
-          {/* Opciones */}
           <div className="max-h-60 overflow-y-auto">
             {filteredOptions.length === 0 ? (
               <div className="p-4 text-center text-xs text-gray-500 font-mono">No se encontraron resultados.</div>
@@ -92,7 +92,11 @@ export default function CustomSelect({ options, value, onChange, placeholder, la
                     value === option.value ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'text-gray-700 dark:text-gray-300'
                   }`}
                 >
-                  {option.label}
+                  <div className="flex items-center gap-3">
+                    {option.flag && <span className="text-xl leading-none">{option.flag}</span>}
+                    <span>{option.label}</span>
+                    {option.prefix && <span className="text-xs font-mono opacity-50">({option.prefix})</span>}
+                  </div>
                   {value === option.value && <Check size={14} />}
                 </button>
               ))
