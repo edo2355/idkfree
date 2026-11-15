@@ -1,21 +1,62 @@
-import { useState } from 'react';
-import { Heart, MessageCircle, Share2, Image as ImageIcon } from 'lucide-react';
-import { useDataStore } from '../stores/dataStore';
+import { useState, useEffect } from 'react';
+import { Heart, MessageCircle, Share2, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 
-export default function Feed() {
-  const [newPost, setNewPost] = useState('');
-  const { posts, addPost, toggleLike } = useDataStore();
-  const { user } = useAuthStore();
-  const { showToast } = useUIStore();
+interface Post {
+  id: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+}
 
-  const handlePublish = (e: React.FormEvent) => {
+export default function Feed() {
+  const { user, token } = useAuthStore();
+  const { showToast } = useUIStore();
+  
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newPost, setNewPost] = useState('');
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch('https://idkfree.onrender.com/api/social/posts');
+        if (res.ok) {
+          const data = await res.json();
+          setPosts(data);
+        }
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
+  }, []);
+
+  const handlePublish = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPost.trim()) return;
-    addPost(newPost, user?.alias || 'user');
-    setNewPost('');
-    showToast('Publicación exitosa', 'success');
+    if (!token) return showToast('Debes iniciar sesión', 'error');
+
+    try {
+      const res = await fetch('https://idkfree.onrender.com/api/social/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ content: newPost })
+      });
+      if (res.ok) {
+        const newPostData = await res.json();
+        setPosts([newPostData, ...posts]);
+        setNewPost('');
+        showToast('Publicación exitosa', 'success');
+      } else {
+        showToast('Error al publicar', 'error');
+      }
+    } catch (error) {
+      showToast('Error de red', 'error');
+    }
   };
 
   return (
@@ -35,25 +76,29 @@ export default function Feed() {
         </div>
       </form>
 
-      {posts.map((post) => (
-        <div key={post.id} className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border p-4 md:p-5 rounded-lg">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-brand-blue/20 border border-brand-blue rounded-full flex items-center justify-center font-bold text-brand-blue">{post.author.charAt(0)}</div>
-            <div>
-              <h3 className="text-gray-900 dark:text-white font-bold text-sm">{post.author} <span className="text-gray-500 font-normal text-xs">{post.handle}</span></h3>
-              <p className="text-gray-500 text-xs font-mono">{post.time}</p>
+      {loading ? (
+        <div className="flex justify-center py-10"><Loader2 className="animate-spin text-brand-blue" size={32} /></div>
+      ) : posts.length === 0 ? (
+        <div className="text-center py-10 text-gray-500 font-mono border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">No hay publicaciones aún. ¡Sé el primero!</div>
+      ) : (
+        posts.map((post) => (
+          <div key={post.id} className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border p-4 md:p-5 rounded-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-brand-blue/20 border border-brand-blue rounded-full flex items-center justify-center font-bold text-brand-blue">{post.userId.slice(0, 1).toUpperCase()}</div>
+              <div>
+                <h3 className="text-gray-900 dark:text-white font-bold text-sm">Usuario</h3>
+                <p className="text-gray-500 text-xs font-mono">{new Date(post.createdAt).toLocaleString()}</p>
+              </div>
+            </div>
+            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-6">{post.content}</p>
+            <div className="flex items-center gap-6 border-t border-gray-200 dark:border-brand-border pt-4">
+              <button className="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-red-500"><Heart size={16} /> 0</button>
+              <button className="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-brand-blue"><MessageCircle size={16} /> 0</button>
+              <button className="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-green-500 ml-auto"><Share2 size={16} /></button>
             </div>
           </div>
-          <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-6">{post.content}</p>
-          <div className="flex items-center gap-6 border-t border-gray-200 dark:border-brand-border pt-4">
-            <button onClick={() => toggleLike(post.id)} className={`flex items-center gap-2 text-xs font-mono ${post.isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}>
-              <Heart size={16} fill={post.isLiked ? "currentColor" : "none"} /> {post.likes}
-            </button>
-            <button onClick={() => showToast('Los comentarios estarán disponibles pronto', 'info')} className="flex items-center gap-2 text-gray-500 hover:text-brand-blue text-xs font-mono"><MessageCircle size={16} /> {post.comments}</button>
-            <button onClick={() => showToast('Enlace copiado', 'success')} className="flex items-center gap-2 text-gray-500 hover:text-green-500 text-xs font-mono ml-auto"><Share2 size={16} /></button>
-          </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 }
