@@ -195,8 +195,7 @@ export default function Ticketera() {
                     <span className="text-[10px] font-mono bg-gray-100 dark:bg-[#111] text-gray-500 px-2 py-1 rounded uppercase">{template.type}</span>
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{template.name}</h3>
-                  <p className="text-xs text-gray-500 font-mono mb-4 flex items-center gap-2">
-                    <span className="text-lg">{getFlagEmoji(template.country)}</span> 
+                  <p className="text-xs text-gray-500 font-mono mb-4">
                     {template.city}, {countriesList.find(c => c.code === template.country)?.name || template.country}
                   </p>
                   <div className="flex justify-between items-center text-xs font-mono">
