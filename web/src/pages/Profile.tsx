@@ -86,7 +86,7 @@ export default function Profile() {
             <p className="text-gray-700 dark:text-gray-300 text-sm max-w-lg mb-4">{user?.bio || 'Construyendo el futuro de la libertad digital desde Cuba.'}</p>
             <div className="flex flex-wrap gap-4 text-xs text-gray-500 font-mono">
               <span className="flex items-center gap-1"><MapPin size={14} /> La Habana, Cuba</span>
-              <span className="flex items-center gap-1"><LinkIcon size={14} /> idkfreegetid.dpdns.org</span>
+              <span className="flex items-center gap-1"><LinkIcon size={14} /> idkmediagetid.dpdns.org</span>
               <span className="flex items-center gap-1"><Calendar size={14} /> Nov 2026</span>
             </div>
           </div>

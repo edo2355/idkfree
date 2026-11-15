@@ -27,7 +27,7 @@ export default function Shop() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('https://idkfree.onrender.com/api/shop/products');
+      const res = await fetch('https://idkmedia.onrender.com/api/shop/products');
       const data = await res.json();
       setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -42,7 +42,7 @@ export default function Shop() {
     if (!token) return alert('Debes iniciar sesión para crear un producto.');
 
     try {
-      const res = await fetch('https://idkfree.onrender.com/api/shop/products', {
+      const res = await fetch('https://idkmedia.onrender.com/api/shop/products', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

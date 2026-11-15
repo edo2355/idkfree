@@ -20,7 +20,7 @@ export default function EventBuzz() {
       source: 'twitter',
       sourceIcon: <MessageSquare size={14} className="text-blue-400" />,
       author: '@fan_de_idk',
-      content: 'No puedo creer que estoy viendo esto en vivo desde Cuba gracias a @idkfree. #IDKfreeUnderground',
+      content: 'No puedo creer que estoy viendo esto en vivo desde Cuba gracias a @idkmedia. #IDKfreeUnderground',
       likes: '890',
       comments: '45',
       time: 'Hace 12 min'

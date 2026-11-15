@@ -51,7 +51,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           <div className="w-8 h-8 bg-orange-500 flex items-center justify-center">
             <span className="text-black font-bold text-xl">I</span>
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-[0.2em]">IDKFREE.OS</h1>
+          <h1 className="text-3xl font-bold text-white tracking-[0.2em]">IDKMEDIA.OS</h1>
         </div>
 
         {/* Consola de estado */}
@@ -82,7 +82,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
       </div>
 
       <div className="absolute bottom-6 text-[9px] text-gray-700 tracking-widest">
-        © 2026 IDKFREE INC. // ALL RIGHTS RESERVED
+        © 2026 IDKMEDIA INC. // ALL RIGHTS RESERVED
       </div>
     </div>
   );

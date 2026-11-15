@@ -20,7 +20,7 @@ export const useDataStore = create<DataState>()(
     (set) => ({
       posts: [
         { id: 1, author: 'EL_CREADOR', handle: '@edo_creator', time: 'Hace 2 horas', content: 'Acabo de configurar mi túnel de pagos con QvaPay. Es una locura lo fácil que es cobrar desde Cuba sin intermediarios. 💸🔥', likes: 124, comments: 18, isLiked: false },
-        { id: 2, author: 'IDK_FREE_OS', handle: '@idkfree', time: 'Hace 5 horas', content: 'Actualización del sistema: El módulo de Ticketera ya está en vivo. Pronto podrás crear tus propios eventos y vender boletos con QR. 🎟️🚀', likes: 340, comments: 45, isLiked: false }
+        { id: 2, author: 'IDK_FREE_OS', handle: '@idkmedia', time: 'Hace 5 horas', content: 'Actualización del sistema: El módulo de Ticketera ya está en vivo. Pronto podrás crear tus propios eventos y vender boletos con QR. 🎟️🚀', likes: 340, comments: 45, isLiked: false }
       ],
       messages: [
         { id: 1, sender: 'Creador_1', text: 'Hola, ¿cómo va el proyecto?', time: '12:30' },
@@ -42,6 +42,6 @@ export const useDataStore = create<DataState>()(
         events: [...state.events, { ...event, id: Date.now() }]
       }))
     }),
-    { name: 'idkfree-storage' }
+    { name: 'idkmedia-storage' }
   )
 );

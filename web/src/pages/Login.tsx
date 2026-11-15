@@ -17,7 +17,7 @@ export default function Login() {
     setError('');
 
     try {
-      const res = await fetch('https://idkfree.onrender.com/api/auth/login', {
+      const res = await fetch('https://idkmedia.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -52,7 +52,7 @@ export default function Login() {
       <div className="w-full max-w-md border border-brand-border bg-brand-panel p-8 relative">
         <div className="flex items-center gap-3 mb-8 text-white">
           <Terminal size={24} className="text-brand-blue" />
-          <h1 className="text-xl font-mono tracking-widest">IDKFREE_AUTH</h1>
+          <h1 className="text-xl font-mono tracking-widest">IDKMEDIA_AUTH</h1>
         </div>
 
         {error && <div className="bg-red-500/10 border border-red-500 text-red-500 p-3 text-xs font-mono mb-4">{error}</div>}
@@ -65,7 +65,7 @@ export default function Login() {
               <input 
                 type="email" required value={email} onChange={e => setEmail(e.target.value)}
                 className="bg-transparent border-none outline-none text-white w-full text-sm font-mono"
-                placeholder="user@idkfree.os"
+                placeholder="user@idkmedia.os"
               />
             </div>
           </div>

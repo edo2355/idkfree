@@ -13,6 +13,7 @@ import Profile from './pages/Profile';
 import Messages from './pages/Messages';
 import EventBuzz from './pages/EventBuzz';
 import Shop from './pages/Shop';
+import Catalog from './pages/Catalog';
 import DeveloperHub from './pages/DeveloperHub';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="/feed" element={<Feed />} />
             <Route path="/buzz" element={<EventBuzz />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/catalog" element={<Catalog />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/dashboard" element={<Dashboard />} />

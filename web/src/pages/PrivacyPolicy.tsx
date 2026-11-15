@@ -24,7 +24,7 @@ export default function PrivacyPolicy() {
           <p>Compartimos datos estrictamente necesarios con nuestros proveedores de infraestructura: Turso (base de datos), Render (hosting), Cloudflare (seguridad) y QvaPay (procesamiento de pagos).</p>
 
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-6">4. Tus derechos</h2>
-          <p>Puedes solicitar la eliminación de tu cuenta y tus datos en cualquier momento escribiendo a soporte@idkfreegetid.dpdns.org.</p>
+          <p>Puedes solicitar la eliminación de tu cuenta y tus datos en cualquier momento escribiendo a soporte@idkmediagetid.dpdns.org.</p>
         </div>
       </div>
     </div>

@@ -50,8 +50,8 @@ export default function Contact() {
 
         <div className="text-center pt-8 border-t border-gray-200 dark:border-brand-border">
           <p className="text-sm text-gray-500 mb-2">O escríbenos directamente a:</p>
-          <a href="mailto:soporte@idkfreegetid.dpdns.org" className="inline-flex items-center gap-2 text-brand-blue hover:underline font-mono text-sm">
-            <Mail size={16} /> soporte@idkfreegetid.dpdns.org
+          <a href="mailto:soporte@idkmediagetid.dpdns.org" className="inline-flex items-center gap-2 text-brand-blue hover:underline font-mono text-sm">
+            <Mail size={16} /> soporte@idkmediagetid.dpdns.org
           </a>
         </div>
       </div>

@@ -46,7 +46,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold tracking-tighter text-xl">
             <div className="w-6 h-6 bg-brand-blue flex items-center justify-center rounded-sm text-white"><Shield size={14} strokeWidth={3} /></div>
-            IDKFREE<span className="text-brand-blue">.OS</span>
+            IDKMEDIA<span className="text-brand-blue">.OS</span>
           </div>
           <div className="flex gap-4 items-center">
             <button onClick={toggleTheme} className="p-2 text-gray-500 hover:text-brand-blue transition-colors">
@@ -131,14 +131,14 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 font-bold tracking-tighter text-xl text-gray-900 dark:text-white">
             <div className="w-6 h-6 bg-brand-blue flex items-center justify-center rounded-sm text-white"><Shield size={14} strokeWidth={3} /></div>
-            IDKFREE<span className="text-brand-blue">.OS</span>
+            IDKMEDIA<span className="text-brand-blue">.OS</span>
           </div>
           <div className="flex gap-6 text-xs font-mono text-gray-500">
             <Link to="/privacy" className="hover:text-brand-blue transition-colors">Privacidad</Link>
             <Link to="/terms" className="hover:text-brand-blue transition-colors">Términos</Link>
             <Link to="/contact" className="hover:text-brand-blue transition-colors">Contacto</Link>
           </div>
-          <p className="text-[10px] text-gray-400 font-mono">© 2026 IDKFREE. Todos los derechos reservados.</p>
+          <p className="text-[10px] text-gray-400 font-mono">© 2026 IDKMEDIA. Todos los derechos reservados.</p>
         </div>
       </footer>
     </div>
