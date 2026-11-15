@@ -218,7 +218,7 @@ export default function Ticketera() {
             </div>
             <button onClick={() => setView('create-event')} className="bg-brand-blue text-white px-6 py-2 rounded text-sm font-bold hover:bg-blue-600 transition-colors">USAR ESTE RECINTO</button>
           </div>
-          <AdvancedSeatMap venueId={selectedTemplate.id} />
+          <AdvancedSeatMap venueId={selectedTemplate.id} venueName={selectedTemplate.name} />
         </div>
       )}
 
