@@ -1,9 +1,22 @@
 import type { FastifyInstance } from 'fastify';
-import { createVenue, addSection, addRow, createEvent } from '../services/ticketingService.js';
+import { createVenue, getVenues, addSection, addRow, createEvent } from '../services/ticketingService.js';
 import { requireAuth } from '../middleware/auth.js';
 
 export async function ticketingRoutes(app: FastifyInstance) {
-  // Crear un Venue/Estadio
+  
+  // Obtener todos los venues del organizador
+  app.get('/ticketing/venues', { preHandler: [requireAuth] }, async (req, reply) => {
+    const organizerId = (req as any).userId;
+    try {
+      const venues = await getVenues(organizerId);
+      return reply.send(venues);
+    } catch (error) {
+      app.log.error(error);
+      return reply.code(500).send({ error: 'Error obteniendo venues' });
+    }
+  });
+
+  // Crear un Venue
   app.post('/ticketing/venues', { preHandler: [requireAuth] }, async (req, reply) => {
     const { name, location } = req.body as { name: string, location: string };
     const organizerId = (req as any).userId;
@@ -16,7 +29,7 @@ export async function ticketingRoutes(app: FastifyInstance) {
     }
   });
 
-  // Crear una sección (VIP, General)
+  // El resto de rutas se mantienen igual...
   app.post('/ticketing/sections', { preHandler: [requireAuth] }, async (req, reply) => {
     const { venueId, name, priceMultiplier } = req.body as { venueId: string, name: string, priceMultiplier: number };
     try {
@@ -28,7 +41,6 @@ export async function ticketingRoutes(app: FastifyInstance) {
     }
   });
 
-  // Crear una fila con asientos
   app.post('/ticketing/rows', { preHandler: [requireAuth] }, async (req, reply) => {
     const { sectionId, rowLabel, seatCount } = req.body as { sectionId: string, rowLabel: string, seatCount: number };
     try {
@@ -40,7 +52,6 @@ export async function ticketingRoutes(app: FastifyInstance) {
     }
   });
 
-  // Crear un Evento
   app.post('/ticketing/events', { preHandler: [requireAuth] }, async (req, reply) => {
     const { venueId, name, date } = req.body as { venueId: string, name: string, date: string };
     const organizerId = (req as any).userId;

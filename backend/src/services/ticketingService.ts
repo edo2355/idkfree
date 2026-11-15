@@ -10,6 +10,11 @@ export async function createVenue(organizerId: string, name: string, location: s
   return { id, name, location };
 }
 
+export async function getVenues(organizerId: string) {
+  const res = await query(`SELECT * FROM venues WHERE organizer_id = $1 ORDER BY created_at DESC`, [organizerId]);
+  return res.rows;
+}
+
 export async function addSection(venueId: string, name: string, priceMultiplier: number) {
   const id = randomUUID();
   await query(
