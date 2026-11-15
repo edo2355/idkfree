@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2 } from 'lucide-react';
 import { realVenueTemplates, VenueTemplate } from '../data/realVenueTemplates';
+import AdvancedSeatMap from '../components/AdvancedSeatMap';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 
@@ -126,7 +127,7 @@ export default function Ticketera() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {events.map((event) => (
-                  <div key={event.id} className="border border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel p-6 rounded-lg hover:border-brand-blue transition-colors group cursor-pointer">
+                  <div key={event.id} onClick={() => { setSelectedTemplate(realVenueTemplates.find(v => v.id === event.venue_id) || realVenueTemplates[0]); setView('map'); }} className="border border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel p-6 rounded-lg hover:border-brand-blue transition-colors group cursor-pointer">
                     <div className="flex justify-between items-start mb-4">
                       <div className="p-2 bg-brand-blue/10 rounded-lg"><Calendar size={20} className="text-brand-blue" /></div>
                       <span className="text-[10px] font-mono bg-green-500/10 text-green-500 px-2 py-1 rounded border border-green-500/20">ACTIVO</span>
@@ -167,7 +168,7 @@ export default function Ticketera() {
       )}
 
       {view === 'map' && selectedTemplate && (
-        <div className="max-w-5xl mx-auto space-y-6">
+        <div className="max-w-6xl mx-auto space-y-6">
           <div className="flex justify-between items-center bg-white dark:bg-brand-panel p-4 rounded-lg border border-gray-200 dark:border-brand-border">
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedTemplate.name}</h2>
@@ -175,10 +176,9 @@ export default function Ticketera() {
             </div>
             <button onClick={() => setView('create-event')} className="bg-brand-blue text-white px-6 py-2 rounded text-sm font-bold hover:bg-blue-600 transition-colors">USAR ESTE RECINTO</button>
           </div>
-          {/* Aquí va tu mapa interactivo */}
-          <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-xl p-8 flex justify-center">
-             <p className="text-gray-500 font-mono">Mapa SVG Interactivo (Cargando...)</p>
-          </div>
+          
+          {/* AQUÍ ESTÁ EL COMPONENTE DEL MAPA INTERACTIVO */}
+          <AdvancedSeatMap venueId={selectedTemplate.id} />
         </div>
       )}
 
