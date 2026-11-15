@@ -1,9 +1,36 @@
 import type { FastifyInstance } from 'fastify';
+import { query } from '../db/pool.js';
 import { createEvent, getEvents, createVenue } from '../services/ticketingService.js';
 import { requireAuth } from '../middleware/auth.js';
 
 export async function ticketingRoutes(app: FastifyInstance) {
-  // Listar eventos del organizador
+  
+  // --- RUTAS PÚBLICAS DE CATÁLOGO ---
+  
+  // Obtener todos los países
+  app.get('/ticketing/countries', async (req, reply) => {
+    try {
+      const res = await query('SELECT code, name FROM countries ORDER BY name ASC');
+      return reply.send(res.rows);
+    } catch (error) {
+      app.log.error(error);
+      return reply.code(500).send({ error: 'Error obteniendo países' });
+    }
+  });
+
+  // Obtener todos los tipos de recintos
+  app.get('/ticketing/venue-types', async (req, reply) => {
+    try {
+      const res = await query('SELECT id, name FROM venue_types ORDER BY name ASC');
+      return reply.send(res.rows);
+    } catch (error) {
+      app.log.error(error);
+      return reply.code(500).send({ error: 'Error obteniendo tipos de recintos' });
+    }
+  });
+
+  // --- RUTAS PROTEGIDAS DE EVENTOS ---
+
   app.get('/ticketing/events', { preHandler: [requireAuth] }, async (req, reply) => {
     const organizerId = (req as any).userId;
     try {
@@ -15,7 +42,6 @@ export async function ticketingRoutes(app: FastifyInstance) {
     }
   });
 
-  // Crear un evento
   app.post('/ticketing/events', { preHandler: [requireAuth] }, async (req, reply) => {
     const { venueId, name, date } = req.body as { venueId: string, name: string, date: string };
     const organizerId = (req as any).userId;
@@ -28,7 +54,6 @@ export async function ticketingRoutes(app: FastifyInstance) {
     }
   });
 
-  // Crear un venue (por si se necesita en el futuro)
   app.post('/ticketing/venues', { preHandler: [requireAuth] }, async (req, reply) => {
     const { name, location } = req.body as { name: string, location: string };
     const organizerId = (req as any).userId;

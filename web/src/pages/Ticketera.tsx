@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2 } from 'lucide-react';
 import { realVenueTemplates, VenueTemplate } from '../data/realVenueTemplates';
-import { countries } from '../data/countries';
-import { venueTypes } from '../data/venueTypes';
 import AdvancedSeatMap from '../components/AdvancedSeatMap';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
+
+interface Country { code: string; name: string; }
+interface VenueType { id: string; name: string; }
 
 export default function Ticketera() {
   const { token } = useAuthStore();
@@ -13,17 +14,21 @@ export default function Ticketera() {
   
   const [view, setView] = useState<'catalog' | 'map' | 'create-event'>('catalog');
   const [selectedTemplate, setSelectedTemplate] = useState<VenueTemplate | null>(null);
-  const [search, setSearch] = useState('');
   
+  // Estados de datos
   const [events, setEvents] = useState<any[]>([]);
+  const [countriesList, setCountriesList] = useState<Country[]>([]);
+  const [venueTypesList, setVenueTypesList] = useState<VenueType[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // Estados del formulario
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedVenueId, setSelectedVenueId] = useState('');
 
+  // Filtrado de recintos
   const availableVenues = realVenueTemplates.filter(v => 
     (selectedCountry === '' || v.country === selectedCountry) &&
     (selectedType === '' || v.type === selectedType)
@@ -40,16 +45,31 @@ export default function Ticketera() {
     setSelectedVenueId('');
   };
 
+  // Fetch de catálogos (Países y Tipos)
+  useEffect(() => {
+    const fetchCatalogs = async () => {
+      try {
+        const [resCountries, resTypes] = await Promise.all([
+          fetch('https://idkfree.onrender.com/api/ticketing/countries'),
+          fetch('https://idkfree.onrender.com/api/ticketing/venue-types')
+        ]);
+        if (resCountries.ok) setCountriesList(await resCountries.json());
+        if (resTypes.ok) setVenueTypesList(await resTypes.json());
+      } catch (error) {
+        console.error('Error cargando catálogos:', error);
+      }
+    };
+    fetchCatalogs();
+  }, []);
+
+  // Fetch de eventos
   const fetchEvents = async () => {
     if (!token) return;
     try {
       const res = await fetch('https://idkfree.onrender.com/api/ticketing/events', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (res.ok) {
-        const data = await res.json();
-        setEvents(data);
-      }
+      if (res.ok) setEvents(await res.json());
     } catch (error) {
       console.error(error);
     } finally {
@@ -115,7 +135,7 @@ export default function Ticketera() {
             </button>
             <div className="flex-1 flex items-center bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-lg px-4 py-3">
               <Search size={18} className="text-gray-500 mr-3" />
-              <input type="text" placeholder="Buscar evento..." value={search} onChange={(e) => setSearch(e.target.value)} className="bg-transparent border-none outline-none text-sm w-full text-gray-900 dark:text-white" />
+              <input type="text" placeholder="Buscar evento..." className="bg-transparent border-none outline-none text-sm w-full text-gray-900 dark:text-white" />
             </div>
           </div>
 
@@ -159,7 +179,7 @@ export default function Ticketera() {
                     <span className="text-[10px] font-mono bg-gray-100 dark:bg-[#111] text-gray-500 px-2 py-1 rounded uppercase">{template.type}</span>
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{template.name}</h3>
-                  <p className="text-xs text-gray-500 font-mono mb-4">{template.city}, {countries.find(c => c.code === template.country)?.name}</p>
+                  <p className="text-xs text-gray-500 font-mono mb-4">{template.city}, {countriesList.find(c => c.code === template.country)?.name || template.country}</p>
                   <div className="flex justify-between items-center text-xs font-mono">
                     <span className="text-gray-500">{template.capacity.toLocaleString()} Cap.</span>
                     <span className="text-brand-blue flex items-center gap-1 group-hover:translate-x-1 transition-transform">VER MAPA <ArrowRight size={14} /></span>
@@ -176,7 +196,7 @@ export default function Ticketera() {
           <div className="flex justify-between items-center bg-white dark:bg-brand-panel p-4 rounded-lg border border-gray-200 dark:border-brand-border">
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedTemplate.name}</h2>
-              <p className="text-xs text-gray-500 font-mono">{selectedTemplate.city}, {countries.find(c => c.code === selectedTemplate.country)?.name} - Capacidad: {selectedTemplate.capacity.toLocaleString()}</p>
+              <p className="text-xs text-gray-500 font-mono">{selectedTemplate.city}, {countriesList.find(c => c.code === selectedTemplate.country)?.name} - Capacidad: {selectedTemplate.capacity.toLocaleString()}</p>
             </div>
             <button onClick={() => setView('create-event')} className="bg-brand-blue text-white px-6 py-2 rounded text-sm font-bold hover:bg-blue-600 transition-colors">USAR ESTE RECINTO</button>
           </div>
@@ -200,7 +220,7 @@ export default function Ticketera() {
               <label className="text-xs font-mono text-gray-500 block mb-2">PAÍS</label>
               <select required value={selectedCountry} onChange={handleCountryChange} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors">
                 <option value="">-- Selecciona un país --</option>
-                {countries.map(c => (
+                {countriesList.map(c => (
                   <option key={c.code} value={c.code}>{c.name}</option>
                 ))}
               </select>
@@ -211,7 +231,7 @@ export default function Ticketera() {
                 <label className="text-xs font-mono text-gray-500 block mb-2">TIPO DE RECINTO</label>
                 <select required value={selectedType} onChange={handleTypeChange} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors">
                   <option value="">-- Selecciona un tipo --</option>
-                  {venueTypes.map(t => (
+                  {venueTypesList.map(t => (
                     <option key={t.id} value={t.id}>{t.name}</option>
                   ))}
                 </select>
