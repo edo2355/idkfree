@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2, Users } from 'lucide-react';
+import { MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2, Users, Upload, Image as ImageIcon } from 'lucide-react';
 import AdvancedSeatMap from '../components/AdvancedSeatMap';
 import CustomSelect from '../components/CustomSelect';
 import { useAuthStore } from '../stores/authStore';
@@ -34,8 +34,12 @@ export default function Ticketera() {
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedVenueId, setSelectedVenueId] = useState('');
+  
+  // Estados de la imagen
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
-  // Cargar Países y Tipos al inicio
   useEffect(() => {
     const fetchCatalogs = async () => {
       try {
@@ -52,7 +56,6 @@ export default function Ticketera() {
     fetchCatalogs();
   }, []);
 
-  // Cargar Venues cuando cambia el país o el tipo
   useEffect(() => {
     const fetchVenues = async () => {
       if (!selectedCountry || !selectedType) return;
@@ -66,7 +69,6 @@ export default function Ticketera() {
     fetchVenues();
   }, [selectedCountry, selectedType]);
 
-  // Cargar Eventos del organizador
   const fetchEvents = async () => {
     if (!token) return;
     try {
@@ -83,22 +85,57 @@ export default function Ticketera() {
 
   useEffect(() => { fetchEvents(); }, [token]);
 
+  // Manejo de la selección de imagen
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return showToast('Debes iniciar sesión de nuevo', 'error');
 
+    let uploadedImageUrl = null;
+
     try {
+      // 1. Si hay imagen, la subimos primero
+      if (imageFile) {
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('file', imageFile);
+
+        const uploadRes = await fetch('https://idkfree.onrender.com/api/ticketing/upload-promo', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          uploadedImageUrl = uploadData.url;
+        } else {
+          showToast('Error subiendo la imagen', 'error');
+          setUploading(false);
+          return;
+        }
+        setUploading(false);
+      }
+
+      // 2. Creamos el evento con la URL de la imagen
       const isoDate = new Date(eventDate).toISOString();
       const res = await fetch('https://idkfree.onrender.com/api/ticketing/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ venueId: selectedVenueId, name: eventName, date: isoDate })
+        body: JSON.stringify({ venueId: selectedVenueId, name: eventName, date: isoDate, promoImageUrl: uploadedImageUrl })
       });
 
       if (res.ok) {
         showToast('Evento creado exitosamente', 'success');
         setView('catalog');
-        setEventName(''); setEventDate(''); setSelectedCountry(''); setSelectedType(''); setSelectedVenueId('');
+        setEventName(''); setEventDate(''); setSelectedCountry(''); setSelectedType(''); setSelectedVenueId(''); setImageFile(null); setImagePreview(null);
         fetchEvents();
       } else {
         const errorData = await res.json();
@@ -123,11 +160,6 @@ export default function Ticketera() {
             {view === 'map' && 'MAPA INTERACTIVO'}
             {view === 'create-event' && 'CREAR NUEVO EVENTO'}
           </h1>
-          <p className="text-gray-500 font-mono text-xs mt-1">
-            {view === 'catalog' && 'Tus eventos y recintos disponibles.'}
-            {view === 'map' && `Vista previa: ${selectedVenue?.name}`}
-            {view === 'create-event' && 'Asigna un nombre, fecha, país y recinto a tu evento.'}
-          </p>
         </div>
         {view !== 'catalog' && (
           <button onClick={() => setView('catalog')} className="text-xs font-mono text-brand-blue hover:text-blue-700 flex items-center gap-1 transition-colors">
@@ -142,10 +174,6 @@ export default function Ticketera() {
             <button onClick={() => setView('create-event')} className="flex-1 bg-brand-blue text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors">
               <Calendar size={18} /> CREAR NUEVO EVENTO
             </button>
-            <div className="flex-1 flex items-center bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-lg px-4 py-3">
-              <Search size={18} className="text-gray-500 mr-3" />
-              <input type="text" placeholder="Buscar evento..." className="bg-transparent border-none outline-none text-sm w-full text-gray-900 dark:text-white" />
-            </div>
           </div>
 
           <div>
@@ -156,21 +184,32 @@ export default function Ticketera() {
               <div className="flex justify-center py-8"><Loader2 className="animate-spin text-brand-blue" size={24} /></div>
             ) : events.length === 0 ? (
               <div className="text-center py-8 text-gray-500 font-mono border border-gray-200 dark:border-brand-border rounded-lg">
-                No tienes eventos creados. ¡Crea uno nuevo!
+                No tienes eventos creados.
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {events.map((event) => (
-                  <div key={event.id} onClick={() => { setSelectedVenue({ id: event.venue_id, name: event.venue_id, type: '', country: '', address: '', capacity: 0 }); setView('map'); }} className="border border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel p-6 rounded-lg hover:border-brand-blue transition-colors group cursor-pointer">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="p-2 bg-brand-blue/10 rounded-lg"><Calendar size={20} className="text-brand-blue" /></div>
-                      <span className="text-[10px] font-mono bg-green-500/10 text-green-500 px-2 py-1 rounded border border-green-500/20">ACTIVO</span>
+                  <div key={event.id} onClick={() => { setSelectedVenue({ id: event.venue_id, name: event.venue_id, type: '', country: '', address: '', capacity: 0 }); setView('map'); }} className="border border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel rounded-lg hover:border-brand-blue transition-colors group cursor-pointer overflow-hidden">
+                    
+                    {/* IMAGEN DEL EVENTO */}
+                    <div className="h-40 w-full bg-gray-100 dark:bg-[#111] relative overflow-hidden">
+                      {event.promo_image_url ? (
+                        <img src={`https://idkfree.onrender.com${event.promo_image_url}`} alt={event.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <ImageIcon size={32} />
+                        </div>
+                      )}
+                      <span className="absolute top-2 right-2 text-[10px] font-mono bg-green-500 text-white px-2 py-1 rounded shadow-lg">ACTIVO</span>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{event.name}</h3>
-                    <p className="text-xs text-gray-500 font-mono mb-4">{new Date(event.event_date).toLocaleString()}</p>
-                    <div className="flex justify-between items-center text-xs font-mono">
-                      <span className="text-gray-500">Recinto ID: {event.venue_id.slice(0, 8)}...</span>
-                      <span className="text-brand-blue flex items-center gap-1 group-hover:translate-x-1 transition-transform">VER MAPA <ArrowRight size={14} /></span>
+
+                    <div className="p-5">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 truncate">{event.name}</h3>
+                      <p className="text-xs text-gray-500 font-mono mb-4">{new Date(event.event_date).toLocaleString()}</p>
+                      <div className="flex justify-between items-center text-xs font-mono">
+                        <span className="text-gray-500">Recinto ID: {event.venue_id.slice(0, 8)}...</span>
+                        <span className="text-brand-blue flex items-center gap-1 group-hover:translate-x-1 transition-transform">VER MAPA <ArrowRight size={14} /></span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -187,26 +226,12 @@ export default function Ticketera() {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedVenue.name}</h2>
               <p className="text-xs text-gray-500 font-mono flex items-center gap-2 mt-1">
                 <MapPin size={12}/> {selectedVenue.address || 'Dirección no disponible'} 
-                {selectedVenue.capacity > 0 && <span className="flex items-center gap-1 ml-2"><Users size={12}/> Cap: {selectedVenue.capacity.toLocaleString()}</span>}
               </p>
             </div>
             <button onClick={() => setView('create-event')} className="bg-brand-blue text-white px-6 py-2 rounded text-sm font-bold hover:bg-blue-600 transition-colors w-full md:w-auto">USAR ESTE RECINTO</button>
           </div>
           
           <AdvancedSeatMap venueId={selectedVenue.id} venueName={selectedVenue.name} />
-
-          {/* MAPA DE GOOGLE MAPS INTEGRADO */}
-          <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-xl overflow-hidden h-[300px] mt-6">
-            <iframe
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              loading="lazy"
-              allowFullScreen
-              referrerPolicy="no-referrer-when-downgrade"
-              src={`https://www.google.com/maps?q=${encodeURIComponent(selectedVenue.name + ' ' + (selectedVenue.address || ''))}&output=embed`}
-            ></iframe>
-          </div>
         </div>
       )}
 
@@ -217,12 +242,36 @@ export default function Ticketera() {
               <label className="text-xs font-mono text-gray-500 block mb-2">NOMBRE DEL EVENTO</label>
               <input type="text" required value={eventName} onChange={e => setEventName(e.target.value)} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors" placeholder="Ej. Concierto de Primavera" />
             </div>
+            
             <div>
               <label className="text-xs font-mono text-gray-500 block mb-2">FECHA Y HORA</label>
               <input type="datetime-local" required value={eventDate} onChange={e => setEventDate(e.target.value)} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors" />
             </div>
+
+            {/* SUBIDA DE IMAGEN */}
+            <div>
+              <label className="text-xs font-mono text-gray-500 block mb-2">PÓSTER / IMAGEN DE PROMOCIÓN (OPCIONAL)</label>
+              <div className="flex items-center gap-4">
+                <div className="w-24 h-24 bg-gray-100 dark:bg-[#111] border border-dashed border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center overflow-hidden relative">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <ImageIcon size={24} className="text-gray-400" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <input type="file" accept="image/*" onChange={handleImageChange} id="file-upload" className="hidden" />
+                  <label htmlFor="file-upload" className="cursor-pointer bg-white dark:bg-[#000] border border-gray-300 dark:border-brand-border px-4 py-2 rounded text-sm font-mono text-gray-700 dark:text-gray-300 hover:border-brand-blue transition-colors flex items-center gap-2 w-max">
+                    <Upload size={16} /> SUBIR IMAGEN
+                  </label>
+                  <p className="text-[10px] text-gray-400 mt-2">Recomendado: 1080x1080px o 1920x1080px.</p>
+                </div>
+              </div>
+            </div>
             
-            <CustomSelect label="País" options={countryOptions} value={selectedCountry} onChange={(val) => { setSelectedCountry(val); setSelectedType(''); setSelectedVenueId(''); }} placeholder="-- Selecciona un país --" />
+            <div className="border-t border-gray-200 dark:border-brand-border pt-4 mt-4">
+              <CustomSelect label="País" options={countryOptions} value={selectedCountry} onChange={(val) => { setSelectedCountry(val); setSelectedType(''); setSelectedVenueId(''); }} placeholder="-- Selecciona un país --" />
+            </div>
 
             {selectedCountry && (
               <CustomSelect label="Tipo de Recinto" options={typeOptions} value={selectedType} onChange={(val) => { setSelectedType(val); setSelectedVenueId(''); }} placeholder="-- Selecciona un tipo --" />
@@ -237,7 +286,10 @@ export default function Ticketera() {
               </div>
             )}
 
-            <button type="submit" className="w-full py-4 bg-brand-blue text-white font-bold font-mono text-sm hover:bg-blue-600 transition-colors rounded-lg mt-4">PUBLICAR EVENTO EN EL SISTEMA</button>
+            <button type="submit" disabled={uploading} className="w-full py-4 bg-brand-blue text-white font-bold font-mono text-sm hover:bg-blue-600 transition-colors rounded-lg mt-4 flex items-center justify-center gap-2">
+              {uploading ? <Loader2 className="animate-spin" size={18} /> : null}
+              {uploading ? 'SUBIENDO IMAGEN...' : 'PUBLICAR EVENTO EN EL SISTEMA'}
+            </button>
           </form>
         </div>
       )}
