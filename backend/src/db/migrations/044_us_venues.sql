@@ -1,9 +1,14 @@
--- Crear la tabla de recintos (si no existe)
-CREATE TABLE IF NOT EXISTS venues (
+-- Eliminamos la tabla vieja que tenía un esquema diferente
+PRAGMA foreign_keys=off;
+DROP TABLE IF EXISTS venues;
+PRAGMA foreign_keys=on;
+
+-- Creamos la tabla con el esquema correcto para el catálogo global
+CREATE TABLE venues (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   type TEXT NOT NULL,
-  country TEXT NOT NULL DEFAULT 'US',
+  country TEXT NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
