@@ -7,7 +7,7 @@ import { useUIStore } from '../stores/uiStore';
 
 interface Country { code: string; name: string; }
 interface VenueType { id: string; name: string; }
-interface Venue { id: string; name: string; type: string; country: string; address: string; capacity: number; }
+interface Venue { id: string; name: string; type: string; country: string; address: string; capacity: number; shape?: string; }
 
 const getFlagEmoji = (countryCode: string) => {
   if (!countryCode) return '🌎';
@@ -231,7 +231,7 @@ export default function Ticketera() {
             <button onClick={() => setView('create-event')} className="bg-brand-blue text-white px-6 py-2 rounded text-sm font-bold hover:bg-blue-600 transition-colors w-full md:w-auto">USAR ESTE RECINTO</button>
           </div>
           
-          <AdvancedSeatMap venueId={selectedVenue.id} venueName={selectedVenue.name} />
+          <AdvancedSeatMap venueId={selectedVenue.id} venueName={selectedVenue.name} shape={selectedVenue.shape} />
         </div>
       )}
 
