@@ -39,7 +39,7 @@ import { kycRoutes } from './routes/kycRoutes.js';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import { join } from 'path';
-import { pool } from './db/pool.js';
+import { pool, query } from './db/pool.js';
 
 const app = Fastify({ logger: true });
 
