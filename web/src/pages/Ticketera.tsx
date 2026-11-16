@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2, Users } from 'lucide-react';
 import AdvancedSeatMap from '../components/AdvancedSeatMap';
+import EventCard from '../components/EventCard';
 import CustomSelect from '../components/CustomSelect';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
@@ -161,27 +162,21 @@ export default function Ticketera() {
             ) : events.length === 0 ? (
               <div className="text-center py-8 text-gray-500 font-mono border border-gray-200 dark:border-brand-border rounded-lg">No tienes eventos creados.</div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {events.map((event) => (
-                  <div key={event.id} onClick={() => { setSelectedEvent(event); setView('map'); }} className="border border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel rounded-lg hover:border-brand-blue transition-colors group cursor-pointer overflow-hidden">
-                    <div className="h-40 w-full bg-gray-100 dark:bg-[#111] relative overflow-hidden">
-                      {event.promo_image_url ? (
-                        <img src={`https://idkfree.onrender.com${event.promo_image_url}`} alt={event.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400"><Calendar size={32} /></div>
-                      )}
-                      <span className="absolute top-2 right-2 text-[10px] font-mono bg-green-500 text-white px-2 py-1 rounded shadow-lg">ACTIVO</span>
-                    </div>
-                    <div className="p-5">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 truncate">{event.name}</h3>
-                      <p className="text-xs text-gray-500 font-mono mb-2">{new Date(event.event_date).toLocaleString()}</p>
-                      <p className="text-xs text-brand-blue font-mono mb-4 truncate">{event.venue_name}</p>
-                      <div className="flex justify-between items-center text-xs font-mono">
-                        <span className="text-gray-500">{event.venue_shape?.toUpperCase()}</span>
-                        <span className="text-brand-blue flex items-center gap-1 group-hover:translate-x-1 transition-transform">VER MAPA <ArrowRight size={14} /></span>
-                      </div>
-                    </div>
-                  </div>
+                  <EventCard
+                    key={event.id}
+                    id={event.id}
+                    name={event.name}
+                    date={event.event_date}
+                    venueName={event.venue_name}
+                    venueShape={event.venue_shape}
+                    imageUrl={event.promo_image_url}
+                    onClick={() => {
+                      setSelectedEvent(event);
+                      setView('map');
+                    }}
+                  />
                 ))}
               </div>
             )}
