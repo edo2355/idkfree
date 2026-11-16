@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { query } from '../db/pool.js';
 import { requireAuth } from '../middleware/auth.js';
-import { createEvent, getEvents } from '../services/ticketingService.js';
+import { createEvent, getEvents, updateEvent, deleteEvent } from '../services/ticketingService.js';
 import { createWriteStream, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { pipeline } from 'stream/promises';
@@ -47,20 +47,24 @@ export async function ticketingRoutes(app: FastifyInstance) {
     try {
       const event = await createEvent(organizerId, venueId, name, date, promoImageUrl, textTheme, category, paymentMethods);
       return reply.code(201).send(event);
-    } catch (error) {
-      app.log.error(error);
-      return reply.code(500).send({ error: 'Error creando evento' });
-    }
+    } catch (error) { return reply.code(500).send({ error: 'Error creando evento' }); }
   });
 
   app.get('/ticketing/events', { preHandler: [requireAuth] }, async (req, reply) => {
     const organizerId = (req as any).userId;
-    try {
-      const events = await getEvents(organizerId);
-      return reply.send(events);
-    } catch (error) {
-      app.log.error(error);
-      return reply.code(500).send({ error: 'Error obteniendo eventos' });
-    }
+    try { return reply.send(await getEvents(organizerId)); } catch (error) { return reply.code(500).send({ error: 'Error obteniendo eventos' }); }
+  });
+
+  // EDITAR EVENTO
+  app.put('/ticketing/events/:id', { preHandler: [requireAuth] }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const { name, date, category, textTheme } = req.body as any;
+    try { return reply.send(await updateEvent(id, name, date, category, textTheme)); } catch (error) { return reply.code(500).send({ error: 'Error editando' }); }
+  });
+
+  // ELIMINAR EVENTO
+  app.delete('/ticketing/events/:id', { preHandler: [requireAuth] }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    try { return reply.send(await deleteEvent(id)); } catch (error) { return reply.code(500).send({ error: 'Error eliminando' }); }
   });
 }
