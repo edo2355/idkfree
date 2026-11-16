@@ -1,21 +1,31 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2, Users } from 'lucide-react';
+import { MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2, Users, Image as ImageIcon, Upload, Share2, Plus, Music, Trophy, Theater, Mic2, Briefcase, PartyPopper } from 'lucide-react';
 import AdvancedSeatMap from '../components/AdvancedSeatMap';
-import EventCard from '../components/EventCard';
 import CustomSelect from '../components/CustomSelect';
+import EventCard from '../components/EventCard';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 
 interface Country { code: string; name: string; }
 interface VenueType { id: string; name: string; }
 interface Venue { id: string; name: string; type: string; country: string; address: string; capacity: number; shape?: string; }
-interface EventData { id: string; name: string; event_date: string; venue_id: string; venue_name: string; venue_address: string; venue_shape: string; }
+interface EventData { id: string; name: string; event_date: string; venue_id: string; venue_name: string; venue_address: string; venue_shape: string; promo_image_url?: string; text_theme?: string; category?: string; }
 
 const getFlagEmoji = (countryCode: string) => {
   if (!countryCode) return '🌎';
   const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0));
   return String.fromCodePoint(...codePoints);
 };
+
+const categories = [
+  { id: 'musical', label: 'Música', icon: Music },
+  { id: 'deportivo', label: 'Deportes', icon: Trophy },
+  { id: 'teatro', label: 'Teatro', icon: Theater },
+  { id: 'conferencia', label: 'Conferencia', icon: Mic2 },
+  { id: 'corporativo', label: 'Corporativo', icon: Briefcase },
+  { id: 'fiesta', label: 'Fiesta', icon: PartyPopper },
+  { id: 'general', label: 'General', icon: Calendar },
+];
 
 export default function Ticketera() {
   const { token } = useAuthStore();
@@ -35,6 +45,10 @@ export default function Ticketera() {
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedVenueId, setSelectedVenueId] = useState('');
+  const [textTheme, setTextTheme] = useState('light');
+  const [category, setCategory] = useState('musical');
+  const [paymentMethods, setPaymentMethods] = useState<string[]>(['qvapay']);
+  
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -109,7 +123,15 @@ export default function Ticketera() {
       const res = await fetch('https://idkfree.onrender.com/api/ticketing/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ venueId: selectedVenueId, name: eventName, date: isoDate, promoImageUrl: uploadedImageUrl })
+        body: JSON.stringify({ 
+          venueId: selectedVenueId, 
+          name: eventName, 
+          date: isoDate, 
+          promoImageUrl: uploadedImageUrl,
+          textTheme,
+          category,
+          paymentMethods
+        })
       });
 
       if (res.ok) {
@@ -122,6 +144,18 @@ export default function Ticketera() {
         showToast(errorData.error || 'Error al crear el evento', 'error');
       }
     } catch (error) { showToast('Error de red', 'error'); }
+  };
+
+  const togglePaymentMethod = (method: string) => {
+    setPaymentMethods(prev => 
+      prev.includes(method) ? prev.filter(m => m !== method) : [...prev, method]
+    );
+  };
+
+  const shareEvent = (event: EventData) => {
+    const url = `${window.location.origin}/event/${event.id}`;
+    navigator.clipboard.writeText(url);
+    showToast('Enlace del evento copiado al portapapeles', 'success');
   };
 
   const countryOptions = countriesList.map(c => ({ value: c.code, label: c.name, flag: getFlagEmoji(c.code), prefix: c.code }));
@@ -151,6 +185,9 @@ export default function Ticketera() {
             <button onClick={() => setView('create-event')} className="flex-1 bg-brand-blue text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors">
               <Calendar size={18} /> CREAR NUEVO EVENTO
             </button>
+            <button onClick={() => window.location.href = "/ticketera/builder"} className="flex-1 bg-gray-800 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
+              <Plus size={18} /> CREAR RECINTO
+            </button>
           </div>
 
           <div>
@@ -164,19 +201,26 @@ export default function Ticketera() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {events.map((event) => (
-                  <EventCard
-                    key={event.id}
-                    id={event.id}
-                    name={event.name}
-                    date={event.event_date}
-                    venueName={event.venue_name}
-                    venueShape={event.venue_shape}
-                    imageUrl={event.promo_image_url}
-                    onClick={() => {
-                      setSelectedEvent(event);
-                      setView('map');
-                    }}
-                  />
+                  <div key={event.id} className="relative group/wrapper">
+                    <EventCard
+                      id={event.id}
+                      name={event.name}
+                      date={event.event_date}
+                      venueName={event.venue_name}
+                      venueShape={event.venue_shape}
+                      imageUrl={event.promo_image_url}
+                      textTheme={event.text_theme as 'light' | 'dark'}
+                      category={event.category}
+                      onClick={() => { setSelectedEvent(event); setView('map'); }}
+                    />
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); shareEvent(event); }} 
+                      className="absolute top-4 right-4 z-20 w-9 h-9 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover/wrapper:opacity-100 transition-opacity hover:bg-brand-blue"
+                      title="Compartir evento"
+                    >
+                      <Share2 size={16} />
+                    </button>
+                  </div>
                 ))}
               </div>
             )}
@@ -193,6 +237,9 @@ export default function Ticketera() {
                 <MapPin size={12}/> {selectedEvent.venue_address || 'Dirección no disponible'} 
               </p>
             </div>
+            <button onClick={() => shareEvent(selectedEvent)} className="bg-gray-100 dark:bg-brand-border text-gray-900 dark:text-white px-4 py-2 rounded text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center gap-2">
+              <Share2 size={16} /> COMPARTIR
+            </button>
           </div>
           
           <AdvancedSeatMap venueId={selectedEvent.venue_id} venueName={selectedEvent.venue_name} shape={selectedEvent.venue_shape} />
@@ -202,14 +249,37 @@ export default function Ticketera() {
       {view === 'create-event' && (
         <div className="max-w-xl mx-auto">
           <form onSubmit={handleCreateEvent} className="space-y-5 bg-white dark:bg-brand-panel p-8 rounded-xl border border-gray-200 dark:border-brand-border shadow-sm relative">
+            
             <div>
               <label className="text-xs font-mono text-gray-500 block mb-2">NOMBRE DEL EVENTO</label>
               <input type="text" required value={eventName} onChange={e => setEventName(e.target.value)} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors" placeholder="Ej. Concierto de Primavera" />
             </div>
+            
             <div>
               <label className="text-xs font-mono text-gray-500 block mb-2">FECHA Y HORA</label>
               <input type="datetime-local" required value={eventDate} onChange={e => setEventDate(e.target.value)} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors" />
             </div>
+
+            <div>
+              <label className="text-xs font-mono text-gray-500 block mb-2">CATEGORÍA</label>
+              <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+                {categories.map(cat => {
+                  const CatIcon = cat.icon;
+                  return (
+                    <button 
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setCategory(cat.id)}
+                      className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-colors ${category === cat.id ? 'border-brand-blue bg-brand-blue/10 text-brand-blue' : 'border-gray-200 dark:border-brand-border text-gray-500 hover:border-gray-400'}`}
+                    >
+                      <CatIcon size={18} />
+                      <span className="text-[10px] font-mono">{cat.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div>
               <label className="text-xs font-mono text-gray-500 block mb-2">PÓSTER / IMAGEN DE PROMOCIÓN (OPCIONAL)</label>
               <div className="flex items-center gap-4">
@@ -222,6 +292,30 @@ export default function Ticketera() {
                     <Upload size={16} /> SUBIR IMAGEN
                   </label>
                 </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-mono text-gray-500 block mb-2">TEMA DE TEXTO EN EL FLYER</label>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setTextTheme('light')} className={`flex-1 py-2 rounded-lg border text-sm font-mono transition-colors ${textTheme === 'light' ? 'bg-white text-black border-white' : 'bg-gray-100 dark:bg-[#111] text-gray-500 border-gray-200 dark:border-brand-border'}`}>Texto Blanco</button>
+                <button type="button" onClick={() => setTextTheme('dark')} className={`flex-1 py-2 rounded-lg border text-sm font-mono transition-colors ${textTheme === 'dark' ? 'bg-black text-white border-black' : 'bg-gray-100 dark:bg-[#111] text-gray-500 border-gray-200 dark:border-brand-border'}`}>Texto Negro</button>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-mono text-gray-500 block mb-2">MÉTODOS DE PAGO ACEPTADOS</label>
+              <div className="flex gap-2">
+                {['qvapay', 'efectivo', 'enzona'].map(method => (
+                  <button 
+                    key={method}
+                    type="button"
+                    onClick={() => togglePaymentMethod(method)}
+                    className={`flex-1 py-2 rounded-lg border text-xs font-mono transition-colors capitalize ${paymentMethods.includes(method) ? 'bg-brand-blue text-white border-brand-blue' : 'bg-gray-100 dark:bg-[#111] text-gray-500 border-gray-200 dark:border-brand-border'}`}
+                  >
+                    {method === 'qvapay' ? 'QvaPay' : method === 'efectivo' ? 'Efectivo' : 'EnZona'}
+                  </button>
+                ))}
               </div>
             </div>
             
