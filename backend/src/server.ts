@@ -43,18 +43,7 @@ import { pool, query } from './db/pool.js';
 
 const app = Fastify({ logger: true });
 
-await 
-  // RUTA TEMPORAL DE DIAGNÓSTICO
-  app.get('/api/debug/venues', async (req, reply) => {
-    try {
-      const res = await query('SELECT name, shape FROM venues WHERE country = \'US\' AND type = \'arena\' LIMIT 10');
-      return reply.send(res.rows);
-    } catch (error) {
-      return reply.code(500).send({ error: String(error) });
-    }
-  });
-
-app.register(cors, { origin: ['http://localhost:5173', 'https://www.idkfreegetid.dpdns.org', 'https://idkfreegetid.dpdns.org'], credentials: true });
+await app.register(cors, { origin: ['http://localhost:5173', 'https://www.idkfreegetid.dpdns.org', 'https://idkfreegetid.dpdns.org'], credentials: true });
 
 // 🛡️ Cabeceras de seguridad HTTP
 await app.register(helmet, {
