@@ -1,13 +1,11 @@
 import type { FastifyInstance } from 'fastify';
 import { query } from '../db/pool.js';
-import { createEvent, getEvents, createVenue } from '../services/ticketingService.js';
 import { requireAuth } from '../middleware/auth.js';
+import { createEvent, getEvents } from '../services/ticketingService.js';
 
 export async function ticketingRoutes(app: FastifyInstance) {
   
-  // --- RUTAS PÚBLICAS DE CATÁLOGO ---
-  
-  // Obtener todos los países
+  // Obtener Países
   app.get('/ticketing/countries', async (req, reply) => {
     try {
       const res = await query('SELECT code, name FROM countries ORDER BY name ASC');
@@ -18,30 +16,44 @@ export async function ticketingRoutes(app: FastifyInstance) {
     }
   });
 
-  // Obtener todos los tipos de recintos
+  // Obtener Tipos de Recintos
   app.get('/ticketing/venue-types', async (req, reply) => {
     try {
       const res = await query('SELECT id, name FROM venue_types ORDER BY name ASC');
       return reply.send(res.rows);
     } catch (error) {
       app.log.error(error);
-      return reply.code(500).send({ error: 'Error obteniendo tipos de recintos' });
+      return reply.code(500).send({ error: 'Error obteniendo tipos' });
     }
   });
 
-  // --- RUTAS PROTEGIDAS DE EVENTOS ---
-
-  app.get('/ticketing/events', { preHandler: [requireAuth] }, async (req, reply) => {
-    const organizerId = (req as any).userId;
+  // Obtener Venues filtrados por país y tipo
+  app.get('/ticketing/venues', async (req, reply) => {
+    const { country, type } = req.query as { country?: string, type?: string };
     try {
-      const events = await getEvents(organizerId);
-      return reply.send(events);
+      let sql = 'SELECT id, name, type, country, address, capacity FROM venues WHERE 1=1';
+      const params = [];
+      
+      if (country) {
+        sql += ' AND country = $' + (params.length + 1);
+        params.push(country);
+      }
+      if (type) {
+        sql += ' AND type = $' + (params.length + 1);
+        params.push(type);
+      }
+      
+      sql += ' ORDER BY name ASC LIMIT 50'; // Límite para no colapsar el frontend
+      
+      const res = await query(sql, params);
+      return reply.send(res.rows);
     } catch (error) {
       app.log.error(error);
-      return reply.code(500).send({ error: 'Error obteniendo eventos' });
+      return reply.code(500).send({ error: 'Error obteniendo venues' });
     }
   });
 
+  // Crear Evento
   app.post('/ticketing/events', { preHandler: [requireAuth] }, async (req, reply) => {
     const { venueId, name, date } = req.body as { venueId: string, name: string, date: string };
     const organizerId = (req as any).userId;
@@ -54,15 +66,15 @@ export async function ticketingRoutes(app: FastifyInstance) {
     }
   });
 
-  app.post('/ticketing/venues', { preHandler: [requireAuth] }, async (req, reply) => {
-    const { name, location } = req.body as { name: string, location: string };
+  // Obtener Eventos
+  app.get('/ticketing/events', { preHandler: [requireAuth] }, async (req, reply) => {
     const organizerId = (req as any).userId;
     try {
-      const venue = await createVenue(organizerId, name, location);
-      return reply.code(201).send(venue);
+      const events = await getEvents(organizerId);
+      return reply.send(events);
     } catch (error) {
       app.log.error(error);
-      return reply.code(500).send({ error: 'Error creando venue' });
+      return reply.code(500).send({ error: 'Error obteniendo eventos' });
     }
   });
 }

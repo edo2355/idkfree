@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2 } from 'lucide-react';
-import { realVenueTemplates, VenueTemplate } from '../data/realVenueTemplates';
+import { MapPin, Search, ArrowRight, ChevronLeft, Calendar, Loader2, Users } from 'lucide-react';
 import AdvancedSeatMap from '../components/AdvancedSeatMap';
 import CustomSelect from '../components/CustomSelect';
 import { useAuthStore } from '../stores/authStore';
@@ -8,13 +7,11 @@ import { useUIStore } from '../stores/uiStore';
 
 interface Country { code: string; name: string; }
 interface VenueType { id: string; name: string; }
+interface Venue { id: string; name: string; type: string; country: string; address: string; capacity: number; }
 
-// Función para convertir código ISO (ej. 'CU') a emoji de bandera 🇨🇺
 const getFlagEmoji = (countryCode: string) => {
-  const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt(0));
+  if (!countryCode) return '🌎';
+  const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0));
   return String.fromCodePoint(...codePoints);
 };
 
@@ -23,46 +20,22 @@ export default function Ticketera() {
   const { showToast } = useUIStore();
   
   const [view, setView] = useState<'catalog' | 'map' | 'create-event'>('catalog');
-  const [selectedTemplate, setSelectedTemplate] = useState<VenueTemplate | null>(null);
+  const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   
   const [events, setEvents] = useState<any[]>([]);
   const [countriesList, setCountriesList] = useState<Country[]>([]);
   const [venueTypesList, setVenueTypesList] = useState<VenueType[]>([]);
+  const [venuesList, setVenuesList] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // Estados del formulario
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedVenueId, setSelectedVenueId] = useState('');
 
-  const availableVenues = realVenueTemplates.filter(v => 
-    (selectedCountry === '' || v.country === selectedCountry) &&
-    (selectedType === '' || v.type === selectedType)
-  );
-
-  // Generar opciones con banderas y prefijos
-  const countryOptions = countriesList.map(c => ({ 
-    value: c.code, 
-    label: c.name, 
-    flag: getFlagEmoji(c.code),
-    prefix: c.code
-  }));
-  
-  const typeOptions = venueTypesList.map(t => ({ value: t.id, label: t.name }));
-  const venueOptions = availableVenues.map(v => ({ value: v.id, label: `${v.name} (${v.city})` }));
-
-  const handleCountryChange = (value: string) => {
-    setSelectedCountry(value);
-    setSelectedType('');
-    setSelectedVenueId('');
-  };
-
-  const handleTypeChange = (value: string) => {
-    setSelectedType(value);
-    setSelectedVenueId('');
-  };
-
+  // Cargar Países y Tipos al inicio
   useEffect(() => {
     const fetchCatalogs = async () => {
       try {
@@ -79,6 +52,21 @@ export default function Ticketera() {
     fetchCatalogs();
   }, []);
 
+  // Cargar Venues cuando cambia el país o el tipo
+  useEffect(() => {
+    const fetchVenues = async () => {
+      if (!selectedCountry || !selectedType) return;
+      try {
+        const res = await fetch(`https://idkfree.onrender.com/api/ticketing/venues?country=${selectedCountry}&type=${selectedType}`);
+        if (res.ok) setVenuesList(await res.json());
+      } catch (error) {
+        console.error('Error cargando venues:', error);
+      }
+    };
+    fetchVenues();
+  }, [selectedCountry, selectedType]);
+
+  // Cargar Eventos del organizador
   const fetchEvents = async () => {
     if (!token) return;
     try {
@@ -121,8 +109,13 @@ export default function Ticketera() {
     }
   };
 
+  const countryOptions = countriesList.map(c => ({ value: c.code, label: c.name, flag: getFlagEmoji(c.code), prefix: c.code }));
+  const typeOptions = venueTypesList.map(t => ({ value: t.id, label: t.name }));
+  const venueOptions = venuesList.map(v => ({ value: v.id, label: `${v.name} (${v.address || 'Sin dirección'})` }));
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Header */}
       <div className="flex justify-between items-center border-b border-gray-200 dark:border-brand-border pb-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-mono tracking-tight">
@@ -132,7 +125,7 @@ export default function Ticketera() {
           </h1>
           <p className="text-gray-500 font-mono text-xs mt-1">
             {view === 'catalog' && 'Tus eventos y recintos disponibles.'}
-            {view === 'map' && `Vista previa: ${selectedTemplate?.name}`}
+            {view === 'map' && `Vista previa: ${selectedVenue?.name}`}
             {view === 'create-event' && 'Asigna un nombre, fecha, país y recinto a tu evento.'}
           </p>
         </div>
@@ -168,7 +161,7 @@ export default function Ticketera() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {events.map((event) => (
-                  <div key={event.id} onClick={() => { setSelectedTemplate(realVenueTemplates.find(v => v.id === event.venue_id) || realVenueTemplates[0]); setView('map'); }} className="border border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel p-6 rounded-lg hover:border-brand-blue transition-colors group cursor-pointer">
+                  <div key={event.id} onClick={() => { setSelectedVenue({ id: event.venue_id, name: event.venue_id, type: '', country: '', address: '', capacity: 0 }); setView('map'); }} className="border border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel p-6 rounded-lg hover:border-brand-blue transition-colors group cursor-pointer">
                     <div className="flex justify-between items-start mb-4">
                       <div className="p-2 bg-brand-blue/10 rounded-lg"><Calendar size={20} className="text-brand-blue" /></div>
                       <span className="text-[10px] font-mono bg-green-500/10 text-green-500 px-2 py-1 rounded border border-green-500/20">ACTIVO</span>
@@ -176,7 +169,7 @@ export default function Ticketera() {
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{event.name}</h3>
                     <p className="text-xs text-gray-500 font-mono mb-4">{new Date(event.event_date).toLocaleString()}</p>
                     <div className="flex justify-between items-center text-xs font-mono">
-                      <span className="text-gray-500">Recinto: {event.venue_id}</span>
+                      <span className="text-gray-500">Recinto ID: {event.venue_id.slice(0, 8)}...</span>
                       <span className="text-brand-blue flex items-center gap-1 group-hover:translate-x-1 transition-transform">VER MAPA <ArrowRight size={14} /></span>
                     </div>
                   </div>
@@ -184,41 +177,36 @@ export default function Ticketera() {
               </div>
             )}
           </div>
-
-          <div>
-            <h2 className="text-sm font-mono text-gray-500 uppercase tracking-widest mb-4">Recintos Disponibles</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {realVenueTemplates.map((template) => (
-                <div key={template.id} className="border border-gray-200 dark:border-brand-border bg-white dark:bg-brand-panel p-6 rounded-lg hover:border-brand-blue transition-colors group cursor-pointer" onClick={() => { setSelectedTemplate(template); setView('map'); }}>
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="p-2 bg-gray-100 dark:bg-[#111] rounded-lg"><MapPin size={20} className="text-gray-600 dark:text-gray-400" /></div>
-                    <span className="text-[10px] font-mono bg-gray-100 dark:bg-[#111] text-gray-500 px-2 py-1 rounded uppercase">{template.type}</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{template.name}</h3>
-                  <p className="text-xs text-gray-500 font-mono mb-4">
-                    {template.city}, {countriesList.find(c => c.code === template.country)?.name || template.country}
-                  </p>
-                  <div className="flex justify-between items-center text-xs font-mono">
-                    <span className="text-gray-500">{template.capacity.toLocaleString()} Cap.</span>
-                    <span className="text-brand-blue flex items-center gap-1 group-hover:translate-x-1 transition-transform">VER MAPA <ArrowRight size={14} /></span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 
-      {view === 'map' && selectedTemplate && (
+      {view === 'map' && selectedVenue && (
         <div className="max-w-6xl mx-auto space-y-6">
-          <div className="flex justify-between items-center bg-white dark:bg-brand-panel p-4 rounded-lg border border-gray-200 dark:border-brand-border">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-brand-panel p-4 rounded-lg border border-gray-200 dark:border-brand-border gap-4">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedTemplate.name}</h2>
-              <p className="text-xs text-gray-500 font-mono">{selectedTemplate.city}, {countriesList.find(c => c.code === selectedTemplate.country)?.name} - Capacidad: {selectedTemplate.capacity.toLocaleString()}</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedVenue.name}</h2>
+              <p className="text-xs text-gray-500 font-mono flex items-center gap-2 mt-1">
+                <MapPin size={12}/> {selectedVenue.address || 'Dirección no disponible'} 
+                {selectedVenue.capacity > 0 && <span className="flex items-center gap-1 ml-2"><Users size={12}/> Cap: {selectedVenue.capacity.toLocaleString()}</span>}
+              </p>
             </div>
-            <button onClick={() => setView('create-event')} className="bg-brand-blue text-white px-6 py-2 rounded text-sm font-bold hover:bg-blue-600 transition-colors">USAR ESTE RECINTO</button>
+            <button onClick={() => setView('create-event')} className="bg-brand-blue text-white px-6 py-2 rounded text-sm font-bold hover:bg-blue-600 transition-colors w-full md:w-auto">USAR ESTE RECINTO</button>
           </div>
-          <AdvancedSeatMap venueId={selectedTemplate.id} venueName={selectedTemplate.name} />
+          
+          <AdvancedSeatMap venueId={selectedVenue.id} venueName={selectedVenue.name} />
+
+          {/* MAPA DE GOOGLE MAPS INTEGRADO */}
+          <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-xl overflow-hidden h-[300px] mt-6">
+            <iframe
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.google.com/maps?q=${encodeURIComponent(selectedVenue.name + ' ' + (selectedVenue.address || ''))}&output=embed`}
+            ></iframe>
+          </div>
         </div>
       )}
 
@@ -234,35 +222,17 @@ export default function Ticketera() {
               <input type="datetime-local" required value={eventDate} onChange={e => setEventDate(e.target.value)} className="w-full bg-gray-50 dark:bg-[#000] border border-gray-300 dark:border-brand-border p-3 rounded text-gray-900 dark:text-white focus:outline-none focus:border-brand-blue transition-colors" />
             </div>
             
-            <CustomSelect 
-              label="País" 
-              options={countryOptions} 
-              value={selectedCountry} 
-              onChange={handleCountryChange} 
-              placeholder="-- Selecciona un país --" 
-            />
+            <CustomSelect label="País" options={countryOptions} value={selectedCountry} onChange={(val) => { setSelectedCountry(val); setSelectedType(''); setSelectedVenueId(''); }} placeholder="-- Selecciona un país --" />
 
             {selectedCountry && (
-              <CustomSelect 
-                label="Tipo de Recinto" 
-                options={typeOptions} 
-                value={selectedType} 
-                onChange={handleTypeChange} 
-                placeholder="-- Selecciona un tipo --" 
-              />
+              <CustomSelect label="Tipo de Recinto" options={typeOptions} value={selectedType} onChange={(val) => { setSelectedType(val); setSelectedVenueId(''); }} placeholder="-- Selecciona un tipo --" />
             )}
 
             {selectedCountry && selectedType && (
               <div>
-                <CustomSelect 
-                  label="Selecciona el Recinto" 
-                  options={venueOptions} 
-                  value={selectedVenueId} 
-                  onChange={setSelectedVenueId} 
-                  placeholder="-- Selecciona un recinto --" 
-                />
-                {availableVenues.length === 0 && (
-                  <p className="text-xs text-red-500 mt-2">No hay recintos de este tipo en el país seleccionado.</p>
+                <CustomSelect label="Selecciona el Recinto" options={venueOptions} value={selectedVenueId} onChange={setSelectedVenueId} placeholder="-- Selecciona un recinto --" />
+                {venuesList.length === 0 && (
+                  <p className="text-xs text-red-500 mt-2">No hay recintos registrados para esta combinación.</p>
                 )}
               </div>
             )}
