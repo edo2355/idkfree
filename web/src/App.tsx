@@ -17,6 +17,7 @@ import Catalog from './pages/Catalog';
 import DeveloperHub from './pages/DeveloperHub';
 import LiveStream from './pages/LiveStream';
 import Wallet from './pages/Wallet';
+import VenueBuilder from './pages/VenueBuilder';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Contact from './pages/Contact';
@@ -50,6 +51,7 @@ export default function App() {
             <Route path="/messages" element={<Messages />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/ticketera" element={<Ticketera />} />
+            <Route path="/ticketera/builder" element={<VenueBuilder />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/developer" element={<DeveloperHub />} />
             <Route path="/kyc" element={<KycPage />} />
