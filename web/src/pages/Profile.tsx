@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Settings, MapPin, Link as LinkIcon, Calendar, Loader2 } from 'lucide-react';
+import { Settings, MapPin, Link as LinkIcon, Calendar, Loader2, Send, CheckCircle2, Unlink, ShieldCheck } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
+import { useModal } from '../contexts/ModalContext';
 
 interface UserProfile {
   id: string;
@@ -10,39 +11,105 @@ interface UserProfile {
   name: string;
   bio: string;
   createdAt: string;
+  telegram_chat_id?: string;
 }
 
 export default function Profile() {
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const { showToast } = useUIStore();
+  const { openModal } = useModal();
+  
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [telegramLinked, setTelegramLinked] = useState(false);
+  const [linkingTelegram, setLinkingTelegram] = useState(false);
+
+  // ⚠️ CAMBIA ESTO POR EL NOMBRE DE TU BOT
+  const TELEGRAM_BOT_USERNAME = 'IDKMEDIA_Oficial_bot'; 
+
+  const fetchProfile = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('https://idkfree.onrender.com/api/social/profile', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProfile(data);
+        setTelegramLinked(!!data.telegram_chat_id);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!token) return;
-      try {
-        const res = await fetch('https://idkfree.onrender.com/api/social/profile', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setProfile(data);
-        }
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProfile();
   }, [token]);
+
+  const handleLinkTelegram = () => {
+    if (!profile) return;
+    // Abrimos Telegram con el ID del usuario en el parámetro start
+    const url = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${profile.id}`;
+    window.open(url, '_blank');
+    setLinkingTelegram(true);
+    showToast('Ve a Telegram y presiona "Start" para vincular', 'info');
+    
+    // Polling para verificar si se vinculó (revisa cada 3 segundos por 1 minuto)
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts++;
+      const res = await fetch('https://idkfree.onrender.com/api/telegram/status', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.linked) {
+          setTelegramLinked(true);
+          setLinkingTelegram(false);
+          showToast('¡Telegram vinculado exitosamente!', 'success');
+          clearInterval(interval);
+        }
+      }
+      if (attempts > 20) { // 1 minuto
+        clearInterval(interval);
+        setLinkingTelegram(false);
+      }
+    }, 3000);
+  };
+
+  const handleUnlinkTelegram = () => {
+    openModal({
+      title: 'Desvincular Telegram',
+      content: '¿Estás seguro? Dejarás de recibir notificaciones por Telegram.',
+      variant: 'warning',
+      confirmText: 'Sí, desvincular',
+      onConfirm: async () => {
+        try {
+          const res = await fetch('https://idkfree.onrender.com/api/telegram/unlink', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            setTelegramLinked(false);
+            showToast('Telegram desvinculado', 'success');
+          }
+        } catch (error) {
+          showToast('Error al desvincular', 'error');
+        }
+      }
+    });
+  };
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-brand-blue" size={32} /></div>;
   if (!profile) return <div className="text-center py-20 text-gray-500 font-mono">No se pudo cargar el perfil.</div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
+      
+      {/* Cabecera del Perfil */}
       <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-lg overflow-hidden transition-colors">
         <div className="h-32 bg-gradient-to-r from-brand-blue/40 to-gray-100 dark:to-[#0a0a0a] w-full"></div>
         <div className="p-6 relative">
@@ -69,6 +136,49 @@ export default function Profile() {
             <span className="text-gray-500"><strong className="text-gray-900 dark:text-white">0</strong> Seguidores</span>
             <span className="text-gray-500"><strong className="text-gray-900 dark:text-white">0</strong> Siguiendo</span>
           </div>
+        </div>
+      </div>
+
+      {/* SECCIÓN DE INTEGRACIONES / TELEGRAM */}
+      <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-lg p-6 transition-colors">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white font-mono mb-4 flex items-center gap-2">
+          <LinkIcon size={18} className="text-brand-blue" /> Integraciones
+        </h2>
+        
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-gray-50 dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#1a1a1a] rounded-xl gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center">
+              <Send size={24} className="text-blue-500" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">Bot de Telegram</h3>
+              <p className="text-xs text-gray-500">
+                {telegramLinked 
+                  ? 'Tu cuenta está vinculada. Recibirás notificaciones de ventas y eventos.' 
+                  : 'Vincula tu cuenta para recibir notificaciones instantáneas por Telegram.'}
+              </p>
+            </div>
+          </div>
+
+          {telegramLinked ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono text-green-500 flex items-center gap-1 bg-green-500/10 px-3 py-1.5 rounded-full border border-green-500/20">
+                <CheckCircle2 size={14} /> VINCULADO
+              </span>
+              <button onClick={handleUnlinkTelegram} className="text-red-500 hover:text-red-400 p-2 rounded-full hover:bg-red-500/10 transition-colors" title="Desvincular">
+                <Unlink size={18} />
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={handleLinkTelegram} 
+              disabled={linkingTelegram}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold font-mono text-xs px-6 py-2.5 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+            >
+              {linkingTelegram ? <Loader2 className="animate-spin" size={14} /> : <Send size={14} />}
+              {linkingTelegram ? 'ESPERANDO EN TELEGRAM...' : 'VINCULAR TELEGRAM'}
+            </button>
+          )}
         </div>
       </div>
     </div>
