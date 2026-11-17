@@ -1,6 +1,7 @@
 import { Calendar, MapPin, ArrowRight, Music, Trophy, Theater, Mic2, Briefcase, PartyPopper, User } from 'lucide-react';
 
 interface EventCardProps {
+  id: string;
   name: string;
   date: string;
   venueName: string;
