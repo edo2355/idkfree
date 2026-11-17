@@ -1,5 +1,5 @@
--- Para eventos: marcar cuándo se actualizó
-ALTER TABLE events ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+-- Para eventos: marcar cuándo se actualizó (Sin CURRENT_TIMESTAMP por restricción de ALTER TABLE)
+ALTER TABLE events ADD COLUMN updated_at DATETIME;
 
 -- Para catálogo: ampliar tabla shop_products para soportar features Pro
 ALTER TABLE shop_products ADD COLUMN category TEXT DEFAULT 'general';
