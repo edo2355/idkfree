@@ -1,4 +1,4 @@
-import { X, Copy, MessageCircle, Send, Twitter, Facebook, Check } from 'lucide-react';
+import { X, Copy, MessageCircle, Send, Share2, Link, Check } from 'lucide-react';
 import { useState } from 'react';
 
 interface ShareModalProps {
@@ -25,8 +25,8 @@ export default function ShareModal({ isOpen, onClose, eventUrl, eventName }: Sha
   const shareLinks = [
     { name: 'WhatsApp', icon: MessageCircle, color: 'bg-green-500', url: `https://wa.me/?text=${shareText}%20${encodedUrl}` },
     { name: 'Telegram', icon: Send, color: 'bg-blue-500', url: `https://t.me/share/url?url=${encodedUrl}&text=${shareText}` },
-    { name: 'Twitter / X', icon: Twitter, color: 'bg-black', url: `https://twitter.com/intent/tweet?text=${shareText}&url=${encodedUrl}` },
-    { name: 'Facebook', icon: Facebook, color: 'bg-blue-700', url: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}` },
+    { name: 'Twitter / X', icon: Share2, color: 'bg-black', url: `https://twitter.com/intent/tweet?text=${shareText}&url=${encodedUrl}` },
+    { name: 'Facebook', icon: Link, color: 'bg-blue-700', url: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}` },
   ];
 
   return (
