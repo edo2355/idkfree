@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Save, Plus, Trash2, MapPin, Eye, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
-import { computeStraightSeats, computeRadialSeats, computeArena360Seats } from '../utils/seatLayouts';
+import { computeStraightSeats, computeRadialSeats, computeArena360Seats, RowWithSeats } from '../utils/seatLayouts';
 
 const LAYOUT_TYPES = ['straight', 'radial', 'arena_360', 'arena_180', 'arena_270', 'standing', 'grid', 'end_stage'];
 
@@ -53,7 +53,7 @@ export default function VenueBuilder() {
 
   // Recalcula los asientos de una sección según su layoutType
   const recomputeSection = (section: any) => {
-    let rows = [];
+    let rows: RowWithSeats[] = [];
     if (section.layoutType === 'straight' || section.layoutType === 'grid' || section.layoutType === 'end_stage') {
       rows = computeStraightSeats(section.rowsCount, section.seatsPerRow);
     } else if (section.layoutType === 'radial' || section.layoutType === 'arena_180' || section.layoutType === 'arena_270') {
