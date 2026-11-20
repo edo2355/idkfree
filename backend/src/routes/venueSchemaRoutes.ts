@@ -5,7 +5,7 @@ import { createFullVenue, getFullVenue, createFlatTicket } from '../services/ven
 
 export async function venueSchemaRoutes(app: FastifyInstance) {
   
-  // Listar los recintos creados por el organizador
+  // Listar los recintos del organizador
   app.get('/venues/mine', { preHandler: [requireAuth] }, async (req, reply) => {
     const organizerId = (req as any).userId;
     try {
@@ -20,7 +20,7 @@ export async function venueSchemaRoutes(app: FastifyInstance) {
     }
   });
 
-  // Obtener un recinto completo para editarlo
+  // Obtener un recinto completo
   app.get('/venues/:id/full', async (req, reply) => {
     const { id } = req.params as { id: string };
     try {
@@ -43,26 +43,21 @@ export async function venueSchemaRoutes(app: FastifyInstance) {
     }
   });
 
-  // Actualizar un venue completo (reemplaza secciones y asientos)
+  // Actualizar un venue completo (se eliminó la validación estricta para permitir editar globales)
   app.put('/venues/:id/full', { preHandler: [requireAuth] }, async (req, reply) => {
     const { id } = req.params as { id: string };
-    const organizerId = (req as any).userId;
     const data = req.body as any;
     try {
-      // 1. Verificar que el venue pertenezca al organizador
-      const check = await query(`SELECT id FROM venues WHERE id = $1 AND organizer_id = $2`, [id, organizerId]);
-      if (check.rows.length === 0) return reply.code(403).send({ error: 'No tienes permiso para editar este recinto' });
-
-      // 2. Actualizar metadatos del venue
+      // 1. Actualizar metadatos del venue
       await query(
         `UPDATE venues SET name = $1, type = $2, country = $3, city = $4, address = $5, capacity = $6, shape = $7 WHERE id = $8`,
         [data.name, data.type, data.country, data.city, data.address, data.capacity, data.shape, id]
       );
 
-      // 3. Eliminar secciones y filas antiguas (los asientos se eliminan en cascada por FK)
+      // 2. Eliminar secciones y filas antiguas (asientos se eliminan en cascada)
       await query(`DELETE FROM venue_sections WHERE venue_id = $1`, [id]);
 
-      // 4. Recrear secciones, filas y asientos
+      // 3. Recrear secciones, filas y asientos
       const { randomUUID } = await import('crypto');
       for (const section of data.sections) {
         const sectionId = randomUUID();

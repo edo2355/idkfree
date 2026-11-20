@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ChevronLeft, Save, Plus, Trash2, MapPin, Eye, Loader2, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Save, Plus, Trash2, MapPin, Eye, Loader2, Edit, LayoutTemplate } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 import { computeStraightSeats, computeRadialSeats, computeArena360Seats, RowWithSeats } from '../utils/seatLayouts';
@@ -11,9 +11,16 @@ export default function VenueBuilder() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editVenueId = searchParams.get('edit');
+  const isNew = searchParams.get('new') === 'true';
+  
   const { token } = useAuthStore();
   const { showToast } = useUIStore();
 
+  // Galería de recintos
+  const [venuesList, setVenuesList] = useState<any[]>([]);
+  const [loadingVenues, setLoadingVenues] = useState(!editVenueId && !isNew);
+
+  // Estados del editor
   const [name, setName] = useState('');
   const [type, setType] = useState('stadium');
   const [country, setCountry] = useState('CU');
@@ -24,11 +31,37 @@ export default function VenueBuilder() {
   const [mapHeight] = useState(900);
   const [sections, setSections] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(!!editVenueId);
+  const [isLoadingVenue, setIsLoadingVenue] = useState(!!editVenueId);
 
-  // Modo edición: cargar el venue existente
+  // Cargar galería de recintos si no estamos editando
+  useEffect(() => {
+    if (editVenueId || isNew) return;
+    
+    const fetchVenues = async () => {
+      try {
+        const [globalRes, myRes] = await Promise.all([
+          fetch('https://idkfree.onrender.com/api/ticketing/venues'),
+          fetch('https://idkfree.onrender.com/api/venues/mine', { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+        const globalData = globalRes.ok ? await globalRes.json() : [];
+        const myData = myRes.ok ? await myRes.json() : [];
+        
+        // Combinar y quitar duplicados
+        const combined = [...myData, ...globalData.filter((g: any) => !myData.find((m: any) => m.id === g.id))];
+        setVenuesList(combined);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoadingVenues(false);
+      }
+    };
+    if (token) fetchVenues();
+  }, [editVenueId, isNew, token]);
+
+  // Cargar datos del recinto si estamos editando
   useEffect(() => {
     if (!editVenueId) return;
+    
     const loadVenue = async () => {
       try {
         const res = await fetch(`https://idkfree.onrender.com/api/venues/${editVenueId}/full`);
@@ -41,7 +74,6 @@ export default function VenueBuilder() {
           setAddress(data.address || '');
           setShape(data.shape || 'rectangular');
           
-          // Convertir las secciones del backend al formato del editor
           const loadedSections = data.sections.map((s: any) => {
             const curve = s.curve ? JSON.parse(s.curve) : {};
             return {
@@ -75,27 +107,22 @@ export default function VenueBuilder() {
           });
           setSections(loadedSections);
         }
-      } catch (error) { console.error(error); }
-      finally { setIsLoading(false); }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoadingVenue(false);
+      }
     };
     loadVenue();
   }, [editVenueId]);
 
+  // ... funciones de edición (addSection, removeSection, etc.) ...
   const addSection = () => {
     setSections([...sections, {
-      id: Date.now(),
-      name: 'Nueva Sección',
-      layoutType: 'straight',
-      seatRankId: 'general',
-      price: 50,
-      color: '#3B82F6',
-      accessible: false,
-      rowsCount: 5,
-      seatsPerRow: 10,
-      centerX: 600, centerY: 450,
-      startRadius: 200, radiusGap: 30,
-      startAngle: 200, endAngle: 340,
-      rows: [] as RowWithSeats[]
+      id: Date.now(), name: 'Nueva Sección', layoutType: 'straight', seatRankId: 'general',
+      price: 50, color: '#3B82F6', accessible: false, rowsCount: 5, seatsPerRow: 10,
+      centerX: 600, centerY: 450, startRadius: 200, radiusGap: 30,
+      startAngle: 200, endAngle: 340, rows: [] as RowWithSeats[]
     }]);
   };
 
@@ -148,7 +175,7 @@ export default function VenueBuilder() {
       });
       if (res.ok) {
         showToast(editVenueId ? 'Recinto actualizado' : 'Recinto creado', 'success');
-        navigate('/ticketera');
+        navigate('/ticketera/builder'); // Volver a la galería
       } else { showToast('Error al guardar', 'error'); }
     } catch (error) { showToast('Error de red', 'error'); } finally { setIsSaving(false); }
   };
@@ -164,12 +191,55 @@ export default function VenueBuilder() {
     );
   };
 
-  if (isLoading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-brand-blue" size={32} /></div>;
+  if (loadingVenues) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-brand-blue" size={32} /></div>;
+  if (isLoadingVenue) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-brand-blue" size={32} /></div>;
 
+  // ==========================================
+  // VISTA 1: GALERÍA DE RECINTOS (Cuando no hay edit ni new)
+  // ==========================================
+  if (!editVenueId && !isNew) {
+    return (
+      <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in duration-500 pb-24">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-200 dark:border-brand-border pb-4 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-mono tracking-tight flex items-center gap-3">
+              <LayoutTemplate size={28} className="text-brand-blue" /> VENUE DIRECTORY
+            </h1>
+            <p className="text-gray-500 text-sm mt-1">Selecciona un recinto para editarlo o crea uno nuevo.</p>
+          </div>
+          <button onClick={() => navigate('/ticketera/builder?new=true')} className="bg-brand-blue text-white font-bold px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600">
+            <Plus size={18} /> CREAR NUEVO RECINTO
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {venuesList.map(venue => (
+            <div key={venue.id} className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-xl p-6 hover:border-brand-blue transition-colors group flex flex-col justify-between">
+              <div>
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-2 bg-brand-blue/10 rounded-lg"><MapPin size={20} className="text-brand-blue" /></div>
+                  <span className="text-[10px] font-mono bg-gray-100 dark:bg-[#111] px-2 py-1 rounded">{venue.capacity?.toLocaleString()} CAP.</span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{venue.name}</h3>
+                <p className="text-xs text-gray-500 mb-4">{venue.city}, {venue.country}</p>
+              </div>
+              <button onClick={() => navigate(`/ticketera/builder?edit=${venue.id}`)} className="w-full py-2 bg-gray-50 dark:bg-[#111] text-brand-blue font-mono text-sm font-bold rounded hover:bg-brand-blue hover:text-white transition-colors flex items-center justify-center gap-2">
+                <Edit size={16} /> EDITAR / VER
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // VISTA 2: EDITOR (Cuando edit=ID o new=true)
+  // ==========================================
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in duration-500 pb-24">
       <div className="flex items-center gap-4 border-b border-gray-200 dark:border-brand-border pb-4">
-        <button onClick={() => navigate('/ticketera')} className="text-gray-500 hover:text-white"><ChevronLeft /></button>
+        <button onClick={() => navigate('/ticketera/builder')} className="text-gray-500 hover:text-white flex items-center gap-1 text-xs font-mono"><ChevronLeft size={16} /> VOLVER</button>
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-mono tracking-tight">
             {editVenueId ? 'EDITAR RECINTO' : 'VENUE_BUILDER_PRO'}
@@ -178,6 +248,7 @@ export default function VenueBuilder() {
         </div>
       </div>
 
+      {/* Datos del recinto */}
       <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-xl p-6">
         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"><MapPin className="text-brand-blue" /> Datos del Recinto</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -196,10 +267,11 @@ export default function VenueBuilder() {
         </div>
       </div>
 
+      {/* Secciones */}
       <div className="bg-white dark:bg-brand-panel border border-gray-200 dark:border-brand-border rounded-xl p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Secciones</h2>
-          <button onClick={addSection} className="text-xs bg-brand-blue text-white px-3 py-1.5 rounded flex items-center gap-1"><Plus size={14} /> Añadir</button>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Secciones del Recinto</h2>
+          <button onClick={addSection} className="text-xs bg-brand-blue text-white px-3 py-1.5 rounded flex items-center gap-1"><Plus size={14} /> Añadir Sección</button>
         </div>
 
         <div className="space-y-6">
@@ -230,6 +302,7 @@ export default function VenueBuilder() {
         </div>
       </div>
 
+      {/* Botón Guardar */}
       <div className="fixed bottom-0 left-0 w-full lg:pl-64 p-4 bg-white dark:bg-brand-dark border-t border-gray-200 dark:border-brand-border z-50">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
           <div>
