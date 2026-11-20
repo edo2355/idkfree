@@ -32,6 +32,23 @@ export async function ticketingRoutes(app: FastifyInstance) {
     return reply.send(res.rows);
   });
 
+  // RUTA PARA CREAR VENUE PERSONALIZADO
+  app.post('/ticketing/venues', { preHandler: [requireAuth] }, async (req, reply) => {
+    const { name, location, country, type } = req.body as any;
+    const organizerId = (req as any).userId;
+    const id = randomUUID();
+    try {
+      await query(
+        `INSERT INTO venues (id, organizer_id, name, address, country, type, shape) VALUES ($1, $2, $3, $4, $5, $6, 'rectangular')`,
+        [id, organizerId, name, location, country || 'CU', type || 'estadio']
+      );
+      return reply.code(201).send({ id, name, location });
+    } catch (error) {
+      app.log.error(error);
+      return reply.code(500).send({ error: 'Error creando recinto personalizado' });
+    }
+  });
+
   app.post('/ticketing/upload-promo', { preHandler: [requireAuth] }, async (req, reply) => {
     const data = await req.file();
     if (!data) return reply.code(400).send({ error: 'No file' });
@@ -55,14 +72,12 @@ export async function ticketingRoutes(app: FastifyInstance) {
     try { return reply.send(await getEvents(organizerId)); } catch (error) { return reply.code(500).send({ error: 'Error obteniendo eventos' }); }
   });
 
-  // EDITAR EVENTO
   app.put('/ticketing/events/:id', { preHandler: [requireAuth] }, async (req, reply) => {
     const { id } = req.params as { id: string };
     const { name, date, category, textTheme } = req.body as any;
     try { return reply.send(await updateEvent(id, name, date, category, textTheme)); } catch (error) { return reply.code(500).send({ error: 'Error editando' }); }
   });
 
-  // ELIMINAR EVENTO
   app.delete('/ticketing/events/:id', { preHandler: [requireAuth] }, async (req, reply) => {
     const { id } = req.params as { id: string };
     try { return reply.send(await deleteEvent(id)); } catch (error) { return reply.code(500).send({ error: 'Error eliminando' }); }
