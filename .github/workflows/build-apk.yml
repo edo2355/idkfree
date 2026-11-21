@@ -1,129 +1,60 @@
-name: Build Android APK
+name: Build Android APK (Sin LiveKit)
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'mobile/**'
-      - '.github/workflows/build-apk.yml'
   workflow_dispatch:
+  push:
+    branches:
+      - sin-livekit
+      - main
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 📥 Clonar repositorio
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: ⚙️ Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            mobile/package-lock.json
 
-      - name: Setup Java
+      - name: ☕ Configurar Java JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: 'temurin'
+          java-version: 17
 
-      - name: Install dependencies
+      - name: 📦 Instalar dependencias
         run: |
-          cd mobile
-          npm install --legacy-peer-deps
+          if [ -d "mobile" ]; then
+            cd mobile
+          fi
+          npm install
 
-      - name: Remove dev-client package
+      - name: 📱 Generar carpeta nativa (Expo Prebuild)
         run: |
-          cd mobile
-          npm uninstall expo-dev-client || true
-
-      - name: Generate native Android folder
-        run: |
-          cd mobile
+          TARGET_DIR="."
+          if [ -d "mobile" ]; then TARGET_DIR="mobile"; fi
+          cd $TARGET_DIR
           npx expo prebuild --platform android --clean
 
-      # 🔑 CLAVE: Decodificar el keystore ANTES de compilar
-      - name: Decode Keystore
-        env:
-          ENCODED_STRING: ${{ secrets.KEYSTORE_BASE64 }}
+      - name: 🔨 Compilar APK Release
         run: |
-          echo "$ENCODED_STRING" | tr -d ' \n\r\t' | base64 -d > mobile/android/app/idkfree-release.keystore
-          ls -la mobile/android/app/idkfree-release.keystore
-
-      # 🔑 CLAVE: Configurar signingConfigs.release en build.gradle
-      - name: Configure release signing
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: |
-          cd mobile/android/app
-          
-          # Hacer backup del build.gradle original
-          cp build.gradle build.gradle.bak
-          
-          # Insertar signingConfigs.release después de "signingConfigs {"
-          python3 -c "
-import re, os
-path = 'build.gradle'
-with open(path, 'r') as f:
-    content = f.read()
-
-# Bloque signingConfigs.release
-signing_block = '''
-        release {
-            if (System.getenv('KEYSTORE_PASSWORD') != null) {
-                storeFile file('idkfree-release.keystore')
-                storePassword System.getenv('KEYSTORE_PASSWORD')
-                keyAlias System.getenv('KEY_ALIAS')
-                keyPassword System.getenv('KEY_PASSWORD')
-            }
-        }
-'''
-
-# Insertar después de 'signingConfigs {'
-content = content.replace('signingConfigs {', 'signingConfigs {' + signing_block, 1)
-
-# Cambiar signingConfig debug por release en buildTypes.release
-content = re.sub(
-    r'(buildTypes\s*\{[\s\S]*?release\s*\{[^}]*?signingConfig)\s+signingConfigs\.debug',
-    r'\1 signingConfigs.release',
-    content
-)
-
-with open(path, 'w') as f:
-    f.write(content)
-
-print('✅ signingConfigs.release configurado en build.gradle')
-"
-          
-          # Verificar que el cambio se aplicó
-          echo '=== Verificando signingConfigs ==='
-          grep -A 6 "signingConfigs {" build.gradle | head -20
-          echo '=== Verificando buildTypes.release ==='
-          grep -A 3 "release {" build.gradle | head -10
-
-      - name: Build APK (signed)
-        run: |
-          cd mobile/android
+          TARGET_DIR="."
+          if [ -d "mobile/android" ]; then TARGET_DIR="mobile"; fi
+          cd $TARGET_DIR/android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease --no-daemon
 
-      - name: Verify APK signature
-        run: |
-          APK=$(find mobile/android/app/build/outputs/apk/release -name "app-release.apk" | head -n 1)
-          echo "Verificando firma de: $APK"
-          $ANDROID_HOME/build-tools/34.0.0/apksigner verify --print-certs "$APK" | head -20
-
-      - name: Rename APK
-        run: |
-          APK=$(find mobile/android/app/build/outputs/apk/release -name "app-release.apk" | head -n 1)
-          cp "$APK" mobile/android/app/build/outputs/apk/release/IDKfree-Signed.apk
-          ls -la mobile/android/app/build/outputs/apk/release/
-
-      - name: Upload Signed APK
+      - name: 📤 Subir APK como Artefacto
         uses: actions/upload-artifact@v4
         with:
-          name: IDKfree-APK-Final
-          path: mobile/android/app/build/outputs/apk/release/IDKfree-Signed.apk
-          retention-days: 7
+          name: idkfree-app-release
+          path: |
+            **/android/app/build/outputs/apk/release/*.apk
