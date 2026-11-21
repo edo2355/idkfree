@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert } from 'react-native';
 import { saveVenueOffline, initDb, getUnsyncedVenues } from '../services/offlineDb';
 import { syncVenuesToCloud } from '../services/syncService';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../stores/authStore';
 
 export default function OfflineVenueScreen() {
   const [name, setName] = useState('');

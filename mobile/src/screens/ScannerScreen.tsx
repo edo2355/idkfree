@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Alert } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useAuth } from '../hooks/useAuth'; // Asumiendo que tienes un hook de auth
+import { useAuth } from '../stores/authStore'; // Asumiendo que tienes un hook de auth
 
 export default function ScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions();
