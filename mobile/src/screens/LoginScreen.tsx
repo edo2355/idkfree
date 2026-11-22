@@ -26,7 +26,7 @@ export function LoginScreen() {
       const res = await api.auth.login(email, password);
       // Mapeo correcto de la respuesta del backend
       const userData = { id: res.userId, alias: res.alias, name: res.alias };
-      setAuth(userData, res.accessToken);
+      setAuth(res.accessToken, userData);
       // La navegación se maneja automáticamente en RootNavigator al cambiar el token
     } catch (err: any) {
       setError(err.message || 'Credenciales inválidas');

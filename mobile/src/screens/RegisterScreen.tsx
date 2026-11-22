@@ -52,10 +52,7 @@ export function RegisterScreen({ navigation }: any) {
       const res = await api.auth.register(payload);
 
       if (res?.accessToken && res?.userId) {
-        setAuth(
-          { id: res.userId, alias: res.alias, name: res.name ?? null, email: res.email ?? null, avatar_url: null },
-          res.accessToken
-        );
+        setAuth(res.accessToken, { id: res.userId, alias: res.alias, name: res.name ?? null, email: res.email ?? null, avatar_url: undefined });
         return true;
       } else {
         Alert.alert('SISTEMA', 'Respuesta inesperada del servidor.');

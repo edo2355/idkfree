@@ -49,7 +49,7 @@ export default function ScannerScreen() {
   return (
     <View style={styles.container}>
       <CameraView
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
         barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
       />
@@ -63,7 +63,7 @@ export default function ScannerScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center' },
-  overlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
+  overlay: { ...StyleSheet.absoluteFill, justifyContent: 'center', alignItems: 'center' },
   scanBox: { width: 250, height: 250, borderWidth: 2, borderColor: '#00E5FF', borderRadius: 20, backgroundColor: 'transparent' },
   instructions: { color: 'white', marginTop: 20, fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.5)', padding: 10, borderRadius: 8 }
 });

@@ -76,6 +76,16 @@ export function createApi(config: ApiConfig) {
   }
 
   return {
+  // Métodos genéricos (inyectados por auditoría)
+  get: (url: string) => request<any>(url, { method: 'GET' }),
+  post: (url: string, body?: any) => request<any>(url, { method: 'POST', body: body ? JSON.stringify(body) : undefined }),
+  put: (url: string, body?: any) => request<any>(url, { method: 'PUT', body: body ? JSON.stringify(body) : undefined }),
+  delete: (url: string) => request<any>(url, { method: 'DELETE' }),
+  kyc: {
+    status: () => request<any>('/kyc/status', { method: 'GET' }),
+    submit: (data: any) => request<any>('/kyc/submit', { method: 'POST', body: JSON.stringify(data) }),
+  },
+
     auth: {
       register: (d: any) => request<any>('/auth/register', { method: 'POST', body: JSON.stringify(d) }),
       login: (email: string, password: string) => request<any>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),

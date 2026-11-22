@@ -149,7 +149,7 @@ export function UserProfileScreen() {
       <View style={{ padding: 2 }}>
         {tab === 'posts' ? (
           <PostGrid posts={photoPosts.length > 0 ? photoPosts : posts} />
-        ) : tab === 'notas' ? (
+        ) : tab === 'reels' ? (
           <View style={{ padding: 16 }}>
             {textPosts.length === 0 && vibes.length === 0 ? (
               <Text style={{ color: theme.textMuted, textAlign: 'center', paddingVertical: 40, fontFamily: fonts.regular }}>

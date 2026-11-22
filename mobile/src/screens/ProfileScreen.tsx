@@ -149,7 +149,7 @@ export function ProfileScreen() {
                 <Text style={{ color: theme.accent, fontFamily: fonts.mono, fontSize: 14 }}>[ VER MI CATÁLOGO ]</Text>
              </TouchableOpacity>
           </View>
-        ) : tab === 'dummy' ? (
+        ) : tab === 'reels' ? (
           <View style={{ padding: 16 }}>
             {textPosts.map((p) => (
               <View key={p.id} style={{ backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 12, padding: 14, marginBottom: 10 }}>
