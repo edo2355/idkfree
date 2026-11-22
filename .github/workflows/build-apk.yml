@@ -42,6 +42,13 @@ jobs:
           cd mobile
           npx expo prebuild --platform android --clean
 
+      - name: Fix R8 Missing Classes
+        run: |
+          cd mobile/android/app
+          echo "-dontwarn expo.modules.core.interfaces.services.KeepAwakeManager" >> proguard-rules.pro
+          echo "-dontwarn expo.modules.kotlin.types.AnyTypeProvider" >> proguard-rules.pro
+          echo "-dontwarn expo.modules.kotlin.types.LazyKType" >> proguard-rules.pro
+
       - name: Decode Keystore
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE_BASE64 }}
