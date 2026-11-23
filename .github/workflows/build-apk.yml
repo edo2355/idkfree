@@ -75,11 +75,17 @@ content = re.sub(r'(buildTypes\s*\{[\s\S]*?release\s*\{[^}]*?signingConfig)\s+si
 with open(path, 'w') as f: f.write(content)
 "
 
+
+      - name: Increase Gradle Memory
+        run: |
+          cd mobile/android
+          echo 'org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m' >> gradle.properties
+
       - name: Build APK (signed)
         run: |
           cd mobile/android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
 
       - name: Upload Signed APK
         uses: actions/upload-artifact@v4
