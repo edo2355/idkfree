@@ -19,8 +19,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "app.idkfree.mobile",
       "infoPlist": {
-        "NSCameraUsageDescription": "IDKFREE necesita acceso a tu cámara para transmitir en vivo y tomar fotos.",
-        "NSMicrophoneUsageDescription": "IDKFREE necesita acceso a tu micrófono para las transmisiones en vivo.",
+        "NSCameraUsageDescription": "IDKFREE necesita acceso a tu c\u00e1mara para transmitir en vivo y tomar fotos.",
+        "NSMicrophoneUsageDescription": "IDKFREE necesita acceso a tu micr\u00f3fono para las transmisiones en vivo.",
         "NSPhotoLibraryUsageDescription": "IDKFREE necesita acceso a tus fotos para que puedas subir contenido."
       }
     },
@@ -48,15 +48,6 @@
       "expo-secure-store",
       "expo-status-bar",
       [
-        "expo-build-properties",
-        {
-          "android": {
-            "kotlinVersion": "2.2.10",
-            "extraProguardRules": "-keep class livekit.** { *; }\n-keep class com.livekit.** { *; }\n-keep class org.webrtc.** { *; }\n-keep class livekit.org.jni_zero.** { *; }\n-keep class org.jni_zero.** { *; }\n-dontwarn livekit.**\n-dontwarn com.livekit.**\n-dontwarn org.webrtc.**\n-dontwarn livekit.org.jni_zero.**\n-dontwarn org.jni_zero.**"
-          }
-        }
-      ],
-      [
         "expo-media-library",
         {
           "photosPermission": "Permitir a IDKFREE acceder a tus fotos.",
@@ -68,14 +59,22 @@
         "expo-image-picker",
         {
           "photosPermission": "Permitir a IDKFREE acceder a tus fotos.",
-          "cameraPermission": "Permitir a IDKFREE usar la cámara para verificación de identidad."
+          "cameraPermission": "Permitir a IDKFREE usar la c\u00e1mara para verificaci\u00f3n de identidad."
         }
       ],
       [
         "@livekit/react-native-expo-plugin",
         {
-          "cameraPermission": "IDKfree necesita acceso a tu cámara para transmitir en vivo.",
-          "microphonePermission": "IDKfree necesita acceso a tu micrófono para el audio."
+          "cameraPermission": "IDKfree necesita acceso a tu c\u00e1mara para transmitir en vivo.",
+          "microphonePermission": "IDKfree necesita acceso a tu micr\u00f3fono para el audio."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraProguardRules": "-dontwarn expo.modules.core.interfaces.services.KeepAwakeManager\n-dontwarn expo.modules.kotlin.types.AnyTypeProvider\n-dontwarn expo.modules.kotlin.types.LazyKType"
+          }
         }
       ]
     ],
@@ -84,6 +83,7 @@
         "projectId": "a5993b12-c5b9-43c3-b222-8d60f5e206f4"
       }
     },
-    "newArchEnabled": false
+    "newArchEnabled": false,
+    "nodeVersion": "22.13.0"
   }
 }
