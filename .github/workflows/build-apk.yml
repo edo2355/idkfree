@@ -48,7 +48,7 @@ jobs:
         run: |
           echo "$ENCODED_STRING" | tr -d ' \n\r\t' | base64 -d > mobile/android/app/idkfree-release.keystore
 
-      - name: Configure release signing
+      - name: Force Gradle Settings (Firma, Sin R8, Solo ARM64)
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -56,10 +56,13 @@ jobs:
         run: |
           cd mobile/android/app
           cp build.gradle build.gradle.bak
+          
           python3 -c "
 import re, os
 path = 'build.gradle'
 with open(path, 'r') as f: content = f.read()
+
+# 1. Configurar firma release
 signing_block = '''
         release {
             if (System.getenv('KEYSTORE_PASSWORD') != null) {
@@ -72,24 +75,32 @@ signing_block = '''
 '''
 content = content.replace('signingConfigs {', 'signingConfigs {' + signing_block, 1)
 content = re.sub(r'(buildTypes\s*\{[\s\S]*?release\s*\{[^}]*?signingConfig)\s+signingConfigs\.debug', r'\1 signingConfigs.release', content)
+
+# 2. Desactivar Minificación y ShrinkResources (Causantes del error R8)
+content = content.replace('minifyEnabled true', 'minifyEnabled false')
+content = content.replace('shrinkResources true', 'shrinkResources false')
+
+# 3. Forzar solo arm64-v8a
+if 'abiFilters' not in content:
+    content = re.sub(r'(defaultConfig\s*\{)', r'\1\n        ndk {\n            abiFilters \"arm64-v8a\"\n        }', content)
+
 with open(path, 'w') as f: f.write(content)
 "
-
-
-      - name: Increase Gradle Memory
-        run: |
-          cd mobile/android
-          echo 'org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m' >> gradle.properties
+          echo "=== Verificando build.gradle ==="
+          grep -A 5 "signingConfigs {" build.gradle | head -10
+          grep -A 5 "buildTypes {" build.gradle | head -10
+          grep -A 3 "ndk {" build.gradle | head -5
 
       - name: Build APK (signed)
         run: |
           cd mobile/android
           chmod +x gradlew
+          # Forzamos la arquitectura aquí también por si acaso
           ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
 
       - name: Upload Signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: IDKfree-APK-Firmada
+          name: IDKfree-APK-Firmada-ARM64
           path: mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 7
