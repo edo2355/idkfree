@@ -32,6 +32,41 @@ jobs:
           cd mobile
           npm install --legacy-peer-deps
 
+      - name R[200~cat << 'YAML' > ../.github/workflows/build-apk.yml
+name: Build Android APK (Firmada)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install dependencies
+        run: |
+          cd mobile
+          npm install --legacy-peer-deps
+
       - name: Remove dev-client package
         run: |
           cd mobile
@@ -48,21 +83,19 @@ jobs:
         run: |
           echo "$ENCODED_STRING" | tr -d ' \n\r\t' | base64 -d > mobile/android/app/idkfree-release.keystore
 
-      - name: Force Gradle Settings (Firma, Sin R8, Solo ARM64)
+      - name: Inject Signing Config into build.gradle
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           cd mobile/android/app
-          cp build.gradle build.gradle.bak
-          
           python3 -c "
-import re, os
+import re
 path = 'build.gradle'
 with open(path, 'r') as f: content = f.read()
 
-# 1. Configurar firma release
+# Inyectar bloque de firma release
 signing_block = '''
         release {
             if (System.getenv('KEYSTORE_PASSWORD') != null) {
@@ -73,34 +106,27 @@ signing_block = '''
             }
         }
 '''
-content = content.replace('signingConfigs {', 'signingConfigs {' + signing_block, 1)
-content = re.sub(r'(buildTypes\s*\{[\s\S]*?release\s*\{[^}]*?signingConfig)\s+signingConfigs\.debug', r'\1 signingConfigs.release', content)
-
-# 2. Desactivar Minificación y ShrinkResources (Causantes del error R8)
-content = content.replace('minifyEnabled true', 'minifyEnabled false')
-content = content.replace('shrinkResources true', 'shrinkResources false')
-
-# 3. Forzar solo arm64-v8a
-if 'abiFilters' not in content:
-    content = re.sub(r'(defaultConfig\s*\{)', r'\1\n        ndk {\n            abiFilters \"arm64-v8a\"\n        }', content)
+if 'idkfree-release.keystore' not in content:
+    content = content.replace('signingConfigs {', 'signingConfigs {' + signing_block, 1)
+    content = re.sub(r'(buildTypes\s*\{[\s\S]*?release\s*\{[^}]*?signingConfig)\s+signingConfigs\.debug', r'\1 signingConfigs.release', content)
 
 with open(path, 'w') as f: f.write(content)
 "
-          echo "=== Verificando build.gradle ==="
+          echo "=== Verificando firma ==="
           grep -A 5 "signingConfigs {" build.gradle | head -10
           grep -A 5 "buildTypes {" build.gradle | head -10
-          grep -A 3 "ndk {" build.gradle | head -5
 
       - name: Build APK (signed)
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=512m" # <--- 4GB de RAM para evitar OOM
         run: |
           cd mobile/android
           chmod +x gradlew
-          # Forzamos la arquitectura aquí también por si acaso
-          ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+          ./gradlew assembleRelease
 
       - name: Upload Signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: IDKfree-APK-Firmada-ARM64
+          name: IDKMedia-APK-Firmada-ARM64
           path: mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 7
