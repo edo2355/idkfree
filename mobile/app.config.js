@@ -2,16 +2,10 @@ const appJson = require('./app.json');
 
 module.exports = () => {
   const isDev = process.env.APP_VARIANT === 'development';
+  const basePlugins = appJson.expo.plugins || [];
+  const devPlugins = (isDev || !process.env.CI) ? ['expo-dev-client'] : [];
 
   return {
-    plugins: [
-      "expo-router",
-      "expo-sharing",
-      "expo-splash-screen",
-      "expo-image",
-      "expo-sqlite",
-    "expo-web-browser"
-    ],
     ...appJson.expo,
     name: isDev ? 'IDKFREE DEV' : appJson.expo.name,
     slug: isDev ? 'idkfree-dev' : appJson.expo.slug,
@@ -23,9 +17,6 @@ module.exports = () => {
       ...appJson.expo.ios,
       bundleIdentifier: isDev ? 'app.idkfree.mobile.dev' : 'app.idkfree.mobile',
     },
-    plugins: [
-      ...(appJson.expo.plugins || []),
-      ...(process.env.APP_VARIANT === 'development' || !process.env.CI ? ['expo-dev-client'] : [])
-    ],
+    plugins: [...basePlugins, ...devPlugins],
   };
 };
