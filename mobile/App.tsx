@@ -4,10 +4,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { StatusBar } from 'expo-status-bar';
-import { Building2, ScanLine } from 'lucide-react-native'; // <-- Lucide
+import { Building2, ScanLine } from 'lucide-react-native';
 
+// Importación de Pantallas
+import { LoginScreen } from './src/screens/LoginScreen';
 import ScannerScreen from './src/screens/ScannerScreen';
 import OfflineVenueScreen from './src/screens/OfflineVenueScreen';
+// import { WalletScreen } from './src/screens/WalletScreen'; // Descomenta cuando la agregues a las rutas
 
 const Stack = createNativeStackNavigator();
 
@@ -45,10 +48,19 @@ export default function App() {
   return (
     <NavigationContainer theme={DarkTheme}>
       <StatusBar style="light" />
-      <Stack.Navigator screenOptions={{ headerTransparent: true, header: ({ options }) => <GlassHeader title={options.title || ''} />, animation: 'slide_from_right' }}>
+      <Stack.Navigator 
+        initialRouteName="Login" // <-- Ahora empieza en el Login
+        screenOptions={{ 
+          headerTransparent: true, 
+          header: ({ options }) => <GlassHeader title={options.title || ''} />, 
+          animation: 'slide_from_right' 
+        }}
+      >
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio', headerShown: false }} />
         <Stack.Screen name="Scanner" component={ScannerScreen} options={{ title: 'Escáner QR' }} />
         <Stack.Screen name="OfflineVenue" component={OfflineVenueScreen} options={{ title: 'Recintos Offline' }} />
+        {/* <Stack.Screen name="Wallet" component={WalletScreen} options={{ title: 'Mi Billetera' }} /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );
