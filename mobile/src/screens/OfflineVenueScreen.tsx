@@ -10,14 +10,24 @@ export default function OfflineVenueScreen() {
   const [unsynced, setUnsynced] = useState<any[]>([]);
   const { token } = useAuth();
 
+  const cargarDatos = async () => {
+    try {
+      await initDb();
+      const data = await getUnsyncedVenues();
+      setUnsynced(data);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error DB', 'No se pudo inicializar la base de datos local.');
+    }
+  };
+
   useEffect(() => {
-    initDb();
-    setUnsynced(getUnsyncedVenues());
+    cargarDatos();
   }, []);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name || !capacity) return Alert.alert('Error', 'Llena todos los campos');
-    
+
     const venue = {
       id: Date.now().toString(),
       name,
@@ -32,17 +42,25 @@ export default function OfflineVenueScreen() {
       ]
     };
 
-    saveVenueOffline(venue);
-    setUnsynced(getUnsyncedVenues());
-    setName(''); setCapacity('');
-    Alert.alert('Guardado', 'Recinto guardado localmente.');
+    try {
+      await saveVenueOffline(venue);
+      await cargarDatos();
+      setName(''); setCapacity('');
+      Alert.alert('Guardado', 'Recinto guardado localmente.');
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo guardar el recinto.');
+    }
   };
 
   const handleSync = async () => {
     if (!token) return Alert.alert('Error', 'No hay sesión activa');
-    const count = await syncVenuesToCloud(token);
-    setUnsynced(getUnsyncedVenues());
-    Alert.alert('Sincronización', `Se sincronizaron ${count} recintos.`);
+    try {
+      const count = await syncVenuesToCloud(token);
+      await cargarDatos();
+      Alert.alert('Sincronización', `Se sincronizaron ${count} recintos.`);
+    } catch (error) {
+      Alert.alert('Error', 'Fallo al sincronizar con la nube.');
+    }
   };
 
   return (
@@ -51,7 +69,7 @@ export default function OfflineVenueScreen() {
       <TextInput placeholder="Nombre del recinto" value={name} onChangeText={setName} style={styles.input} />
       <TextInput placeholder="Capacidad" value={capacity} onChangeText={setCapacity} keyboardType="numeric" style={styles.input} />
       <Button title="Guardar Localmente" onPress={handleSave} />
-      
+
       <Text style={styles.subtitle}>Recintos sin sincronizar: {unsynced.length}</Text>
       <FlatList
         data={unsynced}

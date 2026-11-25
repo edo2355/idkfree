@@ -1,230 +1,159 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { api } from '../api/client';
+import { Check, Trash2, CloudUpload, Send, AtSign, Wallet, Smartphone, CreditCard } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { LinearGradient } from 'expo-linear-gradient';
+import { api } from '../api/client';
+import { GlassCard } from '../components/ui/GlassCard';
 
 type SendMethod = 'idkfree' | 'qvapay' | 'transfermovil' | 'paypal';
+
+const METHODS: { id: SendMethod; label: string; icon: any; placeholder: string }[] = [
+  { id: 'idkfree', label: 'IDKFREE', icon: AtSign, placeholder: '@usuario_idkfree' },
+  { id: 'qvapay', label: 'QvaPay', icon: Wallet, placeholder: '@usuario_qvapay' },
+  { id: 'transfermovil', label: 'Transfermóvil', icon: Smartphone, placeholder: '5XXXXXXX' },
+  { id: 'paypal', label: 'PayPal', icon: CreditCard, placeholder: 'correo@paypal.com' },
+];
 
 export function SendMoneyScreen() {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
-
+  
   const [method, setMethod] = useState<SendMethod>('idkfree');
   const [amount, setAmount] = useState('');
   const [destination, setDestination] = useState('');
-  
-  // Estados para el flujo post-envío
   const [isSent, setIsSent] = useState(false);
   const [receiptImage, setReceiptImage] = useState<string | null>(null);
 
+  const currentMethod = METHODS.find(m => m.id === method)!;
+
   async function pickImage() {
-    // Pedir permisos a la galería
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      return Alert.alert('PERMISO DENEGADO', 'Necesitamos acceso a tu galería para subir el comprobante.');
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setReceiptImage(result.assets[0].uri);
-    }
+    if (status !== 'granted') return Alert.alert('Permiso denegado', 'Necesitamos acceso a tu galería.');
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, quality: 0.8 });
+    if (!result.canceled && result.assets && result.assets.length > 0) setReceiptImage(result.assets[0].uri);
   }
 
   function handleSend() {
-    if (!amount || parseFloat(amount) <= 0) {
-      return Alert.alert('ERROR', 'Ingresa un monto válido.');
-    }
-    if (!destination) {
-      return Alert.alert('ERROR', 'Ingresa el destinatario.');
-    }
-
-    const labels: Record<SendMethod, string> = {
-      idkfree: 'otro usuario de IDKFREE',
-      qvapay: 'una cuenta QvaPay',
-      transfermovil: 'una cuenta Transfermóvil',
-      paypal: 'una cuenta PayPal',
-    };
-
-    Alert.alert(
-      'CONFIRMAR ENVÍO',
-      `¿Enviar $${amount} a ${labels[method]}?\n\nDestino: ${destination}`,
-      [
-        { text: 'CANCELAR', style: 'cancel' },
-        {
-          text: 'CONFIRMAR',
-          onPress: () => setIsSent(true) // Pasamos a la pantalla de comprobante
-        }
-      ]
-    );
+    if (!amount || parseFloat(amount) <= 0) return Alert.alert('Error', 'Ingresa un monto válido.');
+    if (!destination) return Alert.alert('Error', 'Ingresa el destinatario.');
+    Alert.alert('Confirmar Envío', `¿Enviar $${amount} a ${currentMethod.label}?\nDestino: ${destination}`, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Confirmar', onPress: () => setIsSent(true) }
+    ]);
   }
 
   async function finishTransaction() {
     try {
-      await api.post('/payments/send', {
-        provider: method,
-        amount: parseFloat(amount),
-        receiver_account: destination
-      });
-      Alert.alert('TRANSACCIÓN REGISTRADA', 'El envío ha sido guardado en el sistema. Verifica el historial.');
+      await api.post('/payments/send', { provider: method, amount: parseFloat(amount), receiver_account: destination });
+      Alert.alert('Transacción Exitosa', 'El envío ha sido registrado.');
       navigation.goBack();
-    } catch (e) {
-      Alert.alert('ERROR', 'No se pudo registrar el envío.');
-    }
+    } catch (e) { Alert.alert('Error', 'No se pudo registrar el envío.'); }
   }
 
-  const methods: { id: SendMethod; label: string; code: string; placeholder: string }[] = [
-    { id: 'idkfree', label: 'IDKFREE', code: '[ IDK ]', placeholder: '@usuario_idkfree' },
-    { id: 'qvapay', label: 'QVAPAY', code: '[ Q ]', placeholder: '@usuario_qvapay' },
-    { id: 'transfermovil', label: 'TRANSFERMÓVIL', code: '[ TM ]', placeholder: '5XXXXXXX' },
-    { id: 'paypal', label: 'PAYPAL', code: '[ P ]', placeholder: 'correo@paypal.com' },
-  ];
-
-  const currentMethod = methods.find(m => m.id === method)!;
-
-  // ==========================================
-  // VISTA 1: FORMULARIO DE ENVÍO
-  // ==========================================
-  if (!isSent) {
+  if (isSent) {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.hud}>
-          <Text style={styles.hudTitle}>[ ENVIAR DINERO ]</Text>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.hudClose}>[ X ]</Text>
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
-          <Text style={styles.description}>
-            Selecciona el método de envío y el destinatario. El monto se descontará de tu saldo IDKFREE.
-          </Text>
-
-          <View style={styles.methodsContainer}>
-            {methods.map(m => (
-              <TouchableOpacity
-                key={m.id}
-                style={[styles.methodBtn, method === m.id && styles.methodBtnActive]}
-                onPress={() => setMethod(m.id)}
-              >
-                <Text style={styles.methodCode}>{m.code}</Text>
-                <Text style={[styles.methodLabel, method === m.id && { color: '#fff' }]}>{m.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <View style={styles.formContainer}>
-            <Text style={styles.label}>MONTO A ENVIAR (USD)</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#333', backgroundColor: '#0a0a0a', paddingHorizontal: 15 }}>
-              <Text style={{ color: '#fff', fontFamily: 'monospace', fontSize: 24, marginRight: 5 }}>$</Text>
-              <TextInput
-                style={[styles.input, { borderWidth: 0, flex: 1, fontSize: 24, paddingVertical: 15 }]}
-                placeholder="0.00"
-                placeholderTextColor="#333"
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="numeric"
-              />
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.successHeader}>
+              <View style={styles.successIconWrapper}><Check size={40} color="#00E5FF" /></View>
+              <Text style={styles.successTitle}>Envío Registrado</Text>
+              <Text style={styles.successDesc}>Has enviado ${amount} a {destination}. Adjunta una captura del comprobante.</Text>
             </View>
-
-            <Text style={styles.label}>DESTINATARIO ({currentMethod.label})</Text>
-            <TextInput
-              style={styles.input}
-              placeholder={currentMethod.placeholder}
-              placeholderTextColor="#444"
-              value={destination}
-              onChangeText={setDestination}
-              autoCapitalize="none"
-              keyboardType={method === 'transfermovil' ? 'numeric' : 'default'}
-            />
-
-            <TouchableOpacity style={styles.sendBtn} onPress={handleSend}>
-              <Text style={styles.sendBtnText}>ENVIAR DINERO</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+            <GlassCard style={styles.glassPanel}>
+              <Text style={styles.label}>COMPROBANTE DE PAGO</Text>
+              {receiptImage ? (
+                <View style={{ alignItems: 'center' }}>
+                  <Image source={{ uri: receiptImage }} style={styles.receiptImage} resizeMode="contain" />
+                  <TouchableOpacity onPress={() => setReceiptImage(null)} style={styles.removeImageBtn}>
+                    <Trash2 size={16} color="#FF3B30" /><Text style={styles.removeImageText}>Eliminar Imagen</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity style={styles.uploadBtn} onPress={pickImage}>
+                  <CloudUpload size={32} color="#888" /><Text style={styles.uploadBtnText}>Subir Comprobante</Text>
+                </TouchableOpacity>
+              )}
+            </GlassCard>
+            <TouchableOpacity style={styles.primaryBtn} onPress={finishTransaction}><Text style={styles.primaryBtnText}>Finalizar</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.secondaryBtn} onPress={finishTransaction}><Text style={styles.secondaryBtnText}>Saltar por ahora</Text></TouchableOpacity>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </View>
     );
   }
 
-  // ==========================================
-  // VISTA 2: ADJUNTAR COMPROBANTE
-  // ==========================================
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.hud}>
-        <Text style={styles.hudTitle}>[ VERIFICACIÓN ]</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.hudClose}>[ X ]</Text>
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
-        <View style={styles.successIcon}>
-          <Text style={{ color: '#00E5FF', fontSize: 40 }}>✓</Text>
-        </View>
-        <Text style={styles.successTitle}>ENVÍO REGISTRADO</Text>
-        <Text style={styles.successDesc}>
-          Has enviado ${amount} a {destination}. Por favor, adjunta una captura del SMS o del comprobante de {currentMethod.label} para acelerar la verificación.
-        </Text>
-
-        <View style={styles.receiptContainer}>
-          <Text style={styles.label}>COMPROBANTE DE PAGO</Text>
-          
-          {receiptImage ? (
-            <View style={{ alignItems: 'center', marginBottom: 15 }}>
-              <Image source={{ uri: receiptImage }} style={{ width: '100%', height: 200, borderWidth: 1, borderColor: '#333' }} resizeMode="contain" />
-              <TouchableOpacity onPress={() => setReceiptImage(null)} style={{ marginTop: 10 }}>
-                <Text style={{ color: '#ff0044', fontFamily: 'monospace', fontSize: 12 }}>[ ELIMINAR IMAGEN ]</Text>
-              </TouchableOpacity>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Text style={styles.description}>Selecciona el método de envío y el destinatario.</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.methodsContainer}>
+            {METHODS.map((m) => {
+              const isActive = method === m.id;
+              const IconComp = m.icon;
+              return (
+                <TouchableOpacity key={m.id} style={[styles.methodBtn, isActive && styles.methodBtnActive]} onPress={() => setMethod(m.id)}>
+                  <IconComp size={20} color={isActive ? '#00E5FF' : '#888'} />
+                  <Text style={[styles.methodLabel, isActive && { color: '#fff' }]}>{m.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+          <GlassCard style={styles.glassPanel}>
+            <Text style={styles.label}>MONTO A ENVIAR (USD)</Text>
+            <View style={styles.amountContainer}>
+              <Text style={styles.currencySymbol}>$</Text>
+              <TextInput style={styles.amountInput} placeholder="0.00" placeholderTextColor="#444" value={amount} onChangeText={setAmount} keyboardType="numeric" />
             </View>
-          ) : (
-            <TouchableOpacity style={styles.uploadBtn} onPress={pickImage}>
-              <Text style={styles.uploadBtnText}>+ SUBIR COMPROBANTE</Text>
+            <Text style={styles.label}>DESTINATARIO ({currentMethod.label})</Text>
+            <View style={styles.inputContainer}>
+              <TextInput style={styles.textInput} placeholder={currentMethod.placeholder} placeholderTextColor="#666" value={destination} onChangeText={setDestination} autoCapitalize="none" keyboardType={method === 'transfermovil' ? 'numeric' : 'default'} />
+            </View>
+            <TouchableOpacity style={styles.sendBtnWrapper} onPress={handleSend}>
+              <LinearGradient colors={['#00E5FF', '#0055FF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.sendBtnGradient}>
+                <Text style={styles.sendBtnText}>Enviar Dinero</Text><Send size={18} color="#fff" />
+              </LinearGradient>
             </TouchableOpacity>
-          )}
-        </View>
-
-        <TouchableOpacity style={styles.sendBtn} onPress={finishTransaction}>
-          <Text style={styles.sendBtnText}>FINALIZAR</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.sendBtn, { backgroundColor: 'transparent', borderWidth: 1, borderColor: '#333', marginTop: 10 }]} onPress={finishTransaction}>
-          <Text style={[styles.sendBtnText, { color: '#666' }]}>SALTAR POR AHORA</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          </GlassCard>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  hud: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, borderBottomWidth: 1, borderBottomColor: '#222' },
-  hudTitle: { color: '#fff', fontFamily: 'monospace', fontSize: 14 },
-  hudClose: { color: '#ff0044', fontFamily: 'monospace', fontSize: 16, fontWeight: 'bold' },
-  description: { color: '#888', fontFamily: 'monospace', fontSize: 12, marginBottom: 20, lineHeight: 18 },
-  methodsContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 25, gap: 6 },
-  methodBtn: { flex: 1, alignItems: 'center', paddingVertical: 12, borderWidth: 1, borderColor: '#222' },
-  methodBtnActive: { borderColor: '#fff', backgroundColor: '#111' },
-  methodCode: { color: '#fff', fontFamily: 'monospace', fontSize: 11, fontWeight: 'bold', marginBottom: 4 },
-  methodLabel: { color: '#555', fontFamily: 'monospace', fontSize: 8 },
-  formContainer: { borderWidth: 1, borderColor: '#333', padding: 20, backgroundColor: '#0f0f0f' },
-  label: { color: '#666', fontFamily: 'monospace', fontSize: 10, letterSpacing: 1, marginBottom: 8, marginTop: 15 },
-  input: { backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: '#333', color: '#fff', padding: 15, fontFamily: 'monospace', fontSize: 14 },
-  sendBtn: { backgroundColor: '#fff', padding: 18, alignItems: 'center', marginTop: 30 },
-  sendBtnText: { color: '#000', fontFamily: 'monospace', fontWeight: 'bold', fontSize: 13, letterSpacing: 1 },
-  
-  // Estilos de la vista de comprobante
-  successIcon: { alignItems: 'center', marginBottom: 15 },
-  successTitle: { color: '#fff', fontFamily: 'monospace', fontSize: 18, textAlign: 'center', marginBottom: 10 },
-  successDesc: { color: '#888', fontFamily: 'monospace', fontSize: 12, textAlign: 'center', marginBottom: 30, lineHeight: 18 },
-  receiptContainer: { borderWidth: 1, borderColor: '#333', padding: 20, backgroundColor: '#0f0f0f' },
-  uploadBtn: { borderWidth: 1, borderColor: '#444', borderStyle: 'dashed', padding: 30, alignItems: 'center', marginTop: 10 },
-  uploadBtnText: { color: '#fff', fontFamily: 'monospace', fontSize: 14 },
+  container: { flex: 1, backgroundColor: '#050505' },
+  scrollContent: { padding: 20, paddingBottom: 40 },
+  description: { color: '#888', fontSize: 14, marginBottom: 20, lineHeight: 20 },
+  methodsContainer: { gap: 10, paddingBottom: 20 },
+  methodBtn: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', gap: 8 },
+  methodBtnActive: { backgroundColor: 'rgba(0, 229, 255, 0.1)', borderColor: '#00E5FF' },
+  methodLabel: { color: '#888', fontSize: 14, fontWeight: '600' },
+  glassPanel: { padding: 20 },
+  label: { color: '#888', fontSize: 12, fontWeight: '700', letterSpacing: 1, marginBottom: 8, marginTop: 15 },
+  amountContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  currencySymbol: { color: '#00E5FF', fontSize: 28, fontWeight: 'bold', marginRight: 8 },
+  amountInput: { flex: 1, color: '#fff', fontSize: 36, fontWeight: '800', paddingVertical: 16 },
+  inputContainer: { backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  textInput: { color: '#fff', fontSize: 16, paddingVertical: 16 },
+  sendBtnWrapper: { marginTop: 30, borderRadius: 16, overflow: 'hidden' },
+  sendBtnGradient: { flexDirection: 'row', paddingVertical: 18, alignItems: 'center', justifyContent: 'center', gap: 10 },
+  sendBtnText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: 0.5 },
+  successHeader: { alignItems: 'center', marginBottom: 30, marginTop: 20 },
+  successIconWrapper: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(0, 229, 255, 0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 16, borderWidth: 1, borderColor: 'rgba(0, 229, 255, 0.3)' },
+  successTitle: { color: '#fff', fontSize: 24, fontWeight: '800', marginBottom: 10 },
+  successDesc: { color: '#888', fontSize: 14, textAlign: 'center', lineHeight: 22, paddingHorizontal: 20 },
+  uploadBtn: { borderWidth: 1, borderColor: '#444', borderStyle: 'dashed', borderRadius: 16, padding: 30, alignItems: 'center', marginTop: 10, backgroundColor: 'rgba(255,255,255,0.02)' },
+  uploadBtnText: { color: '#888', fontSize: 14, fontWeight: '600', marginTop: 10 },
+  receiptImage: { width: '100%', height: 200, borderRadius: 12, marginTop: 10 },
+  removeImageBtn: { flexDirection: 'row', alignItems: 'center', marginTop: 12, gap: 6 },
+  removeImageText: { color: '#FF3B30', fontSize: 14, fontWeight: '600' },
+  primaryBtn: { backgroundColor: '#00E5FF', paddingVertical: 18, borderRadius: 16, alignItems: 'center', marginTop: 20 },
+  primaryBtnText: { color: '#000', fontSize: 16, fontWeight: '800' },
+  secondaryBtn: { paddingVertical: 18, alignItems: 'center', marginTop: 10 },
+  secondaryBtnText: { color: '#888', fontSize: 14, fontWeight: '600' },
 });

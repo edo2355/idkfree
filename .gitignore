@@ -17,3 +17,7 @@ Thumbs.db
 test_*.cjs
 test_*.sh
 *.bak
+*.keystore
+*.jks
+*.b64
+dist-test/

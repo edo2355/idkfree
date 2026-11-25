@@ -1,36 +1,44 @@
-import * as SQLite from 'expo-sqlite';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const db = SQLite.openDatabaseSync('idkmedia_offline.db');
+const STORAGE_KEY = '@idkmedia_offline_venues';
 
-export function initDb() {
-  db.execSync(`
-    CREATE TABLE IF NOT EXISTS local_venues (
-      id TEXT PRIMARY KEY,
-      name TEXT,
-      type TEXT,
-      country TEXT,
-      city TEXT,
-      address TEXT,
-      capacity INTEGER,
-      shape TEXT,
-      sections_json TEXT,
-      synced INTEGER DEFAULT 0
-    );
-  `);
+export async function initDb() {
+  console.log("✅ Almacenamiento local (AsyncStorage) listo.");
 }
 
-export function saveVenueOffline(venue: any) {
-  db.runSync(
-    `INSERT OR REPLACE INTO local_venues (id, name, type, country, city, address, capacity, shape, sections_json, synced)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
-    [venue.id, venue.name, venue.type, venue.country, venue.city, venue.address, venue.capacity, venue.shape, JSON.stringify(venue.sections)]
-  );
+export async function saveVenueOffline(venue: any) {
+  try {
+    const existing = await getUnsyncedVenues();
+    const newVenues = [...existing, { ...venue, synced: 0 }];
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newVenues));
+  } catch (error) {
+    console.error("Error guardando venue:", error);
+  }
 }
 
-export function getUnsyncedVenues() {
-  return db.getAllSync(`SELECT * FROM local_venues WHERE synced = 0`);
+export async function getUnsyncedVenues() {
+  try {
+    const data = await AsyncStorage.getItem(STORAGE_KEY);
+    if (data) {
+      const venues = JSON.parse(data);
+      return venues.filter((v: any) => v.synced === 0);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error leyendo venues:", error);
+    return [];
+  }
 }
 
-export function markVenueSynced(id: string) {
-  db.runSync(`UPDATE local_venues SET synced = 1 WHERE id = ?`, [id]);
+export async function markVenueSynced(id: string) {
+  try {
+    const data = await AsyncStorage.getItem(STORAGE_KEY);
+    if (data) {
+      const venues = JSON.parse(data);
+      const updated = venues.map((v: any) => v.id === id ? { ...v, synced: 1 } : v);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    }
+  } catch (error) {
+    console.error("Error marcando venue como sincronizado:", error);
+  }
 }

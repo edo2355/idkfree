@@ -1,35 +1,36 @@
 import { getUnsyncedVenues, markVenueSynced } from './offlineDb';
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://idkfree.onrender.com';
+
 export async function syncVenuesToCloud(token: string) {
-  const unsynced = getUnsyncedVenues();
-  let syncedCount = 0;
+  let count = 0;
+  
+  try {
+    // 🔥 AQUÍ ESTABA EL ERROR: Faltaba el await porque ahora es asíncrono
+    const unsynced = await getUnsyncedVenues(); 
 
-  for (const venue of unsynced) {
-    try {
-      const payload = {
-        name: venue.name,
-        type: venue.type,
-        country: venue.country,
-        city: venue.city,
-        address: venue.address,
-        capacity: venue.capacity,
-        shape: venue.shape,
-        sections: JSON.parse(venue.sections_json)
-      };
+    for (const venue of unsynced) {
+      try {
+        const response = await fetch(`${API_URL}/api/venues`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(venue)
+        });
 
-      const res = await fetch('https://idkfree.onrender.com/api/venues/full', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        markVenueSynced(venue.id);
-        syncedCount++;
+        if (response.ok) {
+          await markVenueSynced(venue.id);
+          count++;
+        }
+      } catch (err) {
+        console.error(`Error sincronizando venue ${venue.id}:`, err);
       }
-    } catch (error) {
-      console.error('Error sincronizando venue:', error);
     }
+  } catch (error) {
+    console.error("Error general en sincronización:", error);
   }
-  return syncedCount;
+
+  return count;
 }
