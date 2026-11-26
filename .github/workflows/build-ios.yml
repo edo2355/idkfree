@@ -1,35 +1,95 @@
-name: Build iOS App (Cloud Mac)
+name: Build iOS (IPA)
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Se activa manualmente desde GitHub
 
 jobs:
   build-ios:
     runs-on: macos-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
+          
       - name: Install dependencies
         run: |
-          cd ios-native
+          cd mobile
           npm install --legacy-peer-deps
-
-      - name: Setup Ruby & Cocoapods
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
-
-      - name: Build iOS (Simulator)
+          
+      - name: Prebuild iOS
         run: |
-          cd ios-native
+          cd mobile
           npx expo prebuild -p ios --clean
-          cd ios
+          
+      - name: Install Pods
+        run: |
+          cd mobile/ios
           pod install
-          xcodebuild -workspace IDKMEDIA.xcworkspace -scheme IDKMEDIA -configuration Release -sdk iphonesimulator -derivedDataPath build
+          
+      - name: Build IPA (Unsigned)
+        run: |
+          cd mobile/ios
+          xcodebuild -workspace IDKMEDIA.xcworkspace -scheme IDKMEDIA -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+          
+      - name: Package IPA
+        run: |
+          cd mobile/ios/build/Build/Products/Release-iphoneos
+          mkdir Payload
+          mv IDKMEDIA.app Payload/
+        [200~cd ~/idkfree
+
+# ==========================================
+# 1. WORKFLOW PARA IOS (Mac virtual en GitHub)
+# ==========================================
+cat << 'YAML' > .github/workflows/build-ios.yml
+name: Build iOS (IPA)
+
+on:
+  workflow_dispatch: # Se activa manualmente desde GitHub
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          
+      - name: Install dependencies
+        run: |
+          cd mobile
+          npm install --legacy-peer-deps
+          
+      - name: Prebuild iOS
+        run: |
+          cd mobile
+          npx expo prebuild -p ios --clean
+          
+      - name: Install Pods
+        run: |
+          cd mobile/ios
+          pod install
+          
+      - name: Build IPA (Unsigned)
+        run: |
+          cd mobile/ios
+          xcodebuild -workspace IDKMEDIA.xcworkspace -scheme IDKMEDIA -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+          
+      - name: Package IPA
+        run: |
+          cd mobile/ios/build/Build/Products/Release-iphoneos
+          mkdir Payload
+          mv IDKMEDIA.app Payload/
+          zip -r IDKMEDIA.ipa Payload
+          
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: IDKMEDIA-iOS-Unsigned
+          path: mobile/ios/build/Build/Products/Release-iphoneos/IDKMEDIA.ipa

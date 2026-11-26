@@ -1,0 +1,41 @@
+name: Build Desktop (Windows/Mac)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-desktop:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          
+      - name: Install Dependencies
+        run: |
+          cd desktop-windows-mac
+          npm install
+          
+      - name: Build for Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd desktop-windows-mac
+          npm run build:win
+          
+      - name: Build for Mac
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd desktop-windows-mac
+          npm run build:mac
+          
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: IDKMEDIA-Desktop-${{ matrix.os }}
+          path: desktop-windows-mac/dist/
