@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { query } from '../db/pool.js';
 import crypto from 'crypto';
 
-const WEBHOOK_URL = 'https://idkfreegetid.dpdns.org/api/payments/qvapay/webhook';
+const WEBHOOK_URL = 'https://idkfree.onrender.com/api/payments/qvapay/webhook';
 
 export async function paymentRoutes(app: FastifyInstance) {
   // ---- GUARDAR CUENTA DE COBRO ----

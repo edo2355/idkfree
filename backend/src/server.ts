@@ -1,3 +1,4 @@
+import paymentsRoutes from './routes/payments.js';
 import helmet from '@fastify/helmet';
 import { businessRoutes } from './routes/businessRoutes.js';
 import { qvapayRoutes } from './routes/qvapayRoutes.js';
@@ -43,7 +44,7 @@ import { pool, query } from './db/pool.js';
 
 const app = Fastify({ logger: true });
 
-await app.register(cors, { origin: ['http://localhost:5173', 'https://www.idkfreegetid.dpdns.org', 'https://idkfreegetid.dpdns.org'], credentials: true });
+await app.register(cors, { origin: ['http://localhost:5173', 'https://idkfree.onrender.com', 'https://www.idkfreegetid.dpdns.org', 'https://idkfreegetid.dpdns.org'], credentials: true });
 
 // 🛡️ Cabeceras de seguridad HTTP
 await app.register(helmet, {
@@ -124,6 +125,7 @@ await app.register(adminRoutes, { prefix: '/api' });
 await app.register(uploadRoutes, { prefix: '/api' });
 await app.register(kycRoutes, { prefix: '/api' });
 await app.register(qvapayRoutes, { prefix: '/api' });
+await app.register(paymentsRoutes, { prefix: '/api' });
 await app.register(ticketingRoutes, { prefix: '/api' });
 
 // Capturar tiempo de arranque para calcular uptime
@@ -171,7 +173,7 @@ setTimeout(() => {
   setInterval(cleanupFenix, 3600_000);
 }, 5 * 60_000);
 
-await await app.register(businessRoutes, { prefix: '/api' });
+await app.register(businessRoutes, { prefix: '/api' });
 
 app.listen({ port: env.port, host: '0.0.0.0' });
   console.log(`OK Aldea v2.0 escuchando en el puerto ${env.port}`);
