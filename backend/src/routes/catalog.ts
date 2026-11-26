@@ -7,7 +7,7 @@ export async function catalogRoutes(app: FastifyInstance) {
   app.get('/catalog/:userId', async (req, reply) => {
     const { userId } = req.params as any;
     try {
-      const res = await query('SELECT * FROM catalog_items WHERE user_id = ? AND status = "active" ORDER BY created_at DESC', [userId]);
+      const res = await query(`SELECT * FROM catalog_items WHERE user_id = ? AND status = 'active' ORDER BY created_at DESC`, [userId]);
       return reply.send({ items: res.rows });
     } catch (err) {
       app.log.error(err);
