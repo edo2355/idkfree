@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "IDKMEDIA",
+    "slug": "idkmedia-ios",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "idkmedia",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.idkmedia.ios",
+      "infoPlist": {
+        "NSCameraUsageDescription": "IDKMEDIA necesita acceso a tu cámara para transmitir en vivo y tomar fotos.",
+        "NSMicrophoneUsageDescription": "IDKMEDIA necesita acceso a tu micrófono para las transmisiones en vivo."
+      }
+    }
+  }
+}

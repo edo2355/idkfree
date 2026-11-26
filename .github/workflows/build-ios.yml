@@ -1,0 +1,35 @@
+name: Build iOS App (Cloud Mac)
+
+on:
+  workflow_dispatch: # Se activa manualmente desde GitHub
+
+jobs:
+  build-ios:
+    runs-on: macos-latest # GitHub nos presta un Mac con Xcode
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: |
+          cd mobile
+          npm install --legacy-peer-deps
+
+      - name: Setup Ruby & Cocoapods
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Build iOS (Unsigned for Simulator)
+        run: |
+          cd mobile
+          npx expo prebuild -p ios --clean
+          cd ios
+          pod install
+          xcodebuild -workspace IDKMEDIA.xcworkspace -scheme IDKMEDIA -configuration Release -sdk iphonesimulator -derivedDataPath build
