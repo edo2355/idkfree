@@ -34,7 +34,7 @@ export async function catalogRoutes(app: FastifyInstance) {
       await query('INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)', [orderId, buyerId, sellerId, itemId, amount, 'pending']);
 
       // 3. Marcar el item como vendido (opcional)
-      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
+      // await query('UPDATE catalog_items SET status = 'sold' WHERE id = ?', [itemId]);
 
       return reply.send({ ok: true, orderId, amount });
     } catch (err) {
@@ -81,7 +81,7 @@ export async function catalogRoutes(app: FastifyInstance) {
       await query('INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)', [orderId, buyerId, sellerId, itemId, amount, 'pending']);
 
       // 3. Marcar el item como vendido (opcional)
-      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
+      // await query('UPDATE catalog_items SET status = 'sold' WHERE id = ?', [itemId]);
 
       return reply.send({ ok: true, orderId, amount });
     } catch (err) {
@@ -127,7 +127,7 @@ export async function catalogRoutes(app: FastifyInstance) {
       await query('INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)', [orderId, buyerId, sellerId, itemId, amount, 'pending']);
 
       // 3. Marcar el item como vendido (opcional)
-      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
+      // await query('UPDATE catalog_items SET status = 'sold' WHERE id = ?', [itemId]);
 
       return reply.send({ ok: true, orderId, amount });
     } catch (err) {
@@ -171,7 +171,7 @@ export async function catalogRoutes(app: FastifyInstance) {
       await query('INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)', [orderId, buyerId, sellerId, itemId, amount, 'pending']);
 
       // 3. Marcar el item como vendido (opcional)
-      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
+      // await query('UPDATE catalog_items SET status = 'sold' WHERE id = ?', [itemId]);
 
       return reply.send({ ok: true, orderId, amount });
     } catch (err) {
@@ -203,7 +203,7 @@ export async function catalogRoutes(app: FastifyInstance) {
       await query('INSERT INTO orders (id, buyer_id, seller_id, item_id, amount, status) VALUES (?, ?, ?, ?, ?, ?)', [orderId, buyerId, sellerId, itemId, amount, 'pending']);
 
       // 3. Marcar el item como vendido (opcional)
-      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
+      // await query('UPDATE catalog_items SET status = 'sold' WHERE id = ?', [itemId]);
 
       return reply.send({ ok: true, orderId, amount });
     } catch (err) {

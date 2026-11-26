@@ -1,7 +1,6 @@
 {
   "name": "idkmedia-desktop",
   "version": "1.0.0",
-  "description": "IDKMEDIA Desktop App",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -12,9 +11,7 @@
   "build": {
     "appId": "app.idkmedia.desktop",
     "productName": "IDKMEDIA",
-    "directories": {
-      "output": "dist"
-    }
+    "directories": { "output": "dist" }
   },
   "devDependencies": {
     "electron": "^29.0.0",

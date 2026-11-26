@@ -1,11 +1,11 @@
 name: Build iOS App (Cloud Mac)
 
 on:
-  workflow_dispatch: # Se activa manualmente desde GitHub
+  workflow_dispatch:
 
 jobs:
   build-ios:
-    runs-on: macos-latest # GitHub nos presta un Mac con Xcode
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,7 +17,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd mobile
+          cd ios-native
           npm install --legacy-peer-deps
 
       - name: Setup Ruby & Cocoapods
@@ -26,9 +26,9 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      - name: Build iOS (Unsigned for Simulator)
+      - name: Build iOS (Simulator)
         run: |
-          cd mobile
+          cd ios-native
           npx expo prebuild -p ios --clean
           cd ios
           pod install

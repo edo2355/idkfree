@@ -1,0 +1,8 @@
+{
+  "name": "idkmedia-watch",
+  "version": "1.0.0",
+  "description": "IDKMEDIA Apple Watch App",
+  "scripts": {
+    "start": "echo 'WatchOS App - Requiere Xcode en Mac'"
+  }
+}

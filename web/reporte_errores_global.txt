@@ -1,0 +1,3 @@
+🔎 Ejecutando TypeScript...
+node_modules/lucide-react/dist/lucide-react.d.ts(20861,440): error TS1010: '*/' expected.
+❌ Web: Se encontraron errores (ver arriba).

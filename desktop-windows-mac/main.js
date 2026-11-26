@@ -5,7 +5,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
-    title: "IDKMEDIA",
+    title: "IDKMEDIA Desktop",
     backgroundColor: '#050505',
     webPreferences: {
       nodeIntegration: false,
@@ -13,16 +13,15 @@ function createWindow() {
     }
   });
 
-  // Carga la versión web de tu app (en producción, apuntaría a tu servidor de Render)
+  // En producción, descomenta esto para cargar tu app web real:
   // win.loadURL('https://idkfree.onrender.com'); 
   
-  // Para pruebas locales, carga un archivo HTML
+  // Para pruebas locales:
   win.loadFile('index.html');
 }
 
 app.whenReady().then(() => {
   createWindow();
-
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });

@@ -1,4 +1,4 @@
-import paymentsRoutes from './routes/payments.js';
+import { paymentsRoutes } from './routes/payments.js';
 import helmet from '@fastify/helmet';
 import { businessRoutes } from './routes/businessRoutes.js';
 import { qvapayRoutes } from './routes/qvapayRoutes.js';

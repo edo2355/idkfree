@@ -1,0 +1,26 @@
+=== AUDITORÍA INTELIGENTE IDKFREE ===
+Fecha: Thu Nov 26 16:51:19 CST 2026
+
+--- REVISANDO Backend (backend) ---
+
+--- REVISANDO Web (web) ---
+
+--- REVISANDO Mobile (mobile) ---
+
+
+--- REVISANDO ERRORES SQL (Comillas dobles) ---
+backend/src/routes/account.ts:13:      await query('UPDATE catalog_items SET status = "paused" WHERE user_id = ?', [userId]);
+backend/src/routes/catalog.ts:37:      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
+backend/src/routes/catalog.ts:84:      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
+backend/src/routes/catalog.ts:130:      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
+backend/src/routes/catalog.ts:174:      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
+backend/src/routes/catalog.ts:206:      // await query('UPDATE catalog_items SET status = "sold" WHERE id = ?', [itemId]);
+
+
+--- VERIFICANDO ARCHIVOS SENSIBLES ---
+./mobile/my-release-key.jks
+./mobile/idkfree-release.b64
+./mobile/idkfree-release.keystore
+./mobile/keystore_limpio.b64
+./mobile/test_keystore.keystore
+./keystore.b64

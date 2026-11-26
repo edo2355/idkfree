@@ -10,7 +10,7 @@ export async function accountRoutes(app: FastifyInstance) {
       await query('DELETE FROM user_credentials WHERE user_id = ?', [userId]);
       
       // Opcional: Borrar datos sensibles o desactivar publicaciones
-      await query('UPDATE catalog_items SET status = "paused" WHERE user_id = ?', [userId]);
+      await query('UPDATE catalog_items SET status = 'paused' WHERE user_id = ?', [userId]);
       
       return reply.send({ ok: true, message: 'Cuenta eliminada permanentemente (Soft Delete)' });
     } catch (err) {
