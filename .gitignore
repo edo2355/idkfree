@@ -45,3 +45,4 @@ yarn-error.log*
 *.jks
 *.b64
 keystore.b64
+docs/research-repos/
