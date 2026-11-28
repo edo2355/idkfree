@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/node": "^20.14.0",
+    "@types/node": "^26.6.10",
     "@types/nodemailer": "^6.4.14",
     "tsx": "^4.16.0",
     "typescript": "^5.5.0"
