@@ -45,6 +45,7 @@ import { TermsScreen } from './src/screens/TermsScreen';
 import { UserProfileScreen } from './src/screens/UserProfileScreen';
 import { VibesScreen } from './src/screens/VibesScreen';
 import { WalletScreen } from './src/screens/WalletScreen';
+import { TicketViewScreen } from './src/screens/TicketViewScreen';
 import { ContactScreen } from './src/screens/ContactScreen';
 import OfflineVenueScreen from './src/screens/OfflineVenueScreen';
 
