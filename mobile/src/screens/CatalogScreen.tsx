@@ -1,144 +1,247 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, ScrollView } from 'react-native';
-import { MoreVertical } from 'lucide-react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ActivityIndicator, RefreshControl } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { api } from '../api/client';
+import { Search, ShoppingBag, Star, Package, Plus } from 'lucide-react-native';
+import { Image } from 'expo-image'; // Optimizado para caché
+import { GlassCard } from '../components/ui/GlassCard';
 import { useAuthStore } from '../stores/authStore';
+import { api } from '../api/client';
+
+const CATEGORIES = ['all', 'digital', 'fisico', 'servicio'];
 
 export function CatalogScreen() {
-  const route = useRoute<any>();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
-  const { userId, alias } = route.params || { userId: 'me', alias: 'Mi Catálogo' };
-
-  const [items, setItems] = useState<any[]>([]);
+  const { token } = useAuthStore();
+  
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('Todos');
-  const currentUser = useAuthStore((s) => s.user);
-  const isMyCatalog = currentUser?.alias === alias;
+  const [refreshing, setRefreshing] = useState(false);
+  
+  const [activeTab, setActiveTab] = useState<'explore' | 'my-products'>('explore');
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
+
+  const fetchProducts = async () => {
+    try {
+      // Usamos la URL base de tu api client o la de Render
+      const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://idkfree.onrender.com/api';
+      const res = await fetch(`${API_URL}/catalog/products?category=${category}`);
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(data);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await api.get(`/catalog/${userId}`);
-        setItems(res.items || []);
-      } catch (e) {
-        console.log('Error catálogo', e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [userId]);
+    fetchProducts();
+  }, [category]);
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchProducts();
+  }, [category]);
 
-  function handleOptions(item: any) {
-    Alert.alert(
-      'OPCIONES',
-      `¿Qué deseas hacer con "${item.title}"?`,
-      [
-        { text: 'Editar', onPress: () => navigation.navigate('AddCatalogItem', { item }) },
-        { text: 'Eliminar', style: 'destructive', onPress: () => handleDelete(item.id) },
-        { text: 'Cancelar', style: 'cancel' }
-      ]
-    );
-  }
+  const filteredProducts = products.filter(p => 
+    p.title.toLowerCase().includes(search.toLowerCase())
+  );
 
-  async function handleDelete(id: string) {
-    try {
-      await api.delete(`/catalog/${id}`);
-      setItems(items.filter(i => i.id !== id));
-      Alert.alert('SISTEMA', 'Item eliminado');
-    } catch (e) {
-      Alert.alert('ERROR', 'No se pudo eliminar el item');
-    }
-  }
+  const renderProduct = ({ item }: { item: any }) => (
+    <TouchableOpacity 
+      activeOpacity={0.8} 
+      onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
+      style={styles.cardWrapper}
+    >
+      <GlassCard style={styles.card} intensity={20}>
+        {/* Imagen con Badge */}
+        <View style={styles.imageContainer}>
+          {item.image_url ? (
+            <Image 
+              source={{ uri: `https://idkfree.onrender.com${item.image_url}` }} 
+              style={styles.cardImage} 
+              contentFit="cover"
+              transition={200}
+            />
+          ) : (
+            <View style={styles.noImage}><Package size={40} color="#444" /></View>
+          )}
+          
+          <View style={styles.badgesContainer}>
+            {item.is_featured === 1 && (
+              <View style={[styles.badge, { backgroundColor: '#F59E0B' }]}>
+                <Star size={10} color="#000" />
+                <Text style={styles.badgeTextDark}>DESTACADO</Text>
+              </View>
+            )}
+            <View style={styles.badgeDark}>
+              <Text style={styles.badgeTextLight}>{item.product_type?.toUpperCase() || 'PRODUCTO'}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Información */}
+        <View style={styles.cardContent}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+            <Text style={styles.cardSeller}>@{item.seller_alias || 'vendedor'}</Text>
+          </View>
+          
+          <View style={styles.priceRow}>
+            <Text style={styles.cardPrice}>${item.price}</Text>
+            {item.discount_price && (
+              <Text style={styles.cardDiscount}>${item.discount_price}</Text>
+            )}
+          </View>
+
+          <TouchableOpacity style={styles.buyButton} onPress={() => navigation.navigate('Checkout', { productId: item.id })}>
+            <ShoppingBag size={16} color="#000" />
+            <Text style={styles.buyButtonText}>Comprar Ahora</Text>
+          </TouchableOpacity>
+        </View>
+      </GlassCard>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* HUD Superior */}
-      <View style={styles.hud}>
-        <Text style={styles.hudTitle}>[ CATALOG: {alias} ]</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.hudClose}>[ X ]</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.title}>IDK_MARKETPLACE</Text>
+          <Text style={styles.subtitle}>Descubre productos y talentos</Text>
+        </View>
+        <TouchableOpacity style={styles.addBtn}>
+          <Plus size={20} color="#000" />
         </TouchableOpacity>
       </View>
 
-      
-      {/* Barra de Categorías */}
-      <View style={{ flexDirection: 'row', padding: 10, borderBottomWidth: 1, borderBottomColor: '#222', overflow: 'hidden' }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
-          {['Todos', 'General', 'Ropa', 'Servicios', 'Electrónica'].map((cat) => (
-            <TouchableOpacity 
-              key={cat} 
-              onPress={() => setSelectedCategory(cat)}
-              style={{ borderWidth: 1, borderColor: selectedCategory === cat ? '#ffffff' : '#333', paddingHorizontal: 15, paddingVertical: 5 }}
-            >
-              <Text style={{ color: selectedCategory === cat ? '#ffffff' : '#666', fontFamily: 'monospace', fontSize: 12 }}>{cat.toUpperCase()}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+      {/* Tabs */}
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'explore' && styles.tabActive]} 
+          onPress={() => setActiveTab('explore')}
+        >
+          <Text style={[styles.tabText, activeTab === 'explore' && styles.tabTextActive]}>Explorar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'my-products' && styles.tabActive]} 
+          onPress={() => setActiveTab('my-products')}
+        >
+          <Text style={[styles.tabText, activeTab === 'my-products' && styles.tabTextActive]}>Mis Ventas</Text>
+        </TouchableOpacity>
       </View>
 
+      {/* Buscador y Filtros */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBox}>
+          <Search size={18} color="#666" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar en el catálogo..."
+            placeholderTextColor="#666"
+            value={search}
+            onChangeText={setSearch}
+          />
+        </View>
+      </View>
+
+      {/* Categorías */}
+      <View style={styles.categoriesWrapper}>
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={CATEGORIES}
+          keyExtractor={item => item}
+          contentContainerStyle={styles.categoriesList}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[styles.categoryBtn, category === item && styles.categoryBtnActive]}
+              onPress={() => setCategory(item)}
+            >
+              <Text style={[styles.categoryText, category === item && styles.categoryTextActive]}>
+                {item === 'all' ? 'Todas' : item.toUpperCase()}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+
+      {/* Lista de Productos */}
       {loading ? (
-        <ActivityIndicator size="large" color="#ffffff" style={{ marginTop: 50 }} />
+        <View style={styles.center}><ActivityIndicator size="large" color="#00E5FF" /></View>
       ) : (
         <FlatList
-          data={selectedCategory === 'Todos' ? items : items.filter(i => i.category === selectedCategory)}
-          numColumns={1}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 10, paddingBottom: 100 }}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={styles.cardImagePlaceholder}>
-                <Text style={{ color: '#333', fontFamily: 'monospace' }}>NO_IMG</Text>
-              </View>
-              <View style={[styles.cardContent, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }]}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-                  <Text style={styles.cardPrice}>{item.price} {item.currency}</Text>
-                  <Text style={styles.cardType}>[{item.type.toUpperCase()}]</Text>
-                </View>
-                {isMyCatalog && (
-                  <TouchableOpacity onPress={() => handleOptions(item)} style={{ padding: 5 }}>
-                    <MoreVertical size={20} color="#888" />
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
-          )}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>No hay items publicados.</Text>
-          }
+          data={filteredProducts}
+          keyExtractor={item => item.id.toString()}
+          renderItem={renderProduct}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#00E5FF" />}
+          ListEmptyComponent={<Text style={styles.emptyText}>No se encontraron productos.</Text>}
+          // Optimizaciones para el Itel A100C
+          initialNumToRender={4}
+          maxToRenderPerBatch={4}
+          windowSize={5}
+          removeClippedSubviews={true}
         />
-      )}
-
-      {/* Botón flotante para añadir (solo si es mi perfil) */}
-      {isMyCatalog && (
-        <TouchableOpacity 
-          style={styles.fab} 
-          onPress={() => navigation.navigate('AddCatalogItem')}
-        >
-          <Text style={styles.fabText}>+</Text>
-        </TouchableOpacity>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  hud: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, borderBottomWidth: 1, borderBottomColor: '#222' },
-  hudTitle: { color: '#ffffff', fontFamily: 'monospace', fontSize: 14 },
-  hudClose: { color: '#ff0044', fontFamily: 'monospace', fontSize: 16, fontWeight: 'bold' },
-  card: { flex: 1, margin: 5, backgroundColor: '#111', borderWidth: 1, borderColor: '#333', borderRadius: 0 },
-  cardImagePlaceholder: { height: 200, backgroundColor: '#0f0f0f', justifyContent: 'center', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#222' },
-  cardContent: { padding: 10 },
-  cardTitle: { color: '#fff', fontFamily: 'monospace', fontSize: 13, marginBottom: 5 },
-  cardPrice: { color: '#ffffff', fontFamily: 'monospace', fontSize: 14, fontWeight: 'bold' },
-  cardType: { color: '#666', fontFamily: 'monospace', fontSize: 10, marginTop: 5 },
-  emptyText: { color: '#666', fontFamily: 'monospace', textAlign: 'center', marginTop: 50 },
-  fab: { position: 'absolute', bottom: 30, right: 30, width: 60, height: 60, backgroundColor: '#ffffff', justifyContent: 'center', alignItems: 'center', borderRadius: 0, borderWidth: 2, borderColor: '#fff' },
-  fabText: { color: '#000', fontSize: 30, fontWeight: 'bold' }
+  container: { flex: 1, backgroundColor: '#050505' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 15 },
+  title: { color: '#fff', fontSize: 22, fontWeight: '900', letterSpacing: 1 },
+  subtitle: { color: '#888', fontSize: 13, marginTop: 4 },
+  addBtn: { backgroundColor: '#00E5FF', width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  
+  tabsContainer: { flexDirection: 'row', paddingHorizontal: 20, gap: 10, marginBottom: 15 },
+  tab: { flex: 1, paddingVertical: 10, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  tabActive: { backgroundColor: '#fff', borderColor: '#fff' },
+  tabText: { color: '#888', fontSize: 14, fontWeight: '700' },
+  tabTextActive: { color: '#000' },
+
+  searchContainer: { paddingHorizontal: 20, marginBottom: 15 },
+  searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 14, paddingHorizontal: 15, height: 48, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  searchIcon: { marginRight: 10 },
+  searchInput: { flex: 1, color: '#fff', fontSize: 15 },
+
+  categoriesWrapper: { marginBottom: 15 },
+  categoriesList: { paddingHorizontal: 20, gap: 10 },
+  categoryBtn: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  categoryBtnActive: { backgroundColor: '#00E5FF', borderColor: '#00E5FF' },
+  categoryText: { color: '#888', fontSize: 12, fontWeight: '700' },
+  categoryTextActive: { color: '#000' },
+
+  listContent: { paddingHorizontal: 20, paddingBottom: 40 },
+  cardWrapper: { marginBottom: 20 },
+  card: { padding: 0, overflow: 'hidden' },
+  imageContainer: { width: '100%', height: 180, backgroundColor: '#111' },
+  cardImage: { width: '100%', height: '100%' },
+  noImage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  badgesContainer: { position: 'absolute', top: 10, left: 10, gap: 5 },
+  badge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  badgeDark: { backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
+  badgeTextDark: { color: '#000', fontSize: 10, fontWeight: '800' },
+  badgeTextLight: { color: '#fff', fontSize: 10, fontWeight: '800' },
+
+  cardContent: { padding: 16 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
+  cardTitle: { color: '#fff', fontSize: 16, fontWeight: '700', flex: 1, marginRight: 10 },
+  cardSeller: { color: '#888', fontSize: 12, fontWeight: '500' },
+  priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginBottom: 15 },
+  cardPrice: { color: '#00E5FF', fontSize: 22, fontWeight: '900' },
+  cardDiscount: { color: '#666', fontSize: 14, textDecorationLine: 'line-through' },
+  buyButton: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 12, gap: 8 },
+  buyButtonText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  emptyText: { color: '#666', textAlign: 'center', marginTop: 40, fontSize: 15 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' }
 });

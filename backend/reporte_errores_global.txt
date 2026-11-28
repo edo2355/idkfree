@@ -11,3 +11,11 @@ npm notice run 'tsc' --noEmit
 src/server.ts(1,10): error TS2724: '"./routes/payments.js"' has no exported member named 'paymentsRoutes'. Did you mean 'paymentRoutes'?
 src/server.ts(2,20): error TS2307: Cannot find module '@fastify/helmet' or its corresponding type declarations.
 ❌ Backend: Se encontraron errores (ver arriba).
+🔎 Ejecutando TypeScript...
+src/routes/account.ts(13,55): error TS1005: ',' expected.
+src/routes/account.ts(13,61): error TS1005: ',' expected.
+❌ Backend: Se encontraron errores (ver arriba).
+🔎 Ejecutando TypeScript...
+src/routes/account.ts(13,55): error TS1005: ',' expected.
+src/routes/account.ts(13,61): error TS1005: ',' expected.
+❌ Backend: Se encontraron errores (ver arriba).
